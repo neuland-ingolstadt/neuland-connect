@@ -9,6 +9,7 @@ import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageShell } from '#/components/layout/page-shell'
 import { Skeleton } from '#/components/ui/skeleton'
 import { ROUTES } from '#/lib/constants'
+import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
 import { getCurrentUserFn } from '#/server/get-current-user'
 
 export const Route = createFileRoute('/dashboard')({
@@ -78,7 +79,7 @@ function DashboardPage() {
       return
     }
 
-    if (user.attributes.githubOrgStatus === 'member') {
+    if (isGitHubInOrg(user.attributes.githubOrgStatus)) {
       return
     }
 
@@ -109,7 +110,7 @@ function DashboardPage() {
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
         <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-terminal-cyan/70">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-lightGreen">
               Dashboard
             </p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
@@ -139,6 +140,7 @@ function DashboardPage() {
               email={user.email}
               username={user.username}
               groups={user.groups}
+              accountCreatedAt={user.accountCreatedAt}
             />
           </div>
         </div>

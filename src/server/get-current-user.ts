@@ -7,6 +7,7 @@ export type CurrentUser = {
   name: string
   username: string
   groups: string[]
+  accountCreatedAt: string | null
   attributes: ReturnType<typeof parseUserAttributes>
   githubConnected: boolean
   githubOrg: string | null
@@ -53,6 +54,7 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       name: user.name || authentikUser.name,
       username: authentikUser.username,
       groups,
+      accountCreatedAt: authentikUser.date_joined ?? null,
       attributes,
       githubConnected: isGitHubConnected(attributes),
       githubOrg: serverConfig.github.org ?? null,

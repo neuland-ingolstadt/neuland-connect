@@ -17,6 +17,7 @@ export type AuthentikUserResponse = {
   username: string
   name: string
   email: string
+  date_joined?: string
   attributes: Record<string, unknown>
 }
 
@@ -73,7 +74,7 @@ export function parseUserAttributes(
 }
 
 function parseGitHubOrgStatus(value: string | null): GitHubOrgStatus | null {
-  if (value === 'invited' || value === 'member') {
+  if (value === 'invited' || value === 'member' || value === 'admin') {
     return value
   }
 

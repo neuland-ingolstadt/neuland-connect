@@ -11,7 +11,7 @@
 [![Biome](https://img.shields.io/badge/Biome-enabled-60a5fa)](https://biomejs.dev)
 [![Renovate](https://img.shields.io/badge/Renovate-enabled-1A1F6C?logo=renovatebot&logoColor=white)](https://github.com/renovatebot/renovate)
 
-Member portal for **[Neuland Ingolstadt](https://neuland-ingolstadt.de)**. Members sign in with Authentik, link their GitHub account from a dashboard, and track org onboarding progress — without Connect maintaining its own user database.
+Member portal for **[Neuland Ingolstadt](https://neuland-ingolstadt.de)**. Members sign in with Authentik, link their GitHub account from a dashboard, and track org onboarding progress - without Connect maintaining its own user database.
 
 **Production:** [connect.neuland.ing](https://connect.neuland.ing) · **Local dev:** [localhost:3000](http://localhost:3000)
 
@@ -33,12 +33,12 @@ Member portal for **[Neuland Ingolstadt](https://neuland-ingolstadt.de)**. Membe
 
 ## Features
 
-- **Authentik OIDC** — PKCE login; only Vereinsmitglieder can authenticate
-- **Member dashboard** — profile overview, GitHub connection card, four-step onboarding progress
-- **GitHub account linking** — OAuth App with `read:user` scope; connect, reconnect, and disconnect
-- **GitHub org onboarding** — optional GitHub App for org invites and membership sync
-- **Integration state in Authentik** — user attributes, not a local DB
-- **Terminal-inspired UI** — Neuland CI, dark/light theme
+- **Authentik OIDC** - PKCE login; only Vereinsmitglieder can authenticate
+- **Member dashboard** - profile overview, GitHub connection card, four-step onboarding progress
+- **GitHub account linking** - OAuth App with `read:user` scope; connect, reconnect, and disconnect
+- **GitHub org onboarding** - optional GitHub App for org invites and membership sync
+- **Integration state in Authentik** - user attributes, not a local DB
+- **Terminal-inspired UI** - Neuland CI, dark/light theme
 
 ## Architecture
 

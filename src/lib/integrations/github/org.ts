@@ -124,14 +124,19 @@ async function githubAppFetch(
 
 export type OrgMembershipState = 'active' | 'pending' | 'none'
 
-export async function getOrgMembershipState(
+export type OrgMembershipInfo = {
+  state: OrgMembershipState
+  role: 'admin' | 'member' | null
+}
+
+export async function getOrgMembershipInfo(
   username: string,
-): Promise<OrgMembershipState> {
+): Promise<OrgMembershipInfo> {
   const { org } = requireGitHubOrgConfig()
   const response = await githubAppFetch(`/orgs/${org}/memberships/${username}`)
 
   if (response.status === 404) {
-    return 'none'
+    return { state: 'none', role: null }
   }
 
   if (!response.ok) {
@@ -141,17 +146,26 @@ export async function getOrgMembershipState(
     )
   }
 
-  const data = (await response.json()) as { state?: string }
+  const data = (await response.json()) as { state?: string; role?: string }
 
   if (data.state === 'active') {
-    return 'active'
+    return {
+      state: 'active',
+      role: data.role === 'admin' ? 'admin' : 'member',
+    }
   }
 
   if (data.state === 'pending') {
-    return 'pending'
+    return { state: 'pending', role: null }
   }
 
-  return 'none'
+  return { state: 'none', role: null }
+}
+
+export async function getOrgMembershipState(
+  username: string,
+): Promise<OrgMembershipState> {
+  return (await getOrgMembershipInfo(username)).state
 }
 
 export async function isOrgMember(username: string): Promise<boolean> {

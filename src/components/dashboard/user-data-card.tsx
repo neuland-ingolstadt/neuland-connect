@@ -1,11 +1,13 @@
 import { Badge } from '#/components/ui/badge'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
+import { formatDate } from '#/lib/utils'
 
 type UserDataCardProps = {
   name: string
   email: string
   username: string
   groups: string[]
+  accountCreatedAt: string | null
 }
 
 export function UserDataCard({
@@ -13,6 +15,7 @@ export function UserDataCard({
   email,
   username,
   groups,
+  accountCreatedAt,
 }: UserDataCardProps) {
   return (
     <TerminalPanel title="Profil">
@@ -21,6 +24,12 @@ export function UserDataCard({
           <DetailItem label="Name" value={name} />
           <DetailItem label="E-Mail" value={email} />
           <DetailItem label="Benutzername" value={username} />
+          {accountCreatedAt ? (
+            <DetailItem
+              label="Konto erstellt"
+              value={formatDate(accountCreatedAt)}
+            />
+          ) : null}
         </dl>
 
         {groups.length > 0 ? (

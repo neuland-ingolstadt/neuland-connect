@@ -7,7 +7,7 @@ import { parseUserAttributes } from '#/lib/authentik/types'
 import { serverConfig } from '#/lib/config'
 import { AUTHENTIK_ATTRIBUTES, GITHUB_ORG_STATUSES } from '#/lib/constants'
 import {
-  getOrgMembershipState,
+  getOrgMembershipInfo,
   hasPendingOrgInvitation,
   inviteUserToOrg,
   resetInstallationTokenCache,
@@ -16,8 +16,16 @@ import {
 export type SyncUserOrgResult = {
   authentikUserId: string
   githubUsername: string
-  status: 'member' | 'invited' | 'skipped' | 'error'
+  status: 'member' | 'admin' | 'invited' | 'skipped' | 'error'
   error?: string
+}
+
+function activeOrgStatus(
+  role: 'admin' | 'member',
+): (typeof GITHUB_ORG_STATUSES)[keyof typeof GITHUB_ORG_STATUSES] {
+  return role === 'admin'
+    ? GITHUB_ORG_STATUSES.ADMIN
+    : GITHUB_ORG_STATUSES.MEMBER
 }
 
 export type ReconcileOrgSyncResult = {
@@ -76,19 +84,20 @@ export async function syncUserOrgStatus(
   }
 
   try {
-    const membershipState = await getOrgMembershipState(githubUsername)
+    const membership = await getOrgMembershipInfo(githubUsername)
 
-    if (membershipState === 'active') {
-      await writeOrgStatus(authentikUserId, GITHUB_ORG_STATUSES.MEMBER)
+    if (membership.state === 'active' && membership.role) {
+      const status = activeOrgStatus(membership.role)
+      await writeOrgStatus(authentikUserId, status)
       return {
         authentikUserId: userId,
         githubUsername,
-        status: 'member',
+        status: membership.role,
       }
     }
 
     if (
-      membershipState === 'pending' ||
+      membership.state === 'pending' ||
       (await hasPendingOrgInvitation(githubUsername, githubId))
     ) {
       await writeOrgStatus(authentikUserId, GITHUB_ORG_STATUSES.INVITED)
@@ -102,11 +111,13 @@ export async function syncUserOrgStatus(
     const inviteResult = await inviteUserToOrg(Number(githubId), githubUsername)
 
     if (inviteResult === 'already_member') {
-      await writeOrgStatus(authentikUserId, GITHUB_ORG_STATUSES.MEMBER)
+      const refreshedMembership = await getOrgMembershipInfo(githubUsername)
+      const role = refreshedMembership.role ?? 'member'
+      await writeOrgStatus(authentikUserId, activeOrgStatus(role))
       return {
         authentikUserId: userId,
         githubUsername,
-        status: 'member',
+        status: role,
       }
     }
 
@@ -188,7 +199,10 @@ export async function reconcileGitHubOrgMembership(): Promise<ReconcileOrgSyncRe
       continue
     }
 
-    if (attributes.githubOrgStatus === GITHUB_ORG_STATUSES.MEMBER) {
+    if (
+      attributes.githubOrgStatus === GITHUB_ORG_STATUSES.MEMBER ||
+      attributes.githubOrgStatus === GITHUB_ORG_STATUSES.ADMIN
+    ) {
       continue
     }
 
@@ -203,7 +217,9 @@ export async function reconcileGitHubOrgMembership(): Promise<ReconcileOrgSyncRe
   return {
     configured: true,
     processed: results.length,
-    members: results.filter(result => result.status === 'member').length,
+    members: results.filter(
+      result => result.status === 'member' || result.status === 'admin',
+    ).length,
     invited: results.filter(result => result.status === 'invited').length,
     skipped: results.filter(result => result.status === 'skipped').length,
     errors: results.filter(result => result.status === 'error').length,

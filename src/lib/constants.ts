@@ -30,6 +30,7 @@ export const AUTHENTIK_ATTRIBUTES = {
 export const GITHUB_ORG_STATUSES = {
   INVITED: 'invited',
   MEMBER: 'member',
+  ADMIN: 'admin',
 } as const
 
 export type GitHubOrgStatus =

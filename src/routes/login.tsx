@@ -49,7 +49,7 @@ function LoginPage() {
                 {APP_NAME}
               </h1>
               <p className="mt-2 text-sm leading-relaxed text-terminal-text/65">
-                Melde dich mit deinem Authentik-Konto an, um deine Konten zu
+                Melde dich mit deinem Neuland-Konto an, um deine Konten zu
                 verknüpfen.
               </p>
             </div>

@@ -1,4 +1,5 @@
-import { GITHUB_ORG_STATUSES } from '#/lib/constants'
+import { GITHUB_ORG_STATUSES, type GitHubOrgStatus } from '#/lib/constants'
+import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
 
 export type OnboardingStepId = 'member' | 'connected' | 'invited' | 'in-org'
 
@@ -13,17 +14,15 @@ export type OnboardingStep = {
 
 type BuildOnboardingStepsInput = {
   githubConnected: boolean
-  githubOrgStatus: 'invited' | 'member' | null
+  githubOrgStatus: GitHubOrgStatus | null
 }
 
 function resolveStepStates({
   githubConnected,
   githubOrgStatus,
 }: BuildOnboardingStepsInput) {
-  const isInvited =
-    githubOrgStatus === GITHUB_ORG_STATUSES.INVITED ||
-    githubOrgStatus === GITHUB_ORG_STATUSES.MEMBER
-  const isInOrg = githubOrgStatus === GITHUB_ORG_STATUSES.MEMBER
+  const isInOrg = isGitHubInOrg(githubOrgStatus)
+  const isInvited = githubOrgStatus === GITHUB_ORG_STATUSES.INVITED || isInOrg
 
   const completed = {
     member: true,
@@ -87,9 +86,9 @@ export function buildOnboardingSteps(
       state: states.invited,
       hint:
         input.githubOrgStatus === GITHUB_ORG_STATUSES.INVITED
-          ? 'Einladung versendet — als Nächstes in GitHub annehmen.'
-          : input.githubOrgStatus === GITHUB_ORG_STATUSES.MEMBER
-            ? 'Bereits Mitglied der Organisation.'
+          ? 'Einladung versendet - als Nächstes in GitHub annehmen.'
+          : isGitHubInOrg(input.githubOrgStatus)
+            ? 'Bereits in der Organisation.'
             : 'Folgt automatisch nach der GitHub-Verbindung.',
     },
     {
@@ -97,11 +96,13 @@ export function buildOnboardingSteps(
       label: 'Org-Zugang',
       state: states['in-org'],
       hint:
-        input.githubOrgStatus === GITHUB_ORG_STATUSES.MEMBER
-          ? 'Mitglied in der Organisation.'
-          : input.githubOrgStatus === GITHUB_ORG_STATUSES.INVITED
-            ? 'Prüf deine GitHub-Benachrichtigungen und nimm die Einladung an.'
-            : 'GitHub-Einladung annehmen.',
+        input.githubOrgStatus === GITHUB_ORG_STATUSES.ADMIN
+          ? 'Admin in der Organisation.'
+          : input.githubOrgStatus === GITHUB_ORG_STATUSES.MEMBER
+            ? 'Mitglied in der Organisation.'
+            : input.githubOrgStatus === GITHUB_ORG_STATUSES.INVITED
+              ? 'Prüf deine GitHub-Benachrichtigungen und nimm die Einladung an.'
+              : 'GitHub-Einladung annehmen.',
     },
   ]
 }

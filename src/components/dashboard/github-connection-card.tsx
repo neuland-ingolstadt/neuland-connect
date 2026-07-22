@@ -82,23 +82,21 @@ export function GitHubConnectionCard({
                     @{attributes.githubUsername}
                   </a>
                 ) : (
-                  'Organisation'
+                  'Teil der GitHub-Organisation werden'
                 )}
               </p>
-              <p className="mt-0.5 text-xs text-terminal-text/50">
+              <p className="mt-0.5 text-xs leading-relaxed text-terminal-text/50">
                 {connected
                   ? 'Verbunden für Org-Zugang'
-                  : 'Einmal verbinden, dann automatisch einladen'}
+                  : 'Verbinde, um eingeladen zu werden.'}
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {connected ? (
+          {connected ? (
+            <div className="flex flex-wrap gap-2">
               <Badge variant={orgStatus.variant}>{orgStatus.label}</Badge>
-            ) : (
-              <Badge variant="muted">Offen</Badge>
-            )}
-          </div>
+            </div>
+          ) : null}
         </div>
 
         {connected ? (
@@ -208,10 +206,7 @@ export function GitHubConnectionCard({
         ) : (
           <div className="border-t border-terminal-window-border pt-4">
             <Button asChild>
-              <a href={ROUTES.GITHUB_CONNECT}>
-                <GitHubIcon className="text-inherit" />
-                Mit GitHub verbinden
-              </a>
+              <a href={ROUTES.GITHUB_CONNECT}>Mit GitHub verbinden</a>
             </Button>
           </div>
         )}
