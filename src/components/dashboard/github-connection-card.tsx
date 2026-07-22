@@ -163,7 +163,7 @@ function DetailItem({ label, value }: { label: string; value: string | null }) {
         {label}
       </dt>
       <dd className="mt-0.5 font-mono text-sm text-terminal-text">
-        {value ?? '—'}
+        {value ?? '-'}
       </dd>
     </div>
   )

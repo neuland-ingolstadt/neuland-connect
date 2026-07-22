@@ -9,13 +9,13 @@ Automatische Einladung verknüpfter Mitglieder in die Neuland-GitHub-Organisatio
 | **OAuth App** | Mitglied verknüpft sein GitHub-Konto | `read:user` |
 | **GitHub App** | Connect lädt in die Org ein | Organization Members: Read & write |
 
-Die OAuth App reicht nicht für Org-Einladungen — dafür ist die GitHub App nötig.
+Die OAuth App reicht nicht für Org-Einladungen - dafür ist die GitHub App nötig.
 
 ## Ablauf
 
 ### Sofort nach Verknüpfung (OAuth)
 
-Wenn ein Mitglied GitHub verbindet, passiert **sofort** Folgendes — **ohne** Cron:
+Wenn ein Mitglied GitHub verbindet, passiert **sofort** Folgendes - **ohne** Cron:
 
 1. OAuth-Callback speichert `github_username`, `github_id`, `github_connected_at` in Authentik
 2. Direkt danach: `enqueueOrgInvite()` im Hintergrund (fire-and-forget, blockiert den Redirect nicht)
@@ -101,14 +101,14 @@ Ausgabe in `.env` mit Anführungszeichen setzen. Details: `README.md` → GitHub
 Die `GITHUB_APP_INSTALLATION_ID` steht **nicht** auf der App-Settings-Seite. Sie existiert erst nach Installation der App auf der Organisation:
 
 1. GitHub App → **Install App** → Zahnrad/Configure bei der Org
-2. URL: `.../installations/<ID>` — diese Zahl ist die Installation ID
+2. URL: `.../installations/<ID>` - diese Zahl ist die Installation ID
 
 ## Dashboard-Onboarding (4 Schritte)
 
-1. **Mitglied** — immer erledigt (Authentik gated Login)
-2. **Verknüpft** — `github_username` + `github_id` vorhanden
-3. **Eingeladen** — `github_org_status === 'invited'` (oder `member`)
-4. **Org-Zugang** — `github_org_status === 'member'`
+1. **Mitglied** - immer erledigt (Authentik gated Login)
+2. **Verknüpft** - `github_username` + `github_id` vorhanden
+3. **Eingeladen** - `github_org_status === 'invited'` (oder `member`)
+4. **Org-Zugang** - `github_org_status === 'member'`
 
 ## Code-Referenz
 
@@ -124,7 +124,7 @@ Die `GITHUB_APP_INSTALLATION_ID` steht **nicht** auf der App-Settings-Seite. Sie
 | Frage | Antwort |
 |-------|---------|
 | Sofort eingeladen? | **Ja**, direkt nach OAuth-Verknüpfung (Hintergrund) |
-| Braucht man Cron? | **Empfohlen** — Status nachziehen, Fehler retry, `invited` → `member` |
-| User aus Org entfernt? | **Nein** — weder bei Disconnect noch per Cron |
-| OAuth-Token gespeichert? | **Nein** — nur für einen API-Call beim Verknüpfen |
-| GitHub-App-Token gespeichert? | **Nein** — Installation Token wird pro Request generiert (kurz gecacht) |
+| Braucht man Cron? | **Empfohlen** - Status nachziehen, Fehler retry, `invited` → `member` |
+| User aus Org entfernt? | **Nein** - weder bei Disconnect noch per Cron |
+| OAuth-Token gespeichert? | **Nein** - nur für einen API-Call beim Verknüpfen |
+| GitHub-App-Token gespeichert? | **Nein** - Installation Token wird pro Request generiert (kurz gecacht) |

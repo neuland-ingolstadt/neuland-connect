@@ -1,22 +1,22 @@
-# Neuland Connect — Agent Guide
+# Neuland Connect - Agent Guide
 
 Internal member portal for **Neuland Ingolstadt**. Read this before making architectural or integration changes.
 
 ## Product context
 
-- **Users:** Vereinsmitglieder (members only — non-members cannot log in via Authentik)
-- **Language:** UI copy is **German** (informal „du“, professional tone — avoid slang like „Drin“)
+- **Users:** Vereinsmitglieder (members only - non-members cannot log in via Authentik)
+- **Language:** UI copy is **German** (informal „du“, professional tone - avoid slang like „Drin“)
 - **Branding:** Terminal-inspired Neuland CI (dark/light theme, `TerminalPanel`, corner accents, Noto Sans/Mono)
 - **Live URLs:** `connect.neuland.ing` (prod), `http://localhost:3000` (dev)
 
 ## Non-negotiable architecture
 
-1. **Authentik is the single source of truth** — no own user database, no local user tables
+1. **Authentik is the single source of truth** - no own user database, no local user tables
 2. **User profile data** (name, email, username) is read from Authentik; changes are done via Vorstand, not in-app
-3. **GitHub user OAuth** (`read:user` only) is for *linking* a member's GitHub identity — access tokens are **never persisted**
+3. **GitHub user OAuth** (`read:user` only) is for *linking* a member's GitHub identity - access tokens are **never persisted**
 4. **Integration state** lives in **Authentik user attributes**, not in Connect's DB
-5. **Modular integrations** under `src/lib/integrations/<name>/` — keep OAuth flows, API clients, and domain logic together
-6. **Server-only secrets** in `src/lib/config.ts` (`serverConfig`) — never import into client components
+5. **Modular integrations** under `src/lib/integrations/<name>/` - keep OAuth flows, API clients, and domain logic together
+6. **Server-only secrets** in `src/lib/config.ts` (`serverConfig`) - never import into client components
 7. **Sessions** via encrypted cookie (`src/lib/session.server.ts`), OIDC tokens stored for logout only
 
 ## Tech stack
@@ -71,10 +71,10 @@ Parse via `parseUserAttributes()` in `src/lib/authentik/types.ts`.
 
 Logic in `src/lib/integrations/github/onboarding-status.ts`, UI in `OnboardingProgress`:
 
-1. **Mitglied** — always complete when logged in (no role check; Authentik gates login)
-2. **Verknüpft** — `github_username` + `github_id` present
-3. **Eingeladen** — `github_org_status === 'invited'` (or member)
-4. **Org-Zugang** — `github_org_status === 'member'`
+1. **Mitglied** - always complete when logged in (no role check; Authentik gates login)
+2. **Verknüpft** - `github_username` + `github_id` present
+3. **Eingeladen** - `github_org_status === 'invited'` (or member)
+4. **Org-Zugang** - `github_org_status === 'member'`
 
 Steps 3–4 are UI-ready; backend automation not built yet.
 
@@ -114,11 +114,11 @@ Cron / K8s CronJob (every 15–60 min)
         └─ reconcile all users with github linked but status != member
 ```
 
-**Implementation location (preferred):** stay inside Connect — no separate microservice initially.
+**Implementation location (preferred):** stay inside Connect - no separate microservice initially.
 
-- `src/lib/integrations/github/org.ts` — GitHub App auth (installation token), invite, membership check
-- `src/lib/integrations/github/sync.ts` — reconcile logic (idempotent)
-- `POST /api/internal/github-org/sync` — protected by `CRON_SECRET` header, called by CronJob
+- `src/lib/integrations/github/org.ts` - GitHub App auth (installation token), invite, membership check
+- `src/lib/integrations/github/sync.ts` - reconcile logic (idempotent)
+- `POST /api/internal/github-org/sync` - protected by `CRON_SECRET` header, called by CronJob
 
 ### New env vars (planned)
 
@@ -143,9 +143,9 @@ Keep existing `GITHUB_CLIENT_ID/SECRET` for member OAuth linking.
 ### Implementation rules
 
 - **Idempotent:** always check membership before inviting
-- **Never store** GitHub App installation tokens long-term — generate per request
-- **Do not block** the OAuth callback on invite failure — update status async
-- **Dashboard** already reads `github_org_status` — wire up writes when backend lands
+- **Never store** GitHub App installation tokens long-term - generate per request
+- **Do not block** the OAuth callback on invite failure - update status async
+- **Dashboard** already reads `github_org_status` - wire up writes when backend lands
 - **Disconnect policy:** decide explicitly whether disconnect removes org membership (default: don't auto-remove unless requested)
 
 ### GitHub API endpoints
@@ -180,7 +180,7 @@ bun run docker:up
 - Storing GitHub OAuth access tokens
 - Checking Authentik member roles in-app (login gate is sufficient)
 - English UI strings on user-facing pages
-- Over-long copy on dashboard — prefer compact layout (progress bar + action cards)
+- Over-long copy on dashboard - prefer compact layout (progress bar + action cards)
 - Importing `*.server.ts` modules from client code (TanStack import protection)
 - Committing `.env` or secrets
 

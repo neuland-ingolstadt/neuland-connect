@@ -120,7 +120,7 @@ export async function handleGitHubCallback(
   try {
     const accessToken = await exchangeGitHubCode(code)
     const githubUser = await fetchGitHubUser(accessToken)
-    // Token is intentionally not stored — only used for the API call above.
+    // Token is intentionally not stored - only used for the API call above.
 
     const { updateAuthentikUserAttributes } = await import(
       '#/lib/authentik/client'

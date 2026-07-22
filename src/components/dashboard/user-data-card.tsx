@@ -31,7 +31,7 @@ function DetailItem({ label, value }: { label: string; value: string }) {
         {label}
       </dt>
       <dd className="mt-0.5 break-all font-mono text-sm text-terminal-text">
-        {value || '—'}
+        {value || '-'}
       </dd>
     </div>
   )

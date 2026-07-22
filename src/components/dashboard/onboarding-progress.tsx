@@ -84,7 +84,10 @@ export function OnboardingProgress({
     }
   }, [steps])
 
-  const currentStep = steps.find(step => step.state === 'current') ?? steps[0]
+  const currentStep =
+    steps.find(step => step.state === 'current') ??
+    [...steps].reverse().find(step => step.state === 'complete') ??
+    steps[0]
 
   return (
     <div className="border border-terminal-window-border bg-terminal-window px-4 py-3 sm:px-5">

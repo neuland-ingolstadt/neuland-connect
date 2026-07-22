@@ -148,7 +148,7 @@ export function enqueueOrgInvite(
 ): void {
   if (!serverConfig.github.isOrgSyncConfigured) {
     console.warn(
-      '[github-org] GitHub App not configured — org invite skipped for',
+      '[github-org] GitHub App not configured - org invite skipped for',
       githubUsername,
     )
     return

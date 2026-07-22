@@ -11,7 +11,7 @@
 [![Biome](https://img.shields.io/badge/Biome-enabled-60a5fa)](https://biomejs.dev)
 [![Renovate](https://img.shields.io/badge/Renovate-enabled-1A1F6C?logo=renovatebot&logoColor=white)](https://github.com/renovatebot/renovate)
 
-Member portal for **[Neuland Ingolstadt](https://neuland-ingolstadt.de)**. Members sign in with Authentik, link integrations from a dashboard, and track onboarding progress — without Connect maintaining its own user database.
+Member portal for **[Neuland Ingolstadt](https://neuland-ingolstadt.de)**. Members sign in with Authentik, link integrations from a dashboard, and track onboarding progress - without Connect maintaining its own user database.
 
 **Production:** [connect.neuland.ing](https://connect.neuland.ing) · **Local dev:** [localhost:3000](http://localhost:3000)
 
@@ -33,12 +33,12 @@ Member portal for **[Neuland Ingolstadt](https://neuland-ingolstadt.de)**. Membe
 
 ## Features
 
-- **Authentik OIDC** — PKCE login; only Vereinsmitglieder can authenticate
-- **GitHub account linking** — OAuth App with `read:user` scope
-- **GitHub org onboarding** — optional GitHub App for org invites and membership sync
-- **Integration state in Authentik** — user attributes, not a local DB
-- **Modular integrations** — GitHub live; Discord/Matrix scaffolded for later
-- **Terminal-inspired UI** — Neuland CI, dark/light theme, compact dashboard
+- **Authentik OIDC** - PKCE login; only Vereinsmitglieder can authenticate
+- **GitHub account linking** - OAuth App with `read:user` scope
+- **GitHub org onboarding** - optional GitHub App for org invites and membership sync
+- **Integration state in Authentik** - user attributes, not a local DB
+- **Modular integrations** - GitHub live; Discord/Matrix scaffolded for later
+- **Terminal-inspired UI** - Neuland CI, dark/light theme, compact dashboard
 
 ## Architecture
 
@@ -59,11 +59,11 @@ Optional: GitHub App ──► org invites + membership reconciliation
 
 | Principle | Implementation |
 |-----------|----------------|
-| Single source of truth for users | Authentik only — no user tables in Connect |
+| Single source of truth for users | Authentik only - no user tables in Connect |
 | Integration state | Authentik user attributes (`github_username`, `github_org_status`, …) |
 | GitHub member OAuth | `read:user` only; access tokens are never persisted |
 | Org management | Separate GitHub App with `members: write` on the organization |
-| Secrets | Server-only via `src/lib/config.ts` — never imported in client code |
+| Secrets | Server-only via `src/lib/config.ts` - never imported in client code |
 
 See [AGENTS.md](./AGENTS.md) for agent/contributor conventions and [docs/github-org-sync.md](./docs/github-org-sync.md) for org-sync details.
 
@@ -85,7 +85,7 @@ The Bun version is defined in [`.bun-version`](./.bun-version). CI, Docker build
 
 ### Prerequisites
 
-- [Bun](https://bun.sh) — version from `.bun-version` (or use `bun upgrade` after cloning)
+- [Bun](https://bun.sh) - version from `.bun-version` (or use `bun upgrade` after cloning)
 - Authentik instance with a Connect OIDC application
 - GitHub OAuth App (for account linking)
 
@@ -148,8 +148,8 @@ Copy [`.env.example`](./.env.example) to `.env` (or `.env.local` for Vite). Dock
    | `github_id` | Linked GitHub numeric ID |
    | `github_connected_at` | ISO timestamp of link |
    | `github_org_status` | `invited` or `member` |
-   | `github_org_invited_at` | Optional — invite timestamp |
-   | `github_org_last_error` | Optional — support/debug |
+   | `github_org_invited_at` | Optional - invite timestamp |
+   | `github_org_last_error` | Optional - support/debug |
 
 Profile changes (name, email) are handled by the Vorstand in Authentik, not in Connect.
 
@@ -170,19 +170,19 @@ The OAuth App alone cannot invite users to an organization.
 2. **Authorization callback URL:** `{APP_URL}/api/integrations/github/callback`
 3. Requested scope: `read:user`
 
-### GitHub App (org invitations) — optional
+### GitHub App (org invitations) - optional
 
 Required only if you enable automatic org onboarding.
 
-1. **Create app** — GitHub → **Developer settings** → **GitHub Apps** → **New GitHub App**
+1. **Create app** - GitHub → **Developer settings** → **GitHub Apps** → **New GitHub App**
    - Homepage: `https://connect.neuland.ing` (or your dev URL)
    - Webhook: disabled
    - Organization permission **Members**: Read and write
    - Install only on account: `neuland-ingolstadt`
 2. **Generate a private key** and set `GITHUB_APP_PRIVATE_KEY` in `.env`
 3. **Install** the app on the organization and note:
-   - `GITHUB_APP_ID` — on the app page
-   - `GITHUB_APP_INSTALLATION_ID` — from the installation URL or `GET /app/installations`
+   - `GITHUB_APP_ID` - on the app page
+   - `GITHUB_APP_INSTALLATION_ID` - from the installation URL or `GET /app/installations`
 4. Set `GITHUB_ORG` and `CRON_SECRET`
 
 ```env
@@ -212,7 +212,7 @@ Full behaviour, edge cases, and dashboard steps: [docs/github-org-sync.md](./doc
 cp .env.example .env
 # configure .env
 
-bun run docker:up      # recommended — reads .bun-version automatically
+bun run docker:up      # recommended - reads .bun-version automatically
 # or
 bun run docker:build   # build image only
 ```

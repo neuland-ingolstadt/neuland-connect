@@ -17,7 +17,7 @@ FROM base AS runner
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Runtime configuration — set via env_file, -e, or your orchestrator at deploy time.
+# Runtime configuration - set via env_file, -e, or your orchestrator at deploy time.
 ENV APP_URL=""
 ENV SESSION_SECRET=""
 ENV AUTHENTIK_ISSUER=""
