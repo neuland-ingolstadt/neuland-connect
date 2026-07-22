@@ -5,6 +5,7 @@ export const EXTERNAL_LINKS = {
   IMPRESSUM: 'https://neuland-ingolstadt.de/legal/impressum',
   DATENSCHUTZ: 'https://neuland-ingolstadt.de/legal/datenschutz',
   REPOSITORY: 'https://github.com/neuland-ingolstadt/neuland-connect',
+  NEULAND_NEXT_GET: 'https://neuland.app/get',
 } as const
 
 export const ROUTES = {

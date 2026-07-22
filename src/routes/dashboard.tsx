@@ -2,6 +2,7 @@ import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { GitHubConnectionCard } from '#/components/dashboard/github-connection-card'
+import { MembershipCard } from '#/components/dashboard/membership-card'
 import { OnboardingProgress } from '#/components/dashboard/onboarding-progress'
 import { UserDataCard } from '#/components/dashboard/user-data-card'
 import { AppHeader } from '#/components/layout/app-header'
@@ -127,12 +128,13 @@ function DashboardPage() {
           />
 
           <div className="grid gap-5 lg:grid-cols-3">
-            <div className="lg:col-span-2">
+            <div className="space-y-5 lg:col-span-2">
               <GitHubConnectionCard
                 connected={user.githubConnected}
                 attributes={user.attributes}
                 githubOrg={user.githubOrg}
               />
+              <MembershipCard />
             </div>
 
             <UserDataCard
@@ -163,7 +165,10 @@ function DashboardSkeleton() {
         <Skeleton className="mb-6 h-10 w-48 bg-terminal-window-border" />
         <Skeleton className="mb-5 h-16 bg-terminal-window-border" />
         <div className="grid gap-5 lg:grid-cols-3">
-          <Skeleton className="h-52 bg-terminal-window-border lg:col-span-2" />
+          <div className="space-y-5 lg:col-span-2">
+            <Skeleton className="h-52 bg-terminal-window-border" />
+            <Skeleton className="h-52 bg-terminal-window-border" />
+          </div>
           <Skeleton className="h-52 bg-terminal-window-border" />
         </div>
       </main>
