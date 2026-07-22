@@ -1,6 +1,7 @@
 # Neuland Connect
 
 [![CI](https://github.com/neuland-ingolstadt/neuland-connect/actions/workflows/ci.yml/badge.svg)](https://github.com/neuland-ingolstadt/neuland-connect/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/neuland-ingolstadt/neuland-connect/actions/workflows/codeql.yml/badge.svg)](https://github.com/neuland-ingolstadt/neuland-connect/actions/workflows/codeql.yml)
 [![Docker](https://github.com/neuland-ingolstadt/neuland-connect/actions/workflows/build-docker.yml/badge.svg)](https://github.com/neuland-ingolstadt/neuland-connect/actions/workflows/build-docker.yml)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fconnect.neuland.ing&label=connect.neuland.ing)](https://connect.neuland.ing)
 [![Bun](https://img.shields.io/badge/Bun-1.3.14-black?logo=bun&logoColor=white)](https://bun.sh)
