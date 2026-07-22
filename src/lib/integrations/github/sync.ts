@@ -38,6 +38,26 @@ export type ReconcileOrgSyncResult = {
   results: SyncUserOrgResult[]
 }
 
+function shouldReconcileOrgStatus(
+  githubOrgStatus: ReturnType<typeof parseUserAttributes>['githubOrgStatus'],
+): boolean {
+  return (
+    githubOrgStatus !== GITHUB_ORG_STATUSES.MEMBER &&
+    githubOrgStatus !== GITHUB_ORG_STATUSES.ADMIN
+  )
+}
+
+async function clearOrphanedGitHubOrgAttributes(
+  authentikUserId: string | number,
+): Promise<void> {
+  await patchAuthentikUserAttributes(authentikUserId, {
+    remove: [
+      AUTHENTIK_ATTRIBUTES.GITHUB_ORG_STATUS,
+      AUTHENTIK_ATTRIBUTES.GITHUB_ORG_INVITED_AT,
+      AUTHENTIK_ATTRIBUTES.GITHUB_ORG_LAST_ERROR,
+    ],
+  })
+}
 async function writeOrgStatus(
   authentikUserId: string | number,
   status: (typeof GITHUB_ORG_STATUSES)[keyof typeof GITHUB_ORG_STATUSES],
@@ -195,21 +215,32 @@ export async function reconcileGitHubOrgMembership(): Promise<ReconcileOrgSyncRe
 
   for (const user of users) {
     const attributes = parseUserAttributes(user.attributes)
-    if (!attributes.githubUsername || !attributes.githubId) {
+    const authentikUserId = getAuthentikApiUserId(user)
+    const hasGitHubConnection = Boolean(
+      attributes.githubUsername && attributes.githubId,
+    )
+
+    if (!hasGitHubConnection) {
+      if (attributes.githubOrgStatus) {
+        await clearOrphanedGitHubOrgAttributes(authentikUserId)
+      }
       continue
     }
 
-    if (
-      attributes.githubOrgStatus === GITHUB_ORG_STATUSES.MEMBER ||
-      attributes.githubOrgStatus === GITHUB_ORG_STATUSES.ADMIN
-    ) {
+    if (!shouldReconcileOrgStatus(attributes.githubOrgStatus)) {
+      continue
+    }
+
+    const githubUsername = attributes.githubUsername
+    const githubId = attributes.githubId
+    if (!githubUsername || !githubId) {
       continue
     }
 
     const result = await syncUserOrgStatus(
-      getAuthentikApiUserId(user),
-      attributes.githubUsername,
-      attributes.githubId,
+      authentikUserId,
+      githubUsername,
+      githubId,
     )
     results.push(result)
   }

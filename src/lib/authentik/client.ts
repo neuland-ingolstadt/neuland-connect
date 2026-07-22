@@ -18,6 +18,29 @@ class AuthentikApiError extends Error {
   }
 }
 
+const attributeWriteLocks = new Map<string, Promise<unknown>>()
+
+async function withAuthentikUserAttributeLock<T>(
+  userId: string | number,
+  operation: () => Promise<T>,
+): Promise<T> {
+  const key = String(userId)
+  const previous = attributeWriteLocks.get(key) ?? Promise.resolve()
+  const current = previous.then(operation, operation)
+  attributeWriteLocks.set(
+    key,
+    current.catch(() => undefined),
+  )
+
+  try {
+    return await current
+  } finally {
+    if (attributeWriteLocks.get(key) === current) {
+      attributeWriteLocks.delete(key)
+    }
+  }
+}
+
 async function authentikFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${serverConfig.authentik.apiUrl}${path}`, {
     ...init,
@@ -123,23 +146,25 @@ export async function updateAuthentikUserAttributes(
   userId: string | number,
   attributes: Record<string, string>,
 ): Promise<AuthentikUserResponse> {
-  const currentUser = await getAuthentikUser(userId)
+  return withAuthentikUserAttributeLock(userId, async () => {
+    const currentUser = await getAuthentikUser(userId)
 
-  return authentikFetch<AuthentikUserResponse>(
-    `/api/v3/core/users/${encodeUserId(userId)}/`,
-    {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        attributes: {
-          ...currentUser.attributes,
-          ...attributes,
+    return authentikFetch<AuthentikUserResponse>(
+      `/api/v3/core/users/${encodeUserId(userId)}/`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      }),
-    },
-  )
+        body: JSON.stringify({
+          attributes: {
+            ...currentUser.attributes,
+            ...attributes,
+          },
+        }),
+      },
+    )
+  })
 }
 
 export async function patchAuthentikUserAttributes(
@@ -149,27 +174,29 @@ export async function patchAuthentikUserAttributes(
     remove?: string[]
   },
 ): Promise<AuthentikUserResponse> {
-  const currentUser = await getAuthentikUser(userId)
-  const attributes = { ...currentUser.attributes }
+  return withAuthentikUserAttributeLock(userId, async () => {
+    const currentUser = await getAuthentikUser(userId)
+    const attributes = { ...currentUser.attributes }
 
-  for (const key of options.remove ?? []) {
-    delete attributes[key]
-  }
+    for (const key of options.remove ?? []) {
+      delete attributes[key]
+    }
 
-  if (options.set) {
-    Object.assign(attributes, options.set)
-  }
+    if (options.set) {
+      Object.assign(attributes, options.set)
+    }
 
-  return authentikFetch<AuthentikUserResponse>(
-    `/api/v3/core/users/${encodeUserId(userId)}/`,
-    {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
+    return authentikFetch<AuthentikUserResponse>(
+      `/api/v3/core/users/${encodeUserId(userId)}/`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ attributes }),
       },
-      body: JSON.stringify({ attributes }),
-    },
-  )
+    )
+  })
 }
 
 export async function listAllAuthentikUsers(): Promise<
@@ -199,26 +226,28 @@ export async function listAllAuthentikUsers(): Promise<
 export async function clearGitHubUserAttributes(
   userId: string | number,
 ): Promise<AuthentikUserResponse> {
-  const currentUser = await getAuthentikUser(userId)
-  const attributes = { ...currentUser.attributes }
+  return withAuthentikUserAttributeLock(userId, async () => {
+    const currentUser = await getAuthentikUser(userId)
+    const attributes = { ...currentUser.attributes }
 
-  delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_USERNAME]
-  delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_ID]
-  delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_CONNECTED_AT]
-  delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_ORG_STATUS]
-  delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_ORG_INVITED_AT]
-  delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_ORG_LAST_ERROR]
+    delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_USERNAME]
+    delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_ID]
+    delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_CONNECTED_AT]
+    delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_ORG_STATUS]
+    delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_ORG_INVITED_AT]
+    delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_ORG_LAST_ERROR]
 
-  return authentikFetch<AuthentikUserResponse>(
-    `/api/v3/core/users/${encodeUserId(userId)}/`,
-    {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
+    return authentikFetch<AuthentikUserResponse>(
+      `/api/v3/core/users/${encodeUserId(userId)}/`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ attributes }),
       },
-      body: JSON.stringify({ attributes }),
-    },
-  )
+    )
+  })
 }
 
 export { AuthentikApiError }

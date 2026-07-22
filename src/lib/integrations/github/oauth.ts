@@ -122,24 +122,35 @@ export async function handleGitHubCallback(
     const githubUser = await fetchGitHubUser(accessToken)
     // Token is intentionally not stored - only used for the API call above.
 
-    const { updateAuthentikUserAttributes } = await import(
+    const { patchAuthentikUserAttributes } = await import(
       '#/lib/authentik/client'
     )
     const { resolveSessionAuthentikUserId } = await import(
       '#/lib/authentik/session-user'
     )
+    const { syncUserOrgStatus } = await import('#/lib/integrations/github/sync')
     const { AUTHENTIK_ATTRIBUTES } = await import('#/lib/constants')
 
     const authentikUserId = await resolveSessionAuthentikUserId(user)
 
-    await updateAuthentikUserAttributes(authentikUserId, {
-      [AUTHENTIK_ATTRIBUTES.GITHUB_USERNAME]: githubUser.login,
-      [AUTHENTIK_ATTRIBUTES.GITHUB_ID]: String(githubUser.id),
-      [AUTHENTIK_ATTRIBUTES.GITHUB_CONNECTED_AT]: new Date().toISOString(),
+    await patchAuthentikUserAttributes(authentikUserId, {
+      set: {
+        [AUTHENTIK_ATTRIBUTES.GITHUB_USERNAME]: githubUser.login,
+        [AUTHENTIK_ATTRIBUTES.GITHUB_ID]: String(githubUser.id),
+        [AUTHENTIK_ATTRIBUTES.GITHUB_CONNECTED_AT]: new Date().toISOString(),
+      },
+      remove: [
+        AUTHENTIK_ATTRIBUTES.GITHUB_ORG_STATUS,
+        AUTHENTIK_ATTRIBUTES.GITHUB_ORG_INVITED_AT,
+        AUTHENTIK_ATTRIBUTES.GITHUB_ORG_LAST_ERROR,
+      ],
     })
 
-    const { enqueueOrgInvite } = await import('#/lib/integrations/github/sync')
-    enqueueOrgInvite(authentikUserId, githubUser.login, String(githubUser.id))
+    await syncUserOrgStatus(
+      authentikUserId,
+      githubUser.login,
+      String(githubUser.id),
+    )
 
     await session.update({
       ...session.data,
