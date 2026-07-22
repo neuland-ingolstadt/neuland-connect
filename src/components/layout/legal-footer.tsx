@@ -1,0 +1,39 @@
+import { EXTERNAL_LINKS } from '#/lib/constants'
+import { cn } from '#/lib/utils'
+
+type LegalFooterProps = {
+  className?: string
+}
+
+export function LegalFooter({ className }: LegalFooterProps) {
+  return (
+    <footer
+      className={cn(
+        'border-t border-terminal-window-border/60 py-6 text-center font-mono text-xs text-terminal-text/45',
+        className,
+      )}
+    >
+      <nav className="flex items-center justify-center gap-4">
+        <a
+          href={EXTERNAL_LINKS.IMPRESSUM}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-colors hover:text-terminal-cyan"
+        >
+          Impressum
+        </a>
+        <span aria-hidden="true" className="text-terminal-window-border">
+          |
+        </span>
+        <a
+          href={EXTERNAL_LINKS.DATENSCHUTZ}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-colors hover:text-terminal-cyan"
+        >
+          Datenschutz
+        </a>
+      </nav>
+    </footer>
+  )
+}

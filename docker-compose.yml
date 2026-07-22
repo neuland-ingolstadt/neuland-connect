@@ -1,0 +1,28 @@
+services:
+  neuland-connect:
+    build:
+      context: .
+      args:
+        BUN_VERSION: ${BUN_VERSION}
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      APP_URL: ${APP_URL}
+      SESSION_SECRET: ${SESSION_SECRET}
+      AUTHENTIK_ISSUER: ${AUTHENTIK_ISSUER}
+      AUTHENTIK_CLIENT_ID: ${AUTHENTIK_CLIENT_ID}
+      AUTHENTIK_CLIENT_SECRET: ${AUTHENTIK_CLIENT_SECRET}
+      AUTHENTIK_API_URL: ${AUTHENTIK_API_URL}
+      AUTHENTIK_API_TOKEN: ${AUTHENTIK_API_TOKEN}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      GITHUB_APP_ID: ${GITHUB_APP_ID:-}
+      GITHUB_APP_PRIVATE_KEY: ${GITHUB_APP_PRIVATE_KEY:-}
+      GITHUB_APP_INSTALLATION_ID: ${GITHUB_APP_INSTALLATION_ID:-}
+      GITHUB_ORG: ${GITHUB_ORG:-}
+      CRON_SECRET: ${CRON_SECRET:-}
+    env_file:
+      - .env
+    restart: unless-stopped

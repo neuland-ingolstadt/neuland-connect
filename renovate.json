@@ -1,0 +1,80 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "customManagers:biomeVersions",
+    ":semanticCommits",
+    ":semanticCommitScope(package)",
+    "helpers:pinGitHubActionDigests",
+    "docker:pinDigests"
+  ],
+  "packageManager": "bun",
+  "npm": {
+    "enabled": false
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "package.json packageManager bun version",
+      "managerFilePatterns": ["package.json"],
+      "matchStrings": [
+        "\"packageManager\":\\s*\"bun@(?<currentValue>[^\"\\s]+)\""
+      ],
+      "datasourceTemplate": "npm",
+      "depNameTemplate": "bun",
+      "versioningTemplate": "npm"
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "matchManagers": ["bun"]
+  },
+  "packageRules": [
+    {
+      "description": "Group Biome package, schema, and bun lockfile",
+      "groupName": "biome",
+      "groupSlug": "biome",
+      "matchDepNames": ["@biomejs/biome"],
+      "matchManagers": ["bun", "custom.regex", "jsonata"]
+    },
+    {
+      "description": "Group TanStack packages",
+      "groupName": "tanstack",
+      "groupSlug": "tanstack",
+      "matchPackageNames": ["@tanstack/**"]
+    },
+    {
+      "description": "Production dependencies",
+      "groupName": "production dependencies",
+      "groupSlug": "prod",
+      "matchDepTypes": ["dependencies"],
+      "excludePackageNames": ["@biomejs/biome", "@tanstack/**"]
+    },
+    {
+      "description": "Development dependencies",
+      "groupName": "dev dependencies",
+      "groupSlug": "dev",
+      "matchDepTypes": ["devDependencies"],
+      "excludePackageNames": ["@biomejs/biome", "@tanstack/**"]
+    },
+    {
+      "description": "Docker base images",
+      "groupName": "docker",
+      "groupSlug": "docker",
+      "matchManagers": ["dockerfile"]
+    },
+    {
+      "description": "GitHub Actions",
+      "groupName": "github actions",
+      "groupSlug": "actions",
+      "matchManagers": ["github-actions"]
+    },
+    {
+      "description": "Bun runtime (.bun-version, packageManager, setup-bun)",
+      "groupName": "bun",
+      "groupSlug": "bun",
+      "matchDepNames": ["bun", "oven-sh/setup-bun"],
+      "matchManagers": ["bun-version", "custom.regex", "github-actions"]
+    }
+  ]
+}
