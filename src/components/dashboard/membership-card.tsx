@@ -1,4 +1,3 @@
-import { Download } from 'lucide-react'
 import { NeulandPalm } from '#/components/brand/neuland-palm'
 import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
@@ -48,7 +47,6 @@ export function MembershipCard() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Download />
               Neuland Next herunterladen
             </a>
           </Button>
