@@ -31,7 +31,10 @@ export const serverConfig = {
       return requireEnv('AUTHENTIK_CLIENT_SECRET')
     },
     get apiUrl() {
-      return requireEnv('AUTHENTIK_API_URL').replace(/\/$/, '')
+      // Paths in authentik/client.ts already include /api/v3/...
+      return requireEnv('AUTHENTIK_API_URL')
+        .replace(/\/$/, '')
+        .replace(/\/api\/v3$/, '')
     },
     get apiToken() {
       return requireEnv('AUTHENTIK_API_TOKEN')

@@ -35,13 +35,13 @@ function LoginPage() {
 
   return (
     <PageShell>
-      <AppHeader showDashboardLink={false} />
+      <AppHeader showDashboardLink={false} monochromeLogo />
 
       <div className="flex flex-1 items-center justify-center p-4">
         <TerminalPanel title="Authentifizierung" className="w-full max-w-md">
           <div className="space-y-6 p-6 text-center">
             <div className="mx-auto flex justify-center">
-              <NeulandPalm className="h-14 w-auto text-terminal-cyan" />
+              <NeulandPalm className="h-14 w-auto text-terminal-text" />
             </div>
 
             <div>

@@ -33,6 +33,17 @@ export function LegalFooter({ className }: LegalFooterProps) {
         >
           Datenschutz
         </a>
+        <span aria-hidden="true" className="text-terminal-window-border">
+          |
+        </span>
+        <a
+          href={EXTERNAL_LINKS.REPOSITORY}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-colors hover:text-terminal-cyan"
+        >
+          GitHub
+        </a>
       </nav>
     </footer>
   )
