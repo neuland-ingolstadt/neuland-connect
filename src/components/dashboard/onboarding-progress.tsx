@@ -165,6 +165,12 @@ export function OnboardingProgress({
               Einladung in GitHub öffnen
             </a>
           ) : null}
+          {awaitingInviteAcceptance ? (
+            <p className="font-mono text-[10px] leading-relaxed text-terminal-text/35">
+              Die Statusaktualisierung erfolgt automatisch und kann nach Annahme
+              der Einladung bis zu 20 Minuten dauern.
+            </p>
+          ) : null}
         </div>
       </div>
     </div>
