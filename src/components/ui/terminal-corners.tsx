@@ -35,13 +35,6 @@ export function TerminalCorners({
           })}
         >
           <div
-            className={cn('absolute h-px', colorClass, {
-              'top-0 left-0': corner === 'tl' || corner === 'bl',
-              'top-0 right-0': corner === 'tr' || corner === 'br',
-            })}
-            style={{ width: arm }}
-          />
-          <div
             className={cn('absolute w-px', colorClass, {
               'top-0 left-0': corner === 'tl' || corner === 'tr',
               'bottom-0 left-0': corner === 'bl',

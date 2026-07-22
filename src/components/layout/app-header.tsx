@@ -8,23 +8,15 @@ import { ROUTES } from '#/lib/constants'
 type AppHeaderProps = {
   userName?: string
   showDashboardLink?: boolean
-  monochromeLogo?: boolean
 }
 
 export function AppHeader({
   userName,
   showDashboardLink = true,
-  monochromeLogo = false,
 }: AppHeaderProps) {
   const logo = (
     <>
-      <NeulandPalm
-        className={
-          monochromeLogo
-            ? 'h-9 w-auto text-terminal-text'
-            : 'neuland-nav-logo h-9 w-auto'
-        }
-      />
+      <NeulandPalm className="h-9 w-auto text-terminal-text" />
       <div className="font-mono leading-tight">
         <span className="block text-sm font-semibold tracking-wide text-terminal-text">
           Neuland

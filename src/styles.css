@@ -194,27 +194,6 @@ h4 {
   letter-spacing: 0.02em;
 }
 
-.neuland-nav-logo {
-  color: var(--terminal-cyan);
-  transition: color 150ms;
-}
-
-.group:hover .neuland-nav-logo {
-  color: var(--terminal-highlight);
-}
-
-:root[data-theme="light"] .neuland-nav-logo,
-:root[data-theme="light"] .group:hover .neuland-nav-logo {
-  color: #000000;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme]) .neuland-nav-logo,
-  :root:not([data-theme]) .group:hover .neuland-nav-logo {
-    color: #000000;
-  }
-}
-
 .neuland-grid-bg {
   background-color: var(--ambient-background);
   background-image:

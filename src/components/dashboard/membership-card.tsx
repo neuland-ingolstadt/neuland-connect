@@ -27,7 +27,7 @@ export function MembershipCard() {
           </div>
         </div>
 
-        <ol className="space-y-2 border-t border-terminal-window-border pt-4">
+        <ol className="space-y-2">
           {SETUP_STEPS.map(item => (
             <li key={item.step} className="flex items-center gap-3">
               <span className="shrink-0 font-mono text-[10px] uppercase tracking-wider text-terminal-cyan/80">
@@ -40,7 +40,7 @@ export function MembershipCard() {
           ))}
         </ol>
 
-        <div className="border-t border-terminal-window-border pt-4">
+        <div>
           <Button asChild>
             <a
               href={EXTERNAL_LINKS.NEULAND_NEXT_GET}

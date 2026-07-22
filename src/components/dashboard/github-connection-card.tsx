@@ -100,7 +100,7 @@ export function GitHubConnectionCard({
         </div>
 
         {connected ? (
-          <div className="space-y-4 border-t border-terminal-window-border pt-4">
+          <div className="space-y-4">
             {attributes.githubOrgLastError ? (
               <div className="border border-destructive/30 bg-destructive/5 px-3 py-2.5">
                 <p className="font-mono text-[10px] uppercase tracking-wider text-destructive-foreground/70">
@@ -204,7 +204,7 @@ export function GitHubConnectionCard({
             </div>
           </div>
         ) : (
-          <div className="border-t border-terminal-window-border pt-4">
+          <div>
             <Button asChild>
               <a href={ROUTES.GITHUB_CONNECT}>Mit GitHub verbinden</a>
             </Button>

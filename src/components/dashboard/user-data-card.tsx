@@ -33,7 +33,7 @@ export function UserDataCard({
         </dl>
 
         {groups.length > 0 ? (
-          <div className="border-t border-terminal-window-border pt-4">
+          <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
               Gruppen
             </p>
@@ -47,7 +47,7 @@ export function UserDataCard({
           </div>
         ) : null}
 
-        <p className="border-t border-terminal-window-border pt-4 text-xs leading-relaxed text-terminal-text/50">
+        <p className="text-xs leading-relaxed text-terminal-text/50">
           Änderungen beim Vorstand melden.
         </p>
       </div>

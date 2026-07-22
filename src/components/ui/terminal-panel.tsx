@@ -28,7 +28,7 @@ export function TerminalPanel({
       </div>
 
       {title ? (
-        <div className="relative z-10 border-b border-terminal-window-border bg-terminal-window-title/80 px-4 py-2.5 font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/80">
+        <div className="relative z-10 bg-terminal-window-title/80 px-4 py-2.5 font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/80">
           <span className="text-terminal-cyan">//</span> {title}
           {subtitle ? (
             <span className="mt-0.5 block text-[10px] normal-case tracking-normal text-terminal-text/50">
