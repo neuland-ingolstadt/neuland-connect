@@ -38,34 +38,28 @@ export const Route = createFileRoute('/api/internal/github-org/sync')({
           return unauthorizedResponse()
         }
 
-        try {
-          const result = await reconcileGitHubOrgMembership()
-
-          return new Response(
-            JSON.stringify({
-              ok: true,
+        // Reconcile can exceed TanStack Start's 120s SSR stream lifetime when
+        // many users need GitHub API calls. Run in the background and return
+        // immediately so cron callers get a timely HTTP response.
+        void reconcileGitHubOrgMembership()
+          .then(result => {
+            console.log('[github-org] Background reconcile completed:', {
               configured: result.configured,
               processed: result.processed,
               members: result.members,
               invited: result.invited,
               skipped: result.skipped,
               errors: result.errors,
-            }),
-            {
-              status: 200,
-              headers: { 'Content-Type': 'application/json' },
-            },
-          )
-        } catch (error) {
-          const message = error instanceof Error ? error.message : 'Sync failed'
-
-          console.error('[github-org] Reconcile failed:', error)
-
-          return new Response(JSON.stringify({ error: message }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
+            })
           })
-        }
+          .catch(error => {
+            console.error('[github-org] Background reconcile failed:', error)
+          })
+
+        return new Response(JSON.stringify({ ok: true, status: 'started' }), {
+          status: 202,
+          headers: { 'Content-Type': 'application/json' },
+        })
       },
     },
   },
