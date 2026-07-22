@@ -5,6 +5,8 @@ export type GitHubUserAttributes = {
   githubId: string | null
   githubConnectedAt: string | null
   githubOrgStatus: GitHubOrgStatus | null
+  githubOrgInvitedAt: string | null
+  githubOrgLastError: string | null
 }
 
 export type UserAttributes = GitHubUserAttributes
@@ -23,6 +25,19 @@ export type AuthentikUserListResponse = {
     count: number
   }
   results: AuthentikUserResponse[]
+}
+
+export type AuthentikGroupResponse = {
+  pk: string
+  num_pk: number
+  name: string
+}
+
+export type AuthentikGroupListResponse = {
+  pagination: {
+    count: number
+  }
+  results: AuthentikGroupResponse[]
 }
 
 export type ResolveAuthentikUserInput = {
@@ -52,6 +67,8 @@ export function parseUserAttributes(
     githubOrgStatus: parseGitHubOrgStatus(
       getString(AUTHENTIK_ATTRIBUTES.GITHUB_ORG_STATUS),
     ),
+    githubOrgInvitedAt: getString(AUTHENTIK_ATTRIBUTES.GITHUB_ORG_INVITED_AT),
+    githubOrgLastError: getString(AUTHENTIK_ATTRIBUTES.GITHUB_ORG_LAST_ERROR),
   }
 }
 

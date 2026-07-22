@@ -1,4 +1,5 @@
 import type {
+  AuthentikGroupListResponse,
   AuthentikUserListResponse,
   AuthentikUserResponse,
   ResolveAuthentikUserInput,
@@ -57,6 +58,23 @@ export async function getAuthentikUser(
   return authentikFetch<AuthentikUserResponse>(
     `/api/v3/core/users/${encodeUserId(userId)}/`,
   )
+}
+
+export async function getAuthentikUserGroups(
+  userId: string | number,
+): Promise<string[]> {
+  const params = new URLSearchParams({
+    members_by_pk: String(userId),
+    page_size: '100',
+  })
+
+  const response = await authentikFetch<AuthentikGroupListResponse>(
+    `/api/v3/core/groups/?${params.toString()}`,
+  )
+
+  return response.results
+    .map(group => group.name)
+    .sort((a, b) => a.localeCompare(b, 'de'))
 }
 
 export async function resolveAuthentikUser(

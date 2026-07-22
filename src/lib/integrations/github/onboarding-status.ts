@@ -87,7 +87,7 @@ export function buildOnboardingSteps(
       state: states.invited,
       hint:
         input.githubOrgStatus === GITHUB_ORG_STATUSES.INVITED
-          ? 'Einladung versendet.'
+          ? 'Einladung versendet — als Nächstes in GitHub annehmen.'
           : input.githubOrgStatus === GITHUB_ORG_STATUSES.MEMBER
             ? 'Bereits Mitglied der Organisation.'
             : 'Folgt automatisch nach der GitHub-Verbindung.',
@@ -98,8 +98,10 @@ export function buildOnboardingSteps(
       state: states['in-org'],
       hint:
         input.githubOrgStatus === GITHUB_ORG_STATUSES.MEMBER
-          ? 'Zugang zu den Repos aktiv.'
-          : 'GitHub-Einladung annehmen.',
+          ? 'Mitglied in der Organisation.'
+          : input.githubOrgStatus === GITHUB_ORG_STATUSES.INVITED
+            ? 'Prüf deine GitHub-Benachrichtigungen und nimm die Einladung an.'
+            : 'GitHub-Einladung annehmen.',
     },
   ]
 }

@@ -20,22 +20,32 @@ import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import type { UserAttributes } from '#/lib/authentik/types'
 import { ROUTES } from '#/lib/constants'
+import {
+  getGitHubOrgStatusDisplay,
+  githubOrgInvitationUrl,
+  githubProfileUrl,
+} from '#/lib/integrations/github/org-status-display'
 import { formatDate } from '#/lib/utils'
 import { disconnectGitHubFn } from '#/server/disconnect-github'
 
 type GitHubConnectionCardProps = {
   connected: boolean
   attributes: UserAttributes
+  githubOrg: string | null
 }
 
 export function GitHubConnectionCard({
   connected,
   attributes,
+  githubOrg,
 }: GitHubConnectionCardProps) {
   const router = useRouter()
   const disconnectGitHub = useServerFn(disconnectGitHubFn)
   const [disconnectOpen, setDisconnectOpen] = useState(false)
   const [isDisconnecting, setIsDisconnecting] = useState(false)
+  const orgStatus = getGitHubOrgStatusDisplay(attributes.githubOrgStatus)
+  const showInvitationLink =
+    connected && attributes.githubOrgStatus === 'invited' && githubOrg !== null
 
   async function handleDisconnect() {
     setIsDisconnecting(true)
@@ -62,9 +72,18 @@ export function GitHubConnectionCard({
             </div>
             <div>
               <p className="font-mono text-sm font-semibold text-terminal-lightGreen">
-                {connected && attributes.githubUsername
-                  ? `@${attributes.githubUsername}`
-                  : 'Organisation'}
+                {connected && attributes.githubUsername ? (
+                  <a
+                    href={githubProfileUrl(attributes.githubUsername)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="transition-colors hover:text-terminal-cyan"
+                  >
+                    @{attributes.githubUsername}
+                  </a>
+                ) : (
+                  'Organisation'
+                )}
               </p>
               <p className="mt-0.5 text-xs text-terminal-text/50">
                 {connected
@@ -73,72 +92,117 @@ export function GitHubConnectionCard({
               </p>
             </div>
           </div>
-          <Badge variant={connected ? 'success' : 'muted'}>
-            {connected ? 'Verbunden' : 'Offen'}
-          </Badge>
+          <div className="flex flex-wrap gap-2">
+            {connected ? (
+              <Badge variant={orgStatus.variant}>{orgStatus.label}</Badge>
+            ) : (
+              <Badge variant="muted">Offen</Badge>
+            )}
+          </div>
         </div>
 
         {connected ? (
-          <div className="flex flex-col gap-4 border-t border-terminal-window-border pt-4 lg:flex-row lg:items-end lg:justify-between">
-            <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-3">
-              <DetailItem label="Username" value={attributes.githubUsername} />
-              <DetailItem label="ID" value={attributes.githubId} />
-              {attributes.githubConnectedAt ? (
-                <DetailItem
-                  label="Seit"
-                  value={formatDate(attributes.githubConnectedAt)}
-                />
-              ) : null}
-            </dl>
+          <div className="space-y-4 border-t border-terminal-window-border pt-4">
+            {attributes.githubOrgLastError ? (
+              <div className="border border-destructive/30 bg-destructive/5 px-3 py-2.5">
+                <p className="font-mono text-[10px] uppercase tracking-wider text-destructive-foreground/70">
+                  Sync-Fehler
+                </p>
+                <p className="mt-1 font-mono text-xs leading-relaxed text-terminal-text/80">
+                  {attributes.githubOrgLastError}
+                </p>
+                <p className="mt-2 text-xs text-terminal-text/50">
+                  Bei anhaltenden Problemen den Admin kontaktieren.
+                </p>
+              </div>
+            ) : null}
 
-            <div className="flex shrink-0 flex-wrap gap-2">
-              <Button variant="outline" size="sm" asChild>
-                <a href={ROUTES.GITHUB_CONNECT}>
-                  <GitHubIcon className="text-inherit" />
-                  Neu verbinden
-                </a>
-              </Button>
-              <AlertDialog
-                open={disconnectOpen}
-                onOpenChange={setDisconnectOpen}
-              >
-                <AlertDialogTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    disabled={isDisconnecting}
-                  >
-                    <Link2Off />
-                    Trennen
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      GitHub-Verbindung trennen?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Der Org-Zugang kann dabei entfallen.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel disabled={isDisconnecting}>
-                      Abbrechen
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      variant="destructive"
-                      disabled={isDisconnecting}
-                      onClick={event => {
-                        event.preventDefault()
-                        void handleDisconnect()
-                      }}
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+                <DetailItem
+                  label="Username"
+                  value={attributes.githubUsername}
+                  href={
+                    attributes.githubUsername
+                      ? githubProfileUrl(attributes.githubUsername)
+                      : undefined
+                  }
+                />
+                <DetailItem label="ID" value={attributes.githubId} />
+                {attributes.githubConnectedAt ? (
+                  <DetailItem
+                    label="Seit"
+                    value={formatDate(attributes.githubConnectedAt)}
+                  />
+                ) : null}
+                {attributes.githubOrgInvitedAt ? (
+                  <DetailItem
+                    label="Eingeladen"
+                    value={formatDate(attributes.githubOrgInvitedAt)}
+                  />
+                ) : null}
+              </dl>
+
+              <div className="flex shrink-0 flex-wrap gap-2">
+                {showInvitationLink ? (
+                  <Button variant="outline" size="sm" asChild>
+                    <a
+                      href={githubOrgInvitationUrl(githubOrg)}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      {isDisconnecting ? 'Trennen…' : 'Trennen'}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                      Einladung öffnen
+                    </a>
+                  </Button>
+                ) : null}
+                <Button variant="outline" size="sm" asChild>
+                  <a href={ROUTES.GITHUB_CONNECT}>
+                    <GitHubIcon className="text-inherit" />
+                    Neu verbinden
+                  </a>
+                </Button>
+                <AlertDialog
+                  open={disconnectOpen}
+                  onOpenChange={setDisconnectOpen}
+                >
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      disabled={isDisconnecting}
+                    >
+                      <Link2Off />
+                      Trennen
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        GitHub-Verbindung trennen?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Der Org-Zugang kann dabei entfallen.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel disabled={isDisconnecting}>
+                        Abbrechen
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        variant="destructive"
+                        disabled={isDisconnecting}
+                        onClick={event => {
+                          event.preventDefault()
+                          void handleDisconnect()
+                        }}
+                      >
+                        {isDisconnecting ? 'Trennen…' : 'Trennen'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
           </div>
         ) : (
@@ -156,14 +220,33 @@ export function GitHubConnectionCard({
   )
 }
 
-function DetailItem({ label, value }: { label: string; value: string | null }) {
+function DetailItem({
+  label,
+  value,
+  href,
+}: {
+  label: string
+  value: string | null
+  href?: string
+}) {
   return (
     <div>
       <dt className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
         {label}
       </dt>
       <dd className="mt-0.5 font-mono text-sm text-terminal-text">
-        {value ?? '-'}
+        {href && value ? (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-colors hover:text-terminal-cyan"
+          >
+            {value}
+          </a>
+        ) : (
+          (value ?? '-')
+        )}
       </dd>
     </div>
   )

@@ -6,14 +6,19 @@ export type CurrentUser = {
   email: string
   name: string
   username: string
+  groups: string[]
   attributes: ReturnType<typeof parseUserAttributes>
   githubConnected: boolean
+  githubOrg: string | null
 }
 
 export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
   async (): Promise<CurrentUser | null> => {
     const { requireSessionUser } = await import('#/lib/session.server')
-    const { getAuthentikUser } = await import('#/lib/authentik/client')
+    const { serverConfig } = await import('#/lib/config')
+    const { getAuthentikUser, getAuthentikUserGroups } = await import(
+      '#/lib/authentik/client'
+    )
     const { resolveSessionAuthentikUserId } = await import(
       '#/lib/authentik/session-user'
     )
@@ -36,7 +41,10 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       })
     }
 
-    const authentikUser = await getAuthentikUser(authentikUserId)
+    const [authentikUser, groups] = await Promise.all([
+      getAuthentikUser(authentikUserId),
+      getAuthentikUserGroups(authentikUserId).catch(() => [] as string[]),
+    ])
     const attributes = parseUserAttributes(authentikUser.attributes)
 
     return {
@@ -44,8 +52,10 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       email: user.email || authentikUser.email,
       name: user.name || authentikUser.name,
       username: authentikUser.username,
+      groups,
       attributes,
       githubConnected: isGitHubConnected(attributes),
+      githubOrg: serverConfig.github.org ?? null,
     }
   },
 )

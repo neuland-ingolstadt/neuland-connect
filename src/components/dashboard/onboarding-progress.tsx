@@ -1,11 +1,13 @@
 import { Check } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { GitHubOrgStatus } from '#/lib/constants'
+import { GITHUB_ORG_STATUSES } from '#/lib/constants'
 import {
   buildOnboardingSteps,
   type OnboardingStepId,
   type OnboardingStepState,
 } from '#/lib/integrations/github/onboarding-status'
+import { githubOrgInvitationUrl } from '#/lib/integrations/github/org-status-display'
 import { cn } from '#/lib/utils'
 
 const STEP_COMPLETE_ANIMATION_MS = 520
@@ -13,12 +15,17 @@ const STEP_COMPLETE_ANIMATION_MS = 520
 type OnboardingProgressProps = {
   githubConnected: boolean
   githubOrgStatus: GitHubOrgStatus | null
+  githubOrg: string | null
 }
 
 export function OnboardingProgress({
   githubConnected,
   githubOrgStatus,
+  githubOrg,
 }: OnboardingProgressProps) {
+  const awaitingInviteAcceptance =
+    githubOrgStatus === GITHUB_ORG_STATUSES.INVITED
+
   const steps = useMemo(
     () =>
       buildOnboardingSteps({
@@ -103,6 +110,11 @@ export function OnboardingProgress({
                   state={step.state}
                   index={index + 1}
                   animate={animatingStepIds.has(step.id)}
+                  pulse={
+                    awaitingInviteAcceptance &&
+                    step.id === 'in-org' &&
+                    step.state === 'current'
+                  }
                 />
                 <span
                   className={cn(
@@ -110,6 +122,10 @@ export function OnboardingProgress({
                     step.state === 'complete' && 'text-terminal-lightGreen',
                     step.state === 'current' && 'text-terminal-text',
                     step.state === 'upcoming' && 'text-terminal-text/40',
+                    awaitingInviteAcceptance &&
+                      step.id === 'in-org' &&
+                      step.state === 'current' &&
+                      'text-terminal-lightGreen',
                   )}
                 >
                   {step.label}
@@ -130,9 +146,26 @@ export function OnboardingProgress({
           ))}
         </ol>
 
-        <p className="shrink-0 border-t border-terminal-window-border pt-3 font-mono text-xs text-terminal-text/55 lg:max-w-xs lg:border-t-0 lg:border-l lg:pl-5 lg:pt-0">
-          {currentStep.hint}
-        </p>
+        <div
+          className={cn(
+            'shrink-0 space-y-2 border-t border-terminal-window-border pt-3 lg:max-w-xs lg:border-t-0 lg:border-l lg:pl-5 lg:pt-0',
+            awaitingInviteAcceptance && 'text-terminal-lightGreen/90',
+          )}
+        >
+          <p className="font-mono text-xs text-terminal-text/55">
+            {currentStep.hint}
+          </p>
+          {awaitingInviteAcceptance && githubOrg ? (
+            <a
+              href={githubOrgInvitationUrl(githubOrg)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-xs text-terminal-cyan transition-colors hover:text-terminal-lightGreen"
+            >
+              Einladung in GitHub öffnen
+            </a>
+          ) : null}
+        </div>
       </div>
     </div>
   )
@@ -142,10 +175,12 @@ function StepIndicator({
   state,
   index,
   animate,
+  pulse,
 }: {
   state: OnboardingStepState
   index: number
   animate: boolean
+  pulse?: boolean
 }) {
   return (
     <div
@@ -158,6 +193,7 @@ function StepIndicator({
         state === 'upcoming' &&
           'border-terminal-window-border bg-terminal-bg text-terminal-text/30',
         animate && 'onboarding-step-animate animate-onboarding-step-complete',
+        pulse && 'onboarding-step-pulse animate-onboarding-step-pulse',
       )}
     >
       {state === 'complete' ? (

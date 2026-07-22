@@ -122,6 +122,7 @@ function DashboardPage() {
           <OnboardingProgress
             githubConnected={user.githubConnected}
             githubOrgStatus={user.attributes.githubOrgStatus}
+            githubOrg={user.githubOrg}
           />
 
           <div className="grid gap-5 lg:grid-cols-3">
@@ -129,6 +130,7 @@ function DashboardPage() {
               <GitHubConnectionCard
                 connected={user.githubConnected}
                 attributes={user.attributes}
+                githubOrg={user.githubOrg}
               />
             </div>
 
@@ -136,6 +138,7 @@ function DashboardPage() {
               name={user.name}
               email={user.email}
               username={user.username}
+              groups={user.groups}
             />
           </div>
         </div>
