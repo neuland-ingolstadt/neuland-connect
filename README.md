@@ -6,7 +6,7 @@
 [![Bun](https://img.shields.io/badge/Bun-1.3.14-black?logo=bun&logoColor=white)](https://bun.sh)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
 [![TanStack Start](https://img.shields.io/badge/TanStack_Start-latest-FF4154?logo=react&logoColor=white)](https://tanstack.com/start)
-[![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Biome](https://img.shields.io/badge/Biome-enabled-60a5fa)](https://biomejs.dev)
 [![Renovate](https://img.shields.io/badge/Renovate-enabled-1A1F6C?logo=renovatebot&logoColor=white)](https://github.com/renovatebot/renovate)
 

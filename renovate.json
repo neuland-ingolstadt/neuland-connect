@@ -8,7 +8,6 @@
     "helpers:pinGitHubActionDigests",
     "docker:pinDigests"
   ],
-  "packageManager": "bun",
   "npm": {
     "enabled": false
   },
@@ -26,8 +25,7 @@
     }
   ],
   "lockFileMaintenance": {
-    "enabled": true,
-    "matchManagers": ["bun"]
+    "enabled": true
   },
   "packageRules": [
     {
