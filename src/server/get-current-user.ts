@@ -12,6 +12,8 @@ export type CurrentUser = {
   githubConnected: boolean
   githubOrg: string | null
   teamSyncEnabled: boolean
+  /** Authentik child groups under GITHUB_TEAM_PARENT_GROUP the user belongs to */
+  githubTeamCount: number
 }
 
 export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
@@ -53,6 +55,7 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
 
     const teamParentGroup = serverConfig.github.teamParentGroup
     const hiddenGroups = new Set<string>()
+    let githubTeamCount = 0
     if (teamParentGroup) {
       hiddenGroups.add(teamParentGroup)
       try {
@@ -60,6 +63,7 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
         for (const groupName of managedMap.keys()) {
           hiddenGroups.add(groupName)
         }
+        githubTeamCount = groups.filter(group => managedMap.has(group)).length
       } catch {
         // Profile still works if team mapping is temporarily unavailable.
       }
@@ -81,6 +85,7 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       githubConnected: isGitHubConnected(attributes),
       githubOrg: serverConfig.github.org ?? null,
       teamSyncEnabled: serverConfig.github.isTeamSyncConfigured,
+      githubTeamCount,
     }
   },
 )

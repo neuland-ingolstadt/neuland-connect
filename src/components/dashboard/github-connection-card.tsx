@@ -34,6 +34,7 @@ type GitHubConnectionCardProps = {
   attributes: UserAttributes
   githubOrg: string | null
   teamSyncEnabled: boolean
+  githubTeamCount: number
 }
 
 export function GitHubConnectionCard({
@@ -41,6 +42,7 @@ export function GitHubConnectionCard({
   attributes,
   githubOrg,
   teamSyncEnabled,
+  githubTeamCount,
 }: GitHubConnectionCardProps) {
   const router = useRouter()
   const disconnectGitHub = useServerFn(disconnectGitHubFn)
@@ -164,7 +166,7 @@ export function GitHubConnectionCard({
                     : undefined
                 }
               />
-              <DetailItem label="ID" value={attributes.githubId} />
+              <DetailItem label="Teams" value={String(githubTeamCount)} />
               {attributes.githubConnectedAt ? (
                 <DetailItem
                   label="Seit"
