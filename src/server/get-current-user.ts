@@ -11,15 +11,18 @@ export type CurrentUser = {
   attributes: ReturnType<typeof parseUserAttributes>
   githubConnected: boolean
   githubOrg: string | null
+  teamSyncEnabled: boolean
 }
 
 export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
   async (): Promise<CurrentUser | null> => {
     const { requireSessionUser } = await import('#/lib/session.server')
     const { serverConfig } = await import('#/lib/config')
-    const { getAuthentikUser, getAuthentikUserGroups } = await import(
-      '#/lib/authentik/client'
-    )
+    const {
+      getAuthentikUser,
+      getAuthentikUserGroups,
+      getManagedGitHubTeamMap,
+    } = await import('#/lib/authentik/client')
     const { resolveSessionAuthentikUserId } = await import(
       '#/lib/authentik/session-user'
     )
@@ -48,16 +51,36 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
     ])
     const attributes = parseUserAttributes(authentikUser.attributes)
 
+    const teamParentGroup = serverConfig.github.teamParentGroup
+    const hiddenGroups = new Set<string>()
+    if (teamParentGroup) {
+      hiddenGroups.add(teamParentGroup)
+      try {
+        const managedMap = await getManagedGitHubTeamMap(teamParentGroup)
+        for (const groupName of managedMap.keys()) {
+          hiddenGroups.add(groupName)
+        }
+      } catch {
+        // Profile still works if team mapping is temporarily unavailable.
+      }
+    }
+
+    const displayGroups =
+      hiddenGroups.size > 0
+        ? groups.filter(group => !hiddenGroups.has(group))
+        : groups
+
     return {
       sub: user.sub,
       email: user.email || authentikUser.email,
       name: user.name || authentikUser.name,
       username: authentikUser.username,
-      groups,
+      groups: displayGroups,
       accountCreatedAt: authentikUser.date_joined ?? null,
       attributes,
       githubConnected: isGitHubConnected(attributes),
       githubOrg: serverConfig.github.org ?? null,
+      teamSyncEnabled: serverConfig.github.isTeamSyncConfigured,
     }
   },
 )

@@ -66,12 +66,21 @@ export const serverConfig = {
     get org() {
       return optionalEnv('GITHUB_ORG')
     },
+    get teamParentGroup() {
+      return optionalEnv('GITHUB_TEAM_PARENT_GROUP')
+    },
     get isOrgSyncConfigured() {
       return Boolean(
         serverConfig.github.appId &&
           serverConfig.github.appPrivateKey &&
           serverConfig.github.appInstallationId &&
           serverConfig.github.org,
+      )
+    },
+    get isTeamSyncConfigured() {
+      return Boolean(
+        serverConfig.github.isOrgSyncConfigured &&
+          serverConfig.github.teamParentGroup,
       )
     },
   },

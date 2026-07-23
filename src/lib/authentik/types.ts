@@ -32,6 +32,17 @@ export type AuthentikGroupResponse = {
   pk: string
   num_pk: number
   name: string
+  attributes?: Record<string, unknown>
+  children?: string[]
+  children_obj?: AuthentikRelatedGroup[] | null
+  /** User PKs when fetched with include_users=true */
+  users?: Array<string | number>
+}
+
+export type AuthentikRelatedGroup = {
+  pk: string
+  name: string
+  attributes?: Record<string, unknown>
 }
 
 export type AuthentikGroupListResponse = {
@@ -40,6 +51,9 @@ export type AuthentikGroupListResponse = {
   }
   results: AuthentikGroupResponse[]
 }
+
+/** Authentik group name → GitHub team slug (from group attribute `github_team`) */
+export type ManagedGitHubTeamMap = Map<string, string>
 
 export type ResolveAuthentikUserInput = {
   sub: string

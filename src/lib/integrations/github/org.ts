@@ -326,6 +326,116 @@ export async function inviteUserToOrg(
   throw new Error(`GitHub org invitation failed (${response.status}): ${body}`)
 }
 
+type GitHubTeamMembership = {
+  state?: string
+  role?: string
+}
+
+/**
+ * Among `managedSlugs`, return teams where the user has an active (or pending) membership.
+ * Prefer per-team membership checks: GitHub Apps often get 404 on
+ * `GET /orgs/{org}/members/{username}/teams`.
+ */
+export async function listUserManagedTeamSlugs(
+  username: string,
+  managedSlugs: Iterable<string>,
+): Promise<string[]> {
+  const { org } = requireGitHubOrgConfig()
+  const memberships: string[] = []
+
+  for (const teamSlug of managedSlugs) {
+    const response = await githubAppFetch(
+      `/orgs/${org}/teams/${encodeURIComponent(teamSlug)}/memberships/${encodeURIComponent(username)}`,
+    )
+
+    if (response.status === 404) {
+      continue
+    }
+
+    if (!response.ok) {
+      const body = await response.text()
+      throw new Error(
+        `GitHub team membership lookup for "${teamSlug}" failed (${response.status}): ${body}`,
+      )
+    }
+
+    const data = (await response.json()) as GitHubTeamMembership
+    if (data.state === 'active' || data.state === 'pending') {
+      memberships.push(teamSlug)
+    }
+  }
+
+  return memberships
+}
+
+type GitHubTeamMember = {
+  login: string
+}
+
+/** All logins currently on a team (paginated). */
+export async function listGitHubTeamMemberLogins(
+  teamSlug: string,
+): Promise<string[]> {
+  const { org } = requireGitHubOrgConfig()
+  const members = await githubAppFetchAllPages<GitHubTeamMember>(
+    `/orgs/${org}/teams/${encodeURIComponent(teamSlug)}/members`,
+  )
+  return members.map(member => member.login).filter(Boolean)
+}
+
+export async function addUserToTeam(
+  username: string,
+  teamSlug: string,
+): Promise<void> {
+  const { org } = requireGitHubOrgConfig()
+  const response = await githubAppFetch(
+    `/orgs/${org}/teams/${encodeURIComponent(teamSlug)}/memberships/${encodeURIComponent(username)}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ role: 'member' }),
+    },
+  )
+
+  if (!response.ok) {
+    const body = await response.text()
+    throw new Error(
+      `GitHub add to team "${teamSlug}" failed (${response.status}): ${body}`,
+    )
+  }
+
+  const data = (await response.json()) as GitHubTeamMembership
+  if (data.state !== 'active' && data.state !== 'pending') {
+    throw new Error(
+      `GitHub add to team "${teamSlug}" returned unexpected state: ${data.state ?? 'unknown'}`,
+    )
+  }
+}
+
+export async function removeUserFromTeam(
+  username: string,
+  teamSlug: string,
+): Promise<void> {
+  const { org } = requireGitHubOrgConfig()
+  const response = await githubAppFetch(
+    `/orgs/${org}/teams/${encodeURIComponent(teamSlug)}/memberships/${encodeURIComponent(username)}`,
+    {
+      method: 'DELETE',
+    },
+  )
+
+  if (response.ok || response.status === 204 || response.status === 404) {
+    return
+  }
+
+  const body = await response.text()
+  throw new Error(
+    `GitHub remove from team "${teamSlug}" failed (${response.status}): ${body}`,
+  )
+}
+
 export function resetInstallationTokenCache(): void {
   cachedInstallationToken = null
 }

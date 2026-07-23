@@ -1,5 +1,6 @@
 import type {
   AuthentikGroupListResponse,
+  AuthentikGroupResponse,
   AuthentikUserListResponse,
   AuthentikUserResponse,
   ResolveAuthentikUserInput,
@@ -98,6 +99,94 @@ export async function getAuthentikUserGroups(
   return response.results
     .map(group => group.name)
     .sort((a, b) => a.localeCompare(b, 'de'))
+}
+
+function readGitHubTeamSlug(
+  attributes: Record<string, unknown> | undefined,
+): string | null {
+  const value = attributes?.[AUTHENTIK_ATTRIBUTES.GITHUB_TEAM]
+  if (typeof value === 'string' && value.length > 0) {
+    return value
+  }
+  if (Array.isArray(value) && typeof value[0] === 'string' && value[0]) {
+    return value[0]
+  }
+  return null
+}
+
+/**
+ * Loads children of the configured parent group and returns
+ * Authentik group name → GitHub team slug for every child with `github_team` set.
+ */
+export async function getManagedGitHubTeamMap(
+  parentGroupName: string,
+): Promise<Map<string, string>> {
+  const teams = await getManagedGitHubTeams(parentGroupName)
+  return new Map(teams.map(team => [team.groupName, team.slug]))
+}
+
+export type ManagedGitHubTeam = {
+  groupName: string
+  groupPk: string
+  slug: string
+  /** Authentik user PKs (numeric) that are direct members of this group */
+  memberPks: Set<string>
+}
+
+/**
+ * Managed teams under the parent, including Authentik member PKs per child group.
+ */
+export async function getManagedGitHubTeams(
+  parentGroupName: string,
+): Promise<ManagedGitHubTeam[]> {
+  const params = new URLSearchParams({
+    name: parentGroupName,
+    include_children: 'true',
+    include_users: 'false',
+    page_size: '10',
+  })
+
+  const response = await authentikFetch<AuthentikGroupListResponse>(
+    `/api/v3/core/groups/?${params.toString()}`,
+  )
+
+  const parent = response.results.find(group => group.name === parentGroupName)
+  if (!parent) {
+    throw new AuthentikApiError(
+      404,
+      `Authentik-Gruppe "${parentGroupName}" nicht gefunden.`,
+    )
+  }
+
+  const children = parent.children_obj ?? []
+  const managed: Array<{ groupName: string; groupPk: string; slug: string }> =
+    []
+
+  for (const child of children) {
+    const slug = readGitHubTeamSlug(child.attributes)
+    if (slug) {
+      managed.push({
+        groupName: child.name,
+        groupPk: child.pk,
+        slug,
+      })
+    }
+  }
+
+  return Promise.all(
+    managed.map(async team => {
+      const detail = await authentikFetch<AuthentikGroupResponse>(
+        `/api/v3/core/groups/${encodeURIComponent(team.groupPk)}/?include_users=true`,
+      )
+      const memberPks = new Set<string>(
+        (detail.users ?? []).map(userPk => String(userPk)),
+      )
+      return {
+        ...team,
+        memberPks,
+      }
+    }),
+  )
 }
 
 export async function resolveAuthentikUser(

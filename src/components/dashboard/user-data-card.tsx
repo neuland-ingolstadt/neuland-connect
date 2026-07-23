@@ -1,6 +1,10 @@
+import { useState } from 'react'
 import { Badge } from '#/components/ui/badge'
+import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import { formatDate } from '#/lib/utils'
+
+const VISIBLE_GROUP_LIMIT = 4
 
 type UserDataCardProps = {
   name: string
@@ -17,6 +21,14 @@ export function UserDataCard({
   groups,
   accountCreatedAt,
 }: UserDataCardProps) {
+  const [groupsExpanded, setGroupsExpanded] = useState(false)
+  const hasMoreGroups = groups.length > VISIBLE_GROUP_LIMIT
+  const visibleGroups =
+    groupsExpanded || !hasMoreGroups
+      ? groups
+      : groups.slice(0, VISIBLE_GROUP_LIMIT)
+  const hiddenCount = groups.length - visibleGroups.length
+
   return (
     <TerminalPanel title="Profil">
       <div className="space-y-4 p-5">
@@ -36,14 +48,32 @@ export function UserDataCard({
           <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
               Gruppen
+              <span className="ml-1 text-terminal-text/25">
+                ({groups.length})
+              </span>
             </p>
-            <ul className="mt-2 flex flex-wrap gap-2">
-              {groups.map(group => (
-                <li key={group}>
-                  <Badge variant="secondary">{group}</Badge>
+            <ul className="mt-2 flex flex-wrap gap-1.5">
+              {visibleGroups.map(group => (
+                <li key={group} className="min-w-0 max-w-full">
+                  <Badge variant="secondary" className="max-w-full truncate">
+                    {group}
+                  </Badge>
                 </li>
               ))}
             </ul>
+            {hasMoreGroups ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="mt-2 h-auto px-0 py-0 font-mono text-[11px] text-terminal-text/50 hover:bg-transparent hover:text-terminal-cyan"
+                onClick={() => setGroupsExpanded(expanded => !expanded)}
+              >
+                {groupsExpanded
+                  ? 'Weniger anzeigen'
+                  : `+${hiddenCount} weitere`}
+              </Button>
+            ) : null}
           </div>
         ) : null}
 

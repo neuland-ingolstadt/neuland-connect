@@ -133,6 +133,7 @@ function DashboardPage() {
                 connected={user.githubConnected}
                 attributes={user.attributes}
                 githubOrg={user.githubOrg}
+                teamSyncEnabled={user.teamSyncEnabled}
               />
               <MembershipCard />
             </div>

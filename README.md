@@ -131,7 +131,8 @@ Copy [`.env.example`](./.env.example) to `.env` (or `.env.local` for Vite). Dock
 | `GITHUB_APP_PRIVATE_KEY` | Org sync | PEM private key (single line with `\n` is fine) |
 | `GITHUB_APP_INSTALLATION_ID` | Org sync | App installation ID on the organization |
 | `GITHUB_ORG` | Org sync | Organization slug (e.g. `neuland-ingolstadt`) |
-| `CRON_SECRET` | Org sync | Bearer token for `POST /api/internal/github-org/sync` |
+| `GITHUB_TEAM_PARENT_GROUP` | Team sync | Authentik parent group (e.g. `github-teams`) |
+| `CRON_SECRET` | Org/team sync | Bearer token for internal cron endpoints |
 
 ## Authentik setup
 
@@ -160,7 +161,7 @@ Connect uses **two separate GitHub credentials**:
 | Credential | Used by | Permission |
 |------------|---------|------------|
 | **OAuth App** | Members linking their account | `read:user` |
-| **GitHub App** | Server-side org invites & sync | Organization members: read & write |
+| **GitHub App** | Server-side org invites, team sync | Members + Team memberships: read & write |
 
 The OAuth App alone cannot invite users to an organization.
 
@@ -178,18 +179,20 @@ Required only if you enable automatic org onboarding.
    - Homepage: `https://connect.neuland.ing` (or your dev URL)
    - Webhook: disabled
    - Organization permission **Members**: Read and write
+   - Organization permission **Team memberships**: Read and write (for team sync)
    - Install only on account: `neuland-ingolstadt`
 2. **Generate a private key** and set `GITHUB_APP_PRIVATE_KEY` in `.env`
 3. **Install** the app on the organization and note:
    - `GITHUB_APP_ID` - on the app page
    - `GITHUB_APP_INSTALLATION_ID` - from the installation URL or `GET /app/installations`
-4. Set `GITHUB_ORG` and `CRON_SECRET`
+4. Set `GITHUB_ORG`, optionally `GITHUB_TEAM_PARENT_GROUP`, and `CRON_SECRET`
 
 ```env
 GITHUB_APP_ID=123456
 GITHUB_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
 GITHUB_APP_INSTALLATION_ID=98765432
 GITHUB_ORG=neuland-ingolstadt
+GITHUB_TEAM_PARENT_GROUP=github-teams
 CRON_SECRET=your-long-random-secret
 ```
 
@@ -197,12 +200,28 @@ CRON_SECRET=your-long-random-secret
 
 1. Member links GitHub → Connect enqueues an org invite in the background (non-blocking).
 2. Authentik `github_org_status` is set to `invited` or `member`.
-3. A cron job calls the reconcile endpoint periodically:
+3. A cron job calls the reconcile endpoints periodically:
 
 ```bash
 curl -X POST https://connect.neuland.ing/api/internal/github-org/sync \
   -H "Authorization: Bearer $CRON_SECRET"
+
+curl -X POST https://connect.neuland.ing/api/internal/github-teams/sync \
+  -H "Authorization: Bearer $CRON_SECRET"
 ```
+
+### GitHub team sync (Authentik groups)
+
+Stateless full reconcile of GitHub teams from Authentik:
+
+1. Create parent group `github-teams` (name = `GITHUB_TEAM_PARENT_GROUP`).
+2. Add child groups (e.g. `Kubernetes Team`, `Backend Team`) with group attribute:
+
+```json
+{ "github_team": "kubernetes" }
+```
+
+3. Put users in the child groups. Cron or dashboard „Teams synchronisieren“ adds/removes only those managed teams.
 
 Full behaviour, edge cases, and dashboard steps: [docs/github-org-sync.md](./docs/github-org-sync.md).
 

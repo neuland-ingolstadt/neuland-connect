@@ -18,6 +18,7 @@ import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
 import { Route as ApiIntegrationsGithubCallbackRouteImport } from './routes/api/integrations/github/callback'
 import { Route as ApiIntegrationsGithubConnectRouteImport } from './routes/api/integrations/github/connect'
 import { Route as ApiInternalGithubOrgSyncRouteImport } from './routes/api/internal/github-org/sync'
+import { Route as ApiInternalGithubTeamsSyncRouteImport } from './routes/api/internal/github-teams/sync'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -67,6 +68,12 @@ const ApiInternalGithubOrgSyncRoute =
     path: '/api/internal/github-org/sync',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiInternalGithubTeamsSyncRoute =
+  ApiInternalGithubTeamsSyncRouteImport.update({
+    id: '/api/internal/github-teams/sync',
+    path: '/api/internal/github-teams/sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/api/integrations/github/callback': typeof ApiIntegrationsGithubCallbackRoute
   '/api/integrations/github/connect': typeof ApiIntegrationsGithubConnectRoute
   '/api/internal/github-org/sync': typeof ApiInternalGithubOrgSyncRoute
+  '/api/internal/github-teams/sync': typeof ApiInternalGithubTeamsSyncRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -89,6 +97,7 @@ export interface FileRoutesByTo {
   '/api/integrations/github/callback': typeof ApiIntegrationsGithubCallbackRoute
   '/api/integrations/github/connect': typeof ApiIntegrationsGithubConnectRoute
   '/api/internal/github-org/sync': typeof ApiInternalGithubOrgSyncRoute
+  '/api/internal/github-teams/sync': typeof ApiInternalGithubTeamsSyncRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -101,6 +110,7 @@ export interface FileRoutesById {
   '/api/integrations/github/callback': typeof ApiIntegrationsGithubCallbackRoute
   '/api/integrations/github/connect': typeof ApiIntegrationsGithubConnectRoute
   '/api/internal/github-org/sync': typeof ApiInternalGithubOrgSyncRoute
+  '/api/internal/github-teams/sync': typeof ApiInternalGithubTeamsSyncRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
     | '/api/integrations/github/callback'
     | '/api/integrations/github/connect'
     | '/api/internal/github-org/sync'
+    | '/api/internal/github-teams/sync'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '/api/integrations/github/callback'
     | '/api/integrations/github/connect'
     | '/api/internal/github-org/sync'
+    | '/api/internal/github-teams/sync'
   id:
     | '__root__'
     | '/'
@@ -136,6 +148,7 @@ export interface FileRouteTypes {
     | '/api/integrations/github/callback'
     | '/api/integrations/github/connect'
     | '/api/internal/github-org/sync'
+    | '/api/internal/github-teams/sync'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -148,6 +161,7 @@ export interface RootRouteChildren {
   ApiIntegrationsGithubCallbackRoute: typeof ApiIntegrationsGithubCallbackRoute
   ApiIntegrationsGithubConnectRoute: typeof ApiIntegrationsGithubConnectRoute
   ApiInternalGithubOrgSyncRoute: typeof ApiInternalGithubOrgSyncRoute
+  ApiInternalGithubTeamsSyncRoute: typeof ApiInternalGithubTeamsSyncRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -215,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInternalGithubOrgSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/internal/github-teams/sync': {
+      id: '/api/internal/github-teams/sync'
+      path: '/api/internal/github-teams/sync'
+      fullPath: '/api/internal/github-teams/sync'
+      preLoaderRoute: typeof ApiInternalGithubTeamsSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -228,6 +249,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiIntegrationsGithubCallbackRoute: ApiIntegrationsGithubCallbackRoute,
   ApiIntegrationsGithubConnectRoute: ApiIntegrationsGithubConnectRoute,
   ApiInternalGithubOrgSyncRoute: ApiInternalGithubOrgSyncRoute,
+  ApiInternalGithubTeamsSyncRoute: ApiInternalGithubTeamsSyncRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

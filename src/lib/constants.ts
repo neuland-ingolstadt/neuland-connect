@@ -26,6 +26,8 @@ export const AUTHENTIK_ATTRIBUTES = {
   GITHUB_ORG_STATUS: 'github_org_status',
   GITHUB_ORG_INVITED_AT: 'github_org_invited_at',
   GITHUB_ORG_LAST_ERROR: 'github_org_last_error',
+  /** Authentik *group* attribute: GitHub team slug for team sync */
+  GITHUB_TEAM: 'github_team',
 } as const
 
 export const GITHUB_ORG_STATUSES = {

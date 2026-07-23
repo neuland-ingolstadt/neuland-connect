@@ -1,6 +1,6 @@
 import { useRouter } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
-import { Link2Off } from 'lucide-react'
+import { Link2Off, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { GitHubIcon } from '#/components/icons/github-icon'
@@ -19,7 +19,7 @@ import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import type { UserAttributes } from '#/lib/authentik/types'
-import { ROUTES } from '#/lib/constants'
+import { GITHUB_ORG_STATUSES, ROUTES } from '#/lib/constants'
 import {
   getGitHubOrgStatusDisplay,
   githubOrgInvitationUrl,
@@ -27,25 +27,35 @@ import {
 } from '#/lib/integrations/github/org-status-display'
 import { formatDate } from '#/lib/utils'
 import { disconnectGitHubFn } from '#/server/disconnect-github'
+import { syncGitHubTeamsFn } from '#/server/sync-github-teams'
 
 type GitHubConnectionCardProps = {
   connected: boolean
   attributes: UserAttributes
   githubOrg: string | null
+  teamSyncEnabled: boolean
 }
 
 export function GitHubConnectionCard({
   connected,
   attributes,
   githubOrg,
+  teamSyncEnabled,
 }: GitHubConnectionCardProps) {
   const router = useRouter()
   const disconnectGitHub = useServerFn(disconnectGitHubFn)
+  const syncGitHubTeams = useServerFn(syncGitHubTeamsFn)
   const [disconnectOpen, setDisconnectOpen] = useState(false)
   const [isDisconnecting, setIsDisconnecting] = useState(false)
+  const [isSyncingTeams, setIsSyncingTeams] = useState(false)
   const orgStatus = getGitHubOrgStatusDisplay(attributes.githubOrgStatus)
   const showInvitationLink =
     connected && attributes.githubOrgStatus === 'invited' && githubOrg !== null
+  const canSyncTeams =
+    connected &&
+    teamSyncEnabled &&
+    (attributes.githubOrgStatus === GITHUB_ORG_STATUSES.MEMBER ||
+      attributes.githubOrgStatus === GITHUB_ORG_STATUSES.ADMIN)
 
   async function handleDisconnect() {
     setIsDisconnecting(true)
@@ -59,6 +69,35 @@ export function GitHubConnectionCard({
       toast.error('GitHub-Verbindung konnte nicht getrennt werden.')
     } finally {
       setIsDisconnecting(false)
+    }
+  }
+
+  async function handleSyncTeams() {
+    setIsSyncingTeams(true)
+
+    try {
+      const result = await syncGitHubTeams()
+      const parts: string[] = []
+      if (result.added.length > 0) {
+        parts.push(`+${result.added.join(', ')}`)
+      }
+      if (result.removed.length > 0) {
+        parts.push(`−${result.removed.join(', ')}`)
+      }
+      toast.success(
+        parts.length > 0
+          ? `Teams aktualisiert (${parts.join('; ')}).`
+          : 'Teams sind bereits aktuell.',
+      )
+      await router.invalidate()
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Teams konnten nicht synchronisiert werden.',
+      )
+    } finally {
+      setIsSyncingTeams(false)
     }
   }
 
@@ -115,92 +154,106 @@ export function GitHubConnectionCard({
               </div>
             ) : null}
 
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-              <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+            <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+              <DetailItem
+                label="Username"
+                value={attributes.githubUsername}
+                href={
+                  attributes.githubUsername
+                    ? githubProfileUrl(attributes.githubUsername)
+                    : undefined
+                }
+              />
+              <DetailItem label="ID" value={attributes.githubId} />
+              {attributes.githubConnectedAt ? (
                 <DetailItem
-                  label="Username"
-                  value={attributes.githubUsername}
-                  href={
-                    attributes.githubUsername
-                      ? githubProfileUrl(attributes.githubUsername)
-                      : undefined
-                  }
+                  label="Seit"
+                  value={formatDate(attributes.githubConnectedAt)}
                 />
-                <DetailItem label="ID" value={attributes.githubId} />
-                {attributes.githubConnectedAt ? (
-                  <DetailItem
-                    label="Seit"
-                    value={formatDate(attributes.githubConnectedAt)}
-                  />
-                ) : null}
-                {attributes.githubOrgInvitedAt ? (
-                  <DetailItem
-                    label="Eingeladen"
-                    value={formatDate(attributes.githubOrgInvitedAt)}
-                  />
-                ) : null}
-              </dl>
+              ) : null}
+              {attributes.githubOrgInvitedAt ? (
+                <DetailItem
+                  label="Eingeladen"
+                  value={formatDate(attributes.githubOrgInvitedAt)}
+                />
+              ) : null}
+            </dl>
 
-              <div className="flex shrink-0 flex-wrap gap-2">
-                {showInvitationLink ? (
-                  <Button variant="outline" size="sm" asChild>
-                    <a
-                      href={githubOrgInvitationUrl(githubOrg)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Einladung öffnen
-                    </a>
-                  </Button>
-                ) : null}
+            <div className="flex flex-wrap gap-2">
+              {canSyncTeams ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isSyncingTeams}
+                  onClick={() => {
+                    void handleSyncTeams()
+                  }}
+                >
+                  <RefreshCw
+                    className={isSyncingTeams ? 'animate-spin' : undefined}
+                  />
+                  {isSyncingTeams ? 'Synchronisiere…' : 'Teams synchronisieren'}
+                </Button>
+              ) : null}
+              {showInvitationLink ? (
                 <Button variant="outline" size="sm" asChild>
-                  <a href={ROUTES.GITHUB_CONNECT}>
-                    <GitHubIcon className="text-inherit" />
-                    Neu verbinden
+                  <a
+                    href={githubOrgInvitationUrl(githubOrg)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Einladung öffnen
                   </a>
                 </Button>
-                <AlertDialog
-                  open={disconnectOpen}
-                  onOpenChange={setDisconnectOpen}
-                >
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      type="button"
+              ) : null}
+              <Button variant="outline" size="sm" asChild>
+                <a href={ROUTES.GITHUB_CONNECT}>
+                  <GitHubIcon className="text-inherit" />
+                  Neu verbinden
+                </a>
+              </Button>
+              <AlertDialog
+                open={disconnectOpen}
+                onOpenChange={setDisconnectOpen}
+              >
+                <AlertDialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    disabled={isDisconnecting}
+                  >
+                    <Link2Off />
+                    Trennen
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      GitHub-Verbindung trennen?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Der Org-Zugang kann dabei entfallen.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isDisconnecting}>
+                      Abbrechen
+                    </AlertDialogCancel>
+                    <AlertDialogAction
                       variant="destructive"
-                      size="sm"
                       disabled={isDisconnecting}
+                      onClick={event => {
+                        event.preventDefault()
+                        void handleDisconnect()
+                      }}
                     >
-                      <Link2Off />
-                      Trennen
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        GitHub-Verbindung trennen?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Der Org-Zugang kann dabei entfallen.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel disabled={isDisconnecting}>
-                        Abbrechen
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        variant="destructive"
-                        disabled={isDisconnecting}
-                        onClick={event => {
-                          event.preventDefault()
-                          void handleDisconnect()
-                        }}
-                      >
-                        {isDisconnecting ? 'Trennen…' : 'Trennen'}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+                      {isDisconnecting ? 'Trennen…' : 'Trennen'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         ) : (
