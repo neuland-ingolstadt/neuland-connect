@@ -107,12 +107,15 @@ async function getInstallationAccessToken(): Promise<string> {
 }
 
 async function githubAppFetch(
-  path: string,
+  pathOrUrl: string,
   init?: RequestInit,
 ): Promise<Response> {
   const token = await getInstallationAccessToken()
+  const url = pathOrUrl.startsWith('http')
+    ? pathOrUrl
+    : `${GITHUB_API_BASE}${pathOrUrl}`
 
-  return fetch(`${GITHUB_API_BASE}${path}`, {
+  return fetch(url, {
     ...init,
     headers: {
       ...GITHUB_API_HEADERS,
@@ -120,6 +123,45 @@ async function githubAppFetch(
       ...init?.headers,
     },
   })
+}
+
+function parseNextLink(linkHeader: string | null): string | null {
+  if (!linkHeader) {
+    return null
+  }
+
+  for (const part of linkHeader.split(',')) {
+    const match = part.trim().match(/^<([^>]+)>;\s*rel="next"$/)
+    if (match?.[1]) {
+      return match[1]
+    }
+  }
+
+  return null
+}
+
+async function githubAppFetchAllPages<T>(path: string): Promise<T[]> {
+  const results: T[] = []
+  let nextUrl: string | null = path.includes('?')
+    ? `${path}&per_page=100`
+    : `${path}?per_page=100`
+
+  while (nextUrl) {
+    const response = await githubAppFetch(nextUrl)
+
+    if (!response.ok) {
+      const body = await response.text()
+      throw new Error(
+        `GitHub paginated request failed (${response.status}) for ${path}: ${body}`,
+      )
+    }
+
+    const page = (await response.json()) as T[]
+    results.push(...page)
+    nextUrl = parseNextLink(response.headers.get('link'))
+  }
+
+  return results
 }
 
 export type OrgMembershipState = 'active' | 'pending' | 'none'
@@ -172,34 +214,64 @@ export async function isOrgMember(username: string): Promise<boolean> {
   return (await getOrgMembershipState(username)) === 'active'
 }
 
+export type OrgInvitationIndex = {
+  byLogin: Set<string>
+  byId: Set<number>
+}
+
+export function buildOrgInvitationIndex(
+  invitations: OrgInvitation[],
+): OrgInvitationIndex {
+  const byLogin = new Set<string>()
+  const byId = new Set<number>()
+
+  for (const invitation of invitations) {
+    const invitee = invitation.invitee
+    if (!invitee) {
+      continue
+    }
+
+    if (invitee.login) {
+      byLogin.add(invitee.login.toLowerCase())
+    }
+
+    if (typeof invitee.id === 'number') {
+      byId.add(invitee.id)
+    }
+  }
+
+  return { byLogin, byId }
+}
+
+export function invitationIndexHas(
+  index: OrgInvitationIndex,
+  username: string,
+  githubId: string,
+): boolean {
+  const numericGithubId = Number(githubId)
+
+  return (
+    index.byLogin.has(username.toLowerCase()) ||
+    (Number.isFinite(numericGithubId) && index.byId.has(numericGithubId))
+  )
+}
+
+export async function listPendingOrgInvitations(): Promise<OrgInvitationIndex> {
+  const { org } = requireGitHubOrgConfig()
+  const invitations = await githubAppFetchAllPages<OrgInvitation>(
+    `/orgs/${org}/invitations`,
+  )
+
+  return buildOrgInvitationIndex(invitations)
+}
+
 export async function hasPendingOrgInvitation(
   username: string,
   githubId: string,
+  invitations?: OrgInvitationIndex,
 ): Promise<boolean> {
-  const { org } = requireGitHubOrgConfig()
-  const response = await githubAppFetch(`/orgs/${org}/invitations`)
-
-  if (!response.ok) {
-    const body = await response.text()
-    throw new Error(
-      `GitHub org invitations request failed (${response.status}): ${body}`,
-    )
-  }
-
-  const invitations = (await response.json()) as OrgInvitation[]
-  const numericGithubId = Number(githubId)
-
-  return invitations.some(invitation => {
-    const invitee = invitation.invitee
-    if (!invitee) {
-      return false
-    }
-
-    return (
-      invitee.login?.toLowerCase() === username.toLowerCase() ||
-      invitee.id === numericGithubId
-    )
-  })
+  const index = invitations ?? (await listPendingOrgInvitations())
+  return invitationIndexHas(index, username, githubId)
 }
 
 export type InviteUserToOrgResult =
@@ -210,8 +282,12 @@ export type InviteUserToOrgResult =
 export async function inviteUserToOrg(
   githubId: number,
   username: string,
+  options?: {
+    knownMembershipState?: OrgMembershipState
+  },
 ): Promise<InviteUserToOrgResult> {
-  const membershipState = await getOrgMembershipState(username)
+  const membershipState =
+    options?.knownMembershipState ?? (await getOrgMembershipState(username))
 
   if (membershipState === 'active') {
     return 'already_member'

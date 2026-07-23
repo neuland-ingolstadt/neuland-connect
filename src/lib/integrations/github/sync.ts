@@ -5,13 +5,23 @@ import {
 } from '#/lib/authentik/client'
 import { parseUserAttributes } from '#/lib/authentik/types'
 import { serverConfig } from '#/lib/config'
-import { AUTHENTIK_ATTRIBUTES, GITHUB_ORG_STATUSES } from '#/lib/constants'
+import {
+  AUTHENTIK_ATTRIBUTES,
+  GITHUB_ORG_STATUSES,
+  type GitHubOrgStatus,
+} from '#/lib/constants'
 import {
   getOrgMembershipInfo,
   hasPendingOrgInvitation,
+  invitationIndexHas,
   inviteUserToOrg,
+  listPendingOrgInvitations,
+  type OrgInvitationIndex,
   resetInstallationTokenCache,
 } from '#/lib/integrations/github/org'
+
+/** Keep GitHub/Authentik under rate limits while cutting wall-clock time. */
+const RECONCILE_CONCURRENCY = 8
 
 export type SyncUserOrgResult = {
   authentikUserId: string
@@ -47,6 +57,34 @@ function shouldReconcileOrgStatus(
   )
 }
 
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  mapper: (item: T) => Promise<R>,
+): Promise<R[]> {
+  if (items.length === 0) {
+    return []
+  }
+
+  const results = new Array<R>(items.length)
+  let nextIndex = 0
+
+  async function worker(): Promise<void> {
+    while (true) {
+      const index = nextIndex
+      nextIndex += 1
+      if (index >= items.length) {
+        return
+      }
+      results[index] = await mapper(items[index])
+    }
+  }
+
+  const workerCount = Math.min(concurrency, items.length)
+  await Promise.all(Array.from({ length: workerCount }, () => worker()))
+  return results
+}
+
 async function clearOrphanedGitHubOrgAttributes(
   authentikUserId: string | number,
 ): Promise<void> {
@@ -58,11 +96,19 @@ async function clearOrphanedGitHubOrgAttributes(
     ],
   })
 }
+
 async function writeOrgStatus(
   authentikUserId: string | number,
-  status: (typeof GITHUB_ORG_STATUSES)[keyof typeof GITHUB_ORG_STATUSES],
-  options?: { invitedAt?: boolean },
+  status: GitHubOrgStatus,
+  options?: {
+    invitedAt?: boolean
+    currentStatus?: GitHubOrgStatus | null
+  },
 ): Promise<void> {
+  if (options?.currentStatus === status && !options.invitedAt) {
+    return
+  }
+
   const set: Record<string, string> = {
     [AUTHENTIK_ATTRIBUTES.GITHUB_ORG_STATUS]: status,
   }
@@ -88,12 +134,19 @@ async function writeOrgSyncError(
   })
 }
 
+export type SyncUserOrgOptions = {
+  invitations?: OrgInvitationIndex
+  currentOrgStatus?: GitHubOrgStatus | null
+}
+
 export async function syncUserOrgStatus(
   authentikUserId: string | number,
   githubUsername: string,
   githubId: string,
+  options?: SyncUserOrgOptions,
 ): Promise<SyncUserOrgResult> {
   const userId = String(authentikUserId)
+  const currentOrgStatus = options?.currentOrgStatus ?? null
 
   if (!serverConfig.github.isOrgSyncConfigured) {
     return {
@@ -108,7 +161,9 @@ export async function syncUserOrgStatus(
 
     if (membership.state === 'active' && membership.role) {
       const status = activeOrgStatus(membership.role)
-      await writeOrgStatus(authentikUserId, status)
+      await writeOrgStatus(authentikUserId, status, {
+        currentStatus: currentOrgStatus,
+      })
       return {
         authentikUserId: userId,
         githubUsername,
@@ -116,11 +171,16 @@ export async function syncUserOrgStatus(
       }
     }
 
-    if (
+    const hasPendingInvite =
       membership.state === 'pending' ||
-      (await hasPendingOrgInvitation(githubUsername, githubId))
-    ) {
-      await writeOrgStatus(authentikUserId, GITHUB_ORG_STATUSES.INVITED)
+      (options?.invitations
+        ? invitationIndexHas(options.invitations, githubUsername, githubId)
+        : await hasPendingOrgInvitation(githubUsername, githubId))
+
+    if (hasPendingInvite) {
+      await writeOrgStatus(authentikUserId, GITHUB_ORG_STATUSES.INVITED, {
+        currentStatus: currentOrgStatus,
+      })
       return {
         authentikUserId: userId,
         githubUsername,
@@ -128,12 +188,18 @@ export async function syncUserOrgStatus(
       }
     }
 
-    const inviteResult = await inviteUserToOrg(Number(githubId), githubUsername)
+    const inviteResult = await inviteUserToOrg(
+      Number(githubId),
+      githubUsername,
+      { knownMembershipState: membership.state },
+    )
 
     if (inviteResult === 'already_member') {
       const refreshedMembership = await getOrgMembershipInfo(githubUsername)
       const role = refreshedMembership.role ?? 'member'
-      await writeOrgStatus(authentikUserId, activeOrgStatus(role))
+      await writeOrgStatus(authentikUserId, activeOrgStatus(role), {
+        currentStatus: currentOrgStatus,
+      })
       return {
         authentikUserId: userId,
         githubUsername,
@@ -143,6 +209,7 @@ export async function syncUserOrgStatus(
 
     await writeOrgStatus(authentikUserId, GITHUB_ORG_STATUSES.INVITED, {
       invitedAt: inviteResult === 'invited',
+      currentStatus: currentOrgStatus,
     })
 
     return {
@@ -211,7 +278,13 @@ export async function reconcileGitHubOrgMembership(): Promise<ReconcileOrgSyncRe
   resetInstallationTokenCache()
 
   const users = await listAllAuthentikUsers()
-  const results: SyncUserOrgResult[] = []
+  const candidates: Array<{
+    authentikUserId: string
+    githubUsername: string
+    githubId: string
+    currentOrgStatus: GitHubOrgStatus | null
+  }> = []
+  const orphanedUserIds: string[] = []
 
   for (const user of users) {
     const attributes = parseUserAttributes(user.attributes)
@@ -222,7 +295,7 @@ export async function reconcileGitHubOrgMembership(): Promise<ReconcileOrgSyncRe
 
     if (!hasGitHubConnection) {
       if (attributes.githubOrgStatus) {
-        await clearOrphanedGitHubOrgAttributes(authentikUserId)
+        orphanedUserIds.push(authentikUserId)
       }
       continue
     }
@@ -237,13 +310,37 @@ export async function reconcileGitHubOrgMembership(): Promise<ReconcileOrgSyncRe
       continue
     }
 
-    const result = await syncUserOrgStatus(
+    candidates.push({
       authentikUserId,
       githubUsername,
       githubId,
-    )
-    results.push(result)
+      currentOrgStatus: attributes.githubOrgStatus,
+    })
   }
+
+  await mapWithConcurrency(
+    orphanedUserIds,
+    RECONCILE_CONCURRENCY,
+    clearOrphanedGitHubOrgAttributes,
+  )
+
+  const invitations =
+    candidates.length > 0 ? await listPendingOrgInvitations() : undefined
+
+  const results = await mapWithConcurrency(
+    candidates,
+    RECONCILE_CONCURRENCY,
+    candidate =>
+      syncUserOrgStatus(
+        candidate.authentikUserId,
+        candidate.githubUsername,
+        candidate.githubId,
+        {
+          invitations,
+          currentOrgStatus: candidate.currentOrgStatus,
+        },
+      ),
+  )
 
   return {
     configured: true,
