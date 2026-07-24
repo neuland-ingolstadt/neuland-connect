@@ -96,18 +96,6 @@ export async function syncUserGitHubTeams(
     }
   }
 
-  const parentGroup = serverConfig.github.teamParentGroup
-  if (!parentGroup) {
-    return {
-      authentikUserId: userId,
-      githubUsername,
-      status: 'skipped',
-      desired: [],
-      added: [],
-      removed: [],
-    }
-  }
-
   try {
     if (!options?.assumeOrgMember) {
       const membershipState = await getOrgMembershipState(githubUsername)
@@ -123,8 +111,7 @@ export async function syncUserGitHubTeams(
       }
     }
 
-    const managedMap =
-      options?.managedMap ?? (await getManagedGitHubTeamMap(parentGroup))
+    const managedMap = options?.managedMap ?? (await getManagedGitHubTeamMap())
     const managedSlugs = new Set(managedMap.values())
 
     if (managedSlugs.size === 0) {
@@ -192,7 +179,7 @@ export async function syncUserGitHubTeams(
 
 /**
  * Cron reconcile: team-centric (O(teams) reads), not per-user membership probes.
- * Desired members = Authentik child-group members ∩ linked org members.
+ * Desired members = Authentik group members ∩ linked org members.
  * Removals only touch Connect-known users (linked + org member); manual GitHub
  * team members outside Connect are left alone.
  */
@@ -209,23 +196,10 @@ export async function reconcileGitHubTeamMembership(): Promise<ReconcileTeamsSyn
     }
   }
 
-  const parentGroup = serverConfig.github.teamParentGroup
-  if (!parentGroup) {
-    return {
-      configured: false,
-      teams: 0,
-      candidates: 0,
-      added: 0,
-      removed: 0,
-      errors: 0,
-      results: [],
-    }
-  }
-
   resetInstallationTokenCache()
 
   const [managedTeams, users] = await Promise.all([
-    getManagedGitHubTeams(parentGroup),
+    getManagedGitHubTeams(),
     listAllAuthentikUsers(),
   ])
 

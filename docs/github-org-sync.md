@@ -81,7 +81,6 @@ GITHUB_APP_ID=123456
 GITHUB_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
 GITHUB_APP_INSTALLATION_ID=98765432
 GITHUB_ORG=neuland-ingolstadt
-GITHUB_TEAM_PARENT_GROUP=github-teams
 
 # Cron-Endpoints (Org + Teams)
 CRON_SECRET=ein-langer-zufaelliger-string
@@ -125,12 +124,11 @@ Die `GITHUB_APP_INSTALLATION_ID` steht **nicht** auf der App-Settings-Seite. Sie
 
 ## Team-Sync (Authentik → GitHub Teams)
 
-Stateless full reconcile: desired teams = Authentik group memberships ∩ children of `GITHUB_TEAM_PARENT_GROUP` with attribute `github_team`.
+Stateless full reconcile: desired teams = Authentik group memberships ∩ groups with attribute `github_team`.
 
 ### Authentik-Setup
 
-1. Parent-Gruppe anlegen, z. B. `github-teams` (`GITHUB_TEAM_PARENT_GROUP`).
-2. Child-Gruppen darunter (beliebige Anzeigenamen), Attribut setzen:
+1. Gruppe anlegen (beliebiger Anzeigename) und Attribut setzen:
 
 ```json
 {
@@ -142,11 +140,10 @@ Beispiel:
 
 | Authentik-Gruppe | Attribut | GitHub-Team-Slug |
 |------------------|----------|------------------|
-| `github-teams` | — | Parent (Marker) |
 | `Kubernetes Team` | `github_team: kubernetes` | `kubernetes` |
 | `Backend Team` | `github_team: backend` | `backend` |
 
-3. User in die **Child**-Gruppen legen (nicht nur in den Parent).
+2. User in diese Gruppen legen. Gruppen ohne `github_team` werden ignoriert.
 
 ### Wann läuft der Sync?
 
@@ -159,19 +156,13 @@ Voraussetzung: GitHub verknüpft **und** Org-Status `member`/`admin`. Pending In
 
 Der Cron ist **team-zentriert** (nicht pro User): pro managed Team einmal Mitglieder listen, Diff gegen Authentik-Gruppenmitglieder, dann Add/Remove mit Concurrency. Self-Sync bleibt user-zentriert.
 
-**Remove-Policy (Cron):** Nur User, die in Connect verknüpft **und** Org-Mitglied sind, werden aus managed Teams entfernt, wenn sie nicht (mehr) in der Authentik-Child-Gruppe sind. Manuell auf GitHub hinzugefügte Mitglieder ohne Connect-Link bleiben unberührt.
+**Remove-Policy (Cron):** Nur User, die in Connect verknüpft **und** Org-Mitglied sind, werden aus managed Teams entfernt, wenn sie nicht (mehr) in der Authentik-Gruppe sind. Manuell auf GitHub hinzugefügte Mitglieder ohne Connect-Link bleiben unberührt.
 
 Self-Sync entfernt beim eigenen User weiterhin managed Teams, die laut Authentik nicht vorgesehen sind.
 
 ```bash
 curl -X POST https://connect.neuland.ing/api/internal/github-teams/sync \
   -H "Authorization: Bearer $CRON_SECRET"
-```
-
-Env:
-
-```env
-GITHUB_TEAM_PARENT_GROUP=github-teams
 ```
 
 GitHub App braucht zusätzlich **Team memberships: Read and write**.

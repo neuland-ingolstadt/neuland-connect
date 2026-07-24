@@ -66,9 +66,6 @@ export const serverConfig = {
     get org() {
       return optionalEnv('GITHUB_ORG')
     },
-    get teamParentGroup() {
-      return optionalEnv('GITHUB_TEAM_PARENT_GROUP')
-    },
     get isOrgSyncConfigured() {
       return Boolean(
         serverConfig.github.appId &&
@@ -77,11 +74,9 @@ export const serverConfig = {
           serverConfig.github.org,
       )
     },
+    /** Team sync needs the same GitHub App as org sync; managed teams = groups with `github_team`. */
     get isTeamSyncConfigured() {
-      return Boolean(
-        serverConfig.github.isOrgSyncConfigured &&
-          serverConfig.github.teamParentGroup,
-      )
+      return serverConfig.github.isOrgSyncConfigured
     },
   },
   get cronSecret() {

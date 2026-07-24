@@ -42,7 +42,7 @@ export const Route = createFileRoute('/api/internal/github-teams/sync')({
           return new Response(
             JSON.stringify({
               error:
-                'GitHub team sync is not configured (need GitHub App + GITHUB_TEAM_PARENT_GROUP)',
+                'GitHub team sync is not configured (need GitHub App + GITHUB_ORG)',
             }),
             {
               status: 503,

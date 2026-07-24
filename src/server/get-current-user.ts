@@ -12,7 +12,7 @@ export type CurrentUser = {
   githubConnected: boolean
   githubOrg: string | null
   teamSyncEnabled: boolean
-  /** Authentik child groups under GITHUB_TEAM_PARENT_GROUP the user belongs to */
+  /** Authentik groups with `github_team` the user belongs to */
   githubTeamCount: number
 }
 
@@ -53,13 +53,11 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
     ])
     const attributes = parseUserAttributes(authentikUser.attributes)
 
-    const teamParentGroup = serverConfig.github.teamParentGroup
     const hiddenGroups = new Set<string>()
     let githubTeamCount = 0
-    if (teamParentGroup) {
-      hiddenGroups.add(teamParentGroup)
+    if (serverConfig.github.isTeamSyncConfigured) {
       try {
-        const managedMap = await getManagedGitHubTeamMap(teamParentGroup)
+        const managedMap = await getManagedGitHubTeamMap()
         for (const groupName of managedMap.keys()) {
           hiddenGroups.add(groupName)
         }

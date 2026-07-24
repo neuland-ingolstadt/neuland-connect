@@ -115,13 +115,10 @@ function readGitHubTeamSlug(
 }
 
 /**
- * Loads children of the configured parent group and returns
- * Authentik group name → GitHub team slug for every child with `github_team` set.
+ * Authentik group name → GitHub team slug for every group with `github_team` set.
  */
-export async function getManagedGitHubTeamMap(
-  parentGroupName: string,
-): Promise<Map<string, string>> {
-  const teams = await getManagedGitHubTeams(parentGroupName)
+export async function getManagedGitHubTeamMap(): Promise<Map<string, string>> {
+  const teams = await getManagedGitHubTeams()
   return new Map(teams.map(team => [team.groupName, team.slug]))
 }
 
@@ -134,43 +131,41 @@ export type ManagedGitHubTeam = {
 }
 
 /**
- * Managed teams under the parent, including Authentik member PKs per child group.
+ * All Authentik groups with attribute `github_team`, including member PKs.
  */
-export async function getManagedGitHubTeams(
-  parentGroupName: string,
-): Promise<ManagedGitHubTeam[]> {
-  const params = new URLSearchParams({
-    name: parentGroupName,
-    include_children: 'true',
-    include_users: 'false',
-    page_size: '10',
-  })
-
-  const response = await authentikFetch<AuthentikGroupListResponse>(
-    `/api/v3/core/groups/?${params.toString()}`,
-  )
-
-  const parent = response.results.find(group => group.name === parentGroupName)
-  if (!parent) {
-    throw new AuthentikApiError(
-      404,
-      `Authentik-Gruppe "${parentGroupName}" nicht gefunden.`,
-    )
-  }
-
-  const children = parent.children_obj ?? []
+export async function getManagedGitHubTeams(): Promise<ManagedGitHubTeam[]> {
   const managed: Array<{ groupName: string; groupPk: string; slug: string }> =
     []
+  let page = 1
+  const pageSize = 100
 
-  for (const child of children) {
-    const slug = readGitHubTeamSlug(child.attributes)
-    if (slug) {
-      managed.push({
-        groupName: child.name,
-        groupPk: child.pk,
-        slug,
-      })
+  while (true) {
+    const params = new URLSearchParams({
+      include_users: 'false',
+      page_size: String(pageSize),
+      page: String(page),
+    })
+
+    const response = await authentikFetch<AuthentikGroupListResponse>(
+      `/api/v3/core/groups/?${params.toString()}`,
+    )
+
+    for (const group of response.results) {
+      const slug = readGitHubTeamSlug(group.attributes)
+      if (slug) {
+        managed.push({
+          groupName: group.name,
+          groupPk: group.pk,
+          slug,
+        })
+      }
     }
+
+    if (response.results.length < pageSize) {
+      break
+    }
+
+    page += 1
   }
 
   return Promise.all(
