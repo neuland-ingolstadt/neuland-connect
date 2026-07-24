@@ -16,6 +16,8 @@ jobs:
   check:
     name: Typecheck & Biome
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
