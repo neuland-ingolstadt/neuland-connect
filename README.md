@@ -10,6 +10,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Biome](https://img.shields.io/badge/Biome-enabled-60a5fa)](https://biomejs.dev)
 [![Renovate](https://img.shields.io/badge/Renovate-enabled-1A1F6C?logo=renovatebot&logoColor=white)](https://github.com/renovatebot/renovate)
+[![REUSE status](https://api.reuse.software/badge/github.com/neuland-ingolstadt/neuland-connect)](https://api.reuse.software/info/github.com/neuland-ingolstadt/neuland-connect)
 
 Member portal for **[Neuland Ingolstadt](https://neuland-ingolstadt.de)**. Members sign in with Authentik, link their GitHub account from a dashboard, and track org onboarding progress - without Connect maintaining its own user database.
 
@@ -30,6 +31,7 @@ Member portal for **[Neuland Ingolstadt](https://neuland-ingolstadt.de)**. Membe
 - [Scripts](#scripts)
 - [Project structure](#project-structure)
 - [Contributing](#contributing)
+- [Licensing](#licensing)
 
 ## Features
 
@@ -272,6 +274,12 @@ Import alias: `#/` → `src/` (see `package.json` `imports`).
 4. User-facing copy stays **German**; code comments and docs can be English.
 
 Dependency updates are automated via Renovate (`renovate.json`) with grouped PRs for production, dev, Docker, Actions, Biome, and Bun.
+
+## Licensing
+
+This project is licensed under [AGPL-3.0-only](LICENSES/AGPL-3.0-only.txt). Copyright © 2026 Robert Eggl and Neuland Ingolstadt.
+
+Licensing metadata is managed with [REUSE](https://reuse.software/) via [`REUSE.toml`](./REUSE.toml). Compliance is tracked by the [REUSE API](https://api.reuse.software/info/github.com/neuland-ingolstadt/neuland-connect).
 
 ---
 
