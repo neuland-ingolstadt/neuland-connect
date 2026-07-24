@@ -134,7 +134,7 @@ function DashboardPage() {
                 attributes={user.attributes}
                 githubOrg={user.githubOrg}
                 teamSyncEnabled={user.teamSyncEnabled}
-                githubTeamCount={user.githubTeamCount}
+                githubTeams={user.githubTeams}
               />
               <MembershipCard />
             </div>

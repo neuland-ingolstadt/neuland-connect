@@ -29,12 +29,14 @@ import { formatDate } from '#/lib/utils'
 import { disconnectGitHubFn } from '#/server/disconnect-github'
 import { syncGitHubTeamsFn } from '#/server/sync-github-teams'
 
+const VISIBLE_TEAM_LIMIT = 4
+
 type GitHubConnectionCardProps = {
   connected: boolean
   attributes: UserAttributes
   githubOrg: string | null
   teamSyncEnabled: boolean
-  githubTeamCount: number
+  githubTeams: string[]
 }
 
 export function GitHubConnectionCard({
@@ -42,7 +44,7 @@ export function GitHubConnectionCard({
   attributes,
   githubOrg,
   teamSyncEnabled,
-  githubTeamCount,
+  githubTeams,
 }: GitHubConnectionCardProps) {
   const router = useRouter()
   const disconnectGitHub = useServerFn(disconnectGitHubFn)
@@ -50,7 +52,14 @@ export function GitHubConnectionCard({
   const [disconnectOpen, setDisconnectOpen] = useState(false)
   const [isDisconnecting, setIsDisconnecting] = useState(false)
   const [isSyncingTeams, setIsSyncingTeams] = useState(false)
+  const [teamsExpanded, setTeamsExpanded] = useState(false)
   const orgStatus = getGitHubOrgStatusDisplay(attributes.githubOrgStatus)
+  const hasMoreTeams = githubTeams.length > VISIBLE_TEAM_LIMIT
+  const visibleTeams =
+    teamsExpanded || !hasMoreTeams
+      ? githubTeams
+      : githubTeams.slice(0, VISIBLE_TEAM_LIMIT)
+  const hiddenTeamCount = githubTeams.length - visibleTeams.length
   const showInvitationLink =
     connected && attributes.githubOrgStatus === 'invited' && githubOrg !== null
   const canSyncTeams =
@@ -166,7 +175,6 @@ export function GitHubConnectionCard({
                     : undefined
                 }
               />
-              <DetailItem label="Teams" value={String(githubTeamCount)} />
               {attributes.githubConnectedAt ? (
                 <DetailItem
                   label="Seit"
@@ -180,6 +188,42 @@ export function GitHubConnectionCard({
                 />
               ) : null}
             </dl>
+
+            {githubTeams.length > 0 ? (
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
+                  Teams
+                  <span className="ml-1 text-terminal-text/25">
+                    ({githubTeams.length})
+                  </span>
+                </p>
+                <ul className="mt-2 flex flex-wrap gap-1.5">
+                  {visibleTeams.map(team => (
+                    <li key={team} className="min-w-0 max-w-full">
+                      <Badge
+                        variant="secondary"
+                        className="max-w-full truncate"
+                      >
+                        {team}
+                      </Badge>
+                    </li>
+                  ))}
+                </ul>
+                {hasMoreTeams ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="mt-2 h-auto px-0 py-0 font-mono text-[11px] text-terminal-text/50 hover:bg-transparent hover:text-terminal-cyan"
+                    onClick={() => setTeamsExpanded(expanded => !expanded)}
+                  >
+                    {teamsExpanded
+                      ? 'Weniger anzeigen'
+                      : `+${hiddenTeamCount} weitere`}
+                  </Button>
+                ) : null}
+              </div>
+            ) : null}
 
             <div className="flex flex-wrap gap-2">
               {canSyncTeams ? (
