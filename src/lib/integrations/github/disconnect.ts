@@ -21,10 +21,7 @@ export async function disconnectGitHubConnection(): Promise<void> {
   const authentikUser = await getAuthentikUser(authentikUserId)
   const attributes = parseUserAttributes(authentikUser.attributes)
 
-  if (
-    attributes.githubUsername &&
-    serverConfig.github.isTeamSyncConfigured
-  ) {
+  if (attributes.githubUsername && serverConfig.github.isTeamSyncConfigured) {
     await clearManagedGitHubTeams(attributes.githubUsername)
   }
 

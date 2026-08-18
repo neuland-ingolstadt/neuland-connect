@@ -163,11 +163,7 @@ export async function handleGitHubCallback(
       ],
     })
 
-    await syncUserOrgStatus(
-      authentikUserId,
-      githubUser.login,
-      newGitHubId,
-    )
+    await syncUserOrgStatus(authentikUserId, githubUser.login, newGitHubId)
 
     await session.update({
       ...session.data,
