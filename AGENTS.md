@@ -99,8 +99,6 @@ Parse via `parseUserAttributes()` in `src/lib/authentik/types.ts`.
 - Cron: `POST /api/internal/discord-roles/sync` (Bearer `CRON_SECRET`); metadata register: `POST /api/internal/discord-linked-roles/register`
 - Disconnect: `disconnectDiscordFn` clears Discord attributes and strips guild roles (no kick; Linked Role in Discord is left in place)
 
-See `docs/discord-guild-sync.md` for ops details.
-
 ## Future plan: GitHub Org invitations (GitHub App)
 
 **Goal:** Automatically invite linked members to the Neuland GitHub organization and track status in Authentik.
@@ -186,7 +184,6 @@ GET  /orgs/{org}/invitations            # optional: reconcile pending invites
 bun run dev      # port 3000
 bun run build
 bun run start    # production
-bun run docker:up
 ```
 
 ## What to avoid

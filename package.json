@@ -19,8 +19,7 @@
     "check": "biome check .",
     "check:fix": "biome check --write .",
     "typecheck": "tsc --noEmit",
-    "docker:build": "docker build --build-arg BUN_VERSION=$(tr -d '[:space:]' < .bun-version) -t neuland-connect .",
-    "docker:up": "BUN_VERSION=$(tr -d '[:space:]' < .bun-version) docker compose up --build"
+    "docker:build": "docker build --build-arg BUN_VERSION=$(tr -d '[:space:]' < .bun-version) -t neuland-connect ."
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.20",

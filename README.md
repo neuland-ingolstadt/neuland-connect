@@ -68,7 +68,7 @@ Optional: GitHub App ──► org invites + membership reconciliation
 | Org management | Separate GitHub App with `members: write` on the organization |
 | Secrets | Server-only via `src/lib/config.ts` - never imported in client code |
 
-See [AGENTS.md](./AGENTS.md) for agent/contributor conventions and [docs/github-org-sync.md](./docs/github-org-sync.md) for org-sync details.
+See [AGENTS.md](./AGENTS.md) for agent/contributor conventions.
 
 ## Tech stack
 
@@ -117,7 +117,7 @@ bun run build       # Production build
 
 ## Environment variables
 
-Copy [`.env.example`](./.env.example) to `.env` (or `.env.local` for Vite). Docker Compose reads `.env` by default.
+Copy [`.env.example`](./.env.example) to `.env` (or `.env.local` for Vite).
 
 | Variable | Required | Description |
 |----------|----------|-------------|
@@ -227,8 +227,6 @@ Stateless full reconcile of GitHub teams from Authentik:
 
 2. Put users in those groups. Cron or dashboard „Teams synchronisieren“ adds/removes only groups that have `github_team` set.
 
-Full behaviour, edge cases, and dashboard steps: [docs/github-org-sync.md](./docs/github-org-sync.md).
-
 ## Discord integration
 
 Connect uses an **OAuth App** (member linking + Linked Roles) and a **bot** (guild join, role assignment). Access tokens are discarded after the callback.
@@ -239,17 +237,13 @@ Connect uses an **OAuth App** (member linking + Linked Roles) and a **bot** (gui
 2. Developer Portal **Linked Roles Verification URL** = `{APP_URL}/api/integrations/discord/linked-role`
 3. Metadata schema registered (`POST /api/internal/discord-linked-roles/register` or first successful connect)
 
-Ops details: [docs/discord-guild-sync.md](./docs/discord-guild-sync.md).
-
 ## Docker
 
 ```bash
 cp .env.example .env
 # configure .env
 
-bun run docker:up      # recommended - reads .bun-version automatically
-# or
-bun run docker:build   # build image only
+bun run docker:build
 ```
 
 The image is built with `BUN_VERSION` from `.bun-version`. Production images are also published to `ghcr.io` on pushes to `main`.
@@ -265,7 +259,6 @@ The image is built with `BUN_VERSION` from `.bun-version`. Production images are
 | `bun run check` | Biome lint + format check |
 | `bun run check:fix` | Biome auto-fix |
 | `bun run typecheck` | `tsc --noEmit` |
-| `bun run docker:up` | `docker compose up --build` with Bun version from file |
 | `bun run docker:build` | `docker build` with Bun version from file |
 
 ## Project structure
