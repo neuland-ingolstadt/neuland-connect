@@ -1,15 +1,17 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
+import { DashboardActionBanner } from '#/components/dashboard/dashboard-action-banner'
+import { DiscordConnectionCard } from '#/components/dashboard/discord-connection-card'
 import { GitHubConnectionCard } from '#/components/dashboard/github-connection-card'
 import { MembershipCard } from '#/components/dashboard/membership-card'
-import { OnboardingProgress } from '#/components/dashboard/onboarding-progress'
 import { UserDataCard } from '#/components/dashboard/user-data-card'
 import { AppHeader } from '#/components/layout/app-header'
 import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageShell } from '#/components/layout/page-shell'
 import { Skeleton } from '#/components/ui/skeleton'
 import { ROUTES } from '#/lib/constants'
+import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-display'
 import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
 import { getCurrentUserFn } from '#/server/get-current-user'
 
@@ -76,11 +78,64 @@ function DashboardPage() {
   }, [router, search.integration, search.status])
 
   useEffect(() => {
+    if (search.integration !== 'discord' || !search.status) {
+      return
+    }
+
+    if (search.status === 'success') {
+      toast.success('Discord verbunden.')
+    } else if (search.status === 'disconnected') {
+      toast.success('Discord-Verbindung getrennt.')
+    } else if (search.status === 'error') {
+      toast.error('Discord-Verbindung fehlgeschlagen.')
+    }
+
+    void router.invalidate()
+
+    const retryInvalidates = [500, 1500, 4000].map(delay =>
+      window.setTimeout(() => {
+        void router.invalidate()
+      }, delay),
+    )
+
+    window.history.replaceState({}, '', ROUTES.DASHBOARD)
+
+    return () => {
+      for (const timeoutId of retryInvalidates) {
+        window.clearTimeout(timeoutId)
+      }
+    }
+  }, [router, search.integration, search.status])
+
+  useEffect(() => {
     if (!user?.githubConnected) {
       return
     }
 
     if (isGitHubInOrg(user.attributes.githubOrgStatus)) {
+      return
+    }
+
+    const intervalId = window.setInterval(() => {
+      void router.invalidate()
+    }, 3000)
+
+    const stopPollingId = window.setTimeout(() => {
+      window.clearInterval(intervalId)
+    }, 30_000)
+
+    return () => {
+      window.clearInterval(intervalId)
+      window.clearTimeout(stopPollingId)
+    }
+  }, [router, user])
+
+  useEffect(() => {
+    if (!user?.discordConnected) {
+      return
+    }
+
+    if (isDiscordInGuild(user.attributes.discordGuildStatus)) {
       return
     }
 
@@ -121,10 +176,13 @@ function DashboardPage() {
         </header>
 
         <div className="space-y-5">
-          <OnboardingProgress
+          <DashboardActionBanner
             githubConnected={user.githubConnected}
             githubOrgStatus={user.attributes.githubOrgStatus}
             githubOrg={user.githubOrg}
+            discordOAuthEnabled={user.discordOAuthEnabled}
+            discordConnected={user.discordConnected}
+            discordGuildStatus={user.attributes.discordGuildStatus}
           />
 
           <div className="grid gap-5 lg:grid-cols-3">
@@ -136,6 +194,14 @@ function DashboardPage() {
                 teamSyncEnabled={user.teamSyncEnabled}
                 githubTeams={user.githubTeams}
               />
+              {user.discordOAuthEnabled ? (
+                <DiscordConnectionCard
+                  connected={user.discordConnected}
+                  attributes={user.attributes}
+                  roleSyncEnabled={user.roleSyncEnabled}
+                  discordRoles={user.discordRoles}
+                />
+              ) : null}
               <MembershipCard />
             </div>
 
@@ -144,6 +210,9 @@ function DashboardPage() {
               email={user.email}
               username={user.username}
               groups={user.groups}
+              integrationGroupsShownSeparately={
+                user.integrationGroupsShownSeparately
+              }
               accountCreatedAt={user.accountCreatedAt}
             />
           </div>

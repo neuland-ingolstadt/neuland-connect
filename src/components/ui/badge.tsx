@@ -18,6 +18,8 @@ const badgeVariants = cva(
           'border-terminal-cyan/40 bg-terminal-cyan/10 text-terminal-lightGreen',
         muted:
           'border-terminal-window-border bg-terminal-window text-terminal-text/50',
+        honor: 'neuland-honor-badge',
+        ressort: 'neuland-ressort-badge',
       },
     },
     defaultVariants: {

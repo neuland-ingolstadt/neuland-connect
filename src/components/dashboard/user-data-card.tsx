@@ -1,7 +1,13 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
+import {
+  getProfileGroupBadgeHint,
+  getProfileGroupBadgeVariant,
+  getProfileGroupDisplayLabel,
+  partitionProfileGroups,
+} from '#/lib/profile-groups'
 import { formatDate } from '#/lib/utils'
 
 const VISIBLE_GROUP_LIMIT = 4
@@ -11,6 +17,7 @@ type UserDataCardProps = {
   email: string
   username: string
   groups: string[]
+  integrationGroupsShownSeparately: boolean
   accountCreatedAt: string | null
 }
 
@@ -19,18 +26,34 @@ export function UserDataCard({
   email,
   username,
   groups,
+  integrationGroupsShownSeparately,
   accountCreatedAt,
 }: UserDataCardProps) {
   const [groupsExpanded, setGroupsExpanded] = useState(false)
-  const hasMoreGroups = groups.length > VISIBLE_GROUP_LIMIT
-  const visibleGroups =
-    groupsExpanded || !hasMoreGroups
-      ? groups
-      : groups.slice(0, VISIBLE_GROUP_LIMIT)
-  const hiddenCount = groups.length - visibleGroups.length
+  const {
+    honorGroups,
+    ressortGroups,
+    otherGroups,
+    ordered: sortedGroups,
+  } = useMemo(() => partitionProfileGroups(groups), [groups])
+  const frontGroups = useMemo(
+    () => [...honorGroups, ...ressortGroups],
+    [honorGroups, ressortGroups],
+  )
+  const remainingVisibleSlots = Math.max(
+    0,
+    VISIBLE_GROUP_LIMIT - frontGroups.length,
+  )
+  const hasMoreOtherGroups = otherGroups.length > remainingVisibleSlots
+  const visibleOtherGroups =
+    groupsExpanded || !hasMoreOtherGroups
+      ? otherGroups
+      : otherGroups.slice(0, remainingVisibleSlots)
+  const visibleGroups = [...frontGroups, ...visibleOtherGroups]
+  const hiddenCount = sortedGroups.length - visibleGroups.length
 
   return (
-    <TerminalPanel title="Profil">
+    <TerminalPanel title="Profil" className="overflow-visible">
       <div className="space-y-4 p-5">
         <dl className="space-y-4">
           <DetailItem label="Name" value={name} />
@@ -44,24 +67,28 @@ export function UserDataCard({
           ) : null}
         </dl>
 
-        {groups.length > 0 ? (
+        {sortedGroups.length > 0 ? (
           <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
-              Gruppen
+              {integrationGroupsShownSeparately ? 'Vereinsgruppen' : 'Gruppen'}
               <span className="ml-1 text-terminal-text/25">
-                ({groups.length})
+                ({sortedGroups.length})
               </span>
             </p>
-            <ul className="mt-2 flex flex-wrap gap-1.5">
+            {integrationGroupsShownSeparately ? (
+              <p className="mt-1 text-[11px] leading-snug text-terminal-text/45">
+                Gruppen mit GitHub- oder Discord-Sync findest du in den
+                Integrationskarten.
+              </p>
+            ) : null}
+            <ul className="mt-2 flex flex-wrap gap-1.5 overflow-visible">
               {visibleGroups.map(group => (
                 <li key={group} className="min-w-0 max-w-full">
-                  <Badge variant="secondary" className="max-w-full truncate">
-                    {group}
-                  </Badge>
+                  <ProfileGroupBadge group={group} />
                 </li>
               ))}
             </ul>
-            {hasMoreGroups ? (
+            {hiddenCount > 0 ? (
               <Button
                 type="button"
                 variant="ghost"
@@ -82,6 +109,27 @@ export function UserDataCard({
         </p>
       </div>
     </TerminalPanel>
+  )
+}
+
+function ProfileGroupBadge({ group }: { group: string }) {
+  const variant = getProfileGroupBadgeVariant(group)
+  const hint = getProfileGroupBadgeHint(group)
+  const label = getProfileGroupDisplayLabel(group)
+
+  if (!hint) {
+    return <Badge variant={variant}>{label}</Badge>
+  }
+
+  return (
+    <span className="neuland-badge-hint inline-flex max-w-full" title={hint}>
+      <Badge variant={variant} className="cursor-help">
+        {label}
+      </Badge>
+      <span className="neuland-badge-hint__tooltip" role="tooltip">
+        {hint}
+      </span>
+    </span>
   )
 }
 

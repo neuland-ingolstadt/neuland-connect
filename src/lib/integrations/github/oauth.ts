@@ -122,16 +122,33 @@ export async function handleGitHubCallback(
     const githubUser = await fetchGitHubUser(accessToken)
     // Token is intentionally not stored - only used for the API call above.
 
-    const { patchAuthentikUserAttributes } = await import(
+    const { getAuthentikUser, patchAuthentikUserAttributes } = await import(
       '#/lib/authentik/client'
     )
+    const { parseUserAttributes } = await import('#/lib/authentik/types')
     const { resolveSessionAuthentikUserId } = await import(
       '#/lib/authentik/session-user'
+    )
+    const { clearManagedGitHubTeams } = await import(
+      '#/lib/integrations/github/teams-sync'
     )
     const { syncUserOrgStatus } = await import('#/lib/integrations/github/sync')
     const { AUTHENTIK_ATTRIBUTES } = await import('#/lib/constants')
 
     const authentikUserId = await resolveSessionAuthentikUserId(user)
+    const previousAttributes = parseUserAttributes(
+      (await getAuthentikUser(authentikUserId)).attributes,
+    )
+    const newGitHubId = String(githubUser.id)
+
+    if (
+      previousAttributes.githubUsername &&
+      previousAttributes.githubId &&
+      previousAttributes.githubId !== newGitHubId &&
+      serverConfig.github.isTeamSyncConfigured
+    ) {
+      await clearManagedGitHubTeams(previousAttributes.githubUsername)
+    }
 
     await patchAuthentikUserAttributes(authentikUserId, {
       set: {
@@ -146,11 +163,7 @@ export async function handleGitHubCallback(
       ],
     })
 
-    await syncUserOrgStatus(
-      authentikUserId,
-      githubUser.login,
-      String(githubUser.id),
-    )
+    await syncUserOrgStatus(authentikUserId, githubUser.login, newGitHubId)
 
     await session.update({
       ...session.data,

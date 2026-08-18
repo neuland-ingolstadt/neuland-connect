@@ -177,6 +177,31 @@ export async function syncUserGitHubTeams(
   }
 }
 
+/** Drop every Connect-managed team membership for a GitHub login. */
+export async function clearManagedGitHubTeams(
+  githubUsername: string,
+): Promise<void> {
+  if (!serverConfig.github.isTeamSyncConfigured) {
+    return
+  }
+
+  const managedMap = await getManagedGitHubTeamMap()
+  const managedSlugs = new Set(managedMap.values())
+
+  if (managedSlugs.size === 0) {
+    return
+  }
+
+  const currentManaged = await listUserManagedTeamSlugs(
+    githubUsername,
+    managedSlugs,
+  )
+
+  for (const slug of currentManaged) {
+    await removeUserFromTeam(githubUsername, slug)
+  }
+}
+
 /**
  * Cron reconcile: team-centric (O(teams) reads), not per-user membership probes.
  * Desired members = Authentik group members ∩ linked org members.

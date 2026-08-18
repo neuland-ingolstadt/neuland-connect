@@ -1,4 +1,8 @@
-import { AUTHENTIK_ATTRIBUTES, type GitHubOrgStatus } from '#/lib/constants'
+import {
+  AUTHENTIK_ATTRIBUTES,
+  type DiscordGuildStatus,
+  type GitHubOrgStatus,
+} from '#/lib/constants'
 
 export type GitHubUserAttributes = {
   githubUsername: string | null
@@ -9,7 +13,16 @@ export type GitHubUserAttributes = {
   githubOrgLastError: string | null
 }
 
-export type UserAttributes = GitHubUserAttributes
+export type DiscordUserAttributes = {
+  discordUsername: string | null
+  discordId: string | null
+  discordConnectedAt: string | null
+  discordGuildStatus: DiscordGuildStatus | null
+  discordGuildJoinedAt: string | null
+  discordGuildLastError: string | null
+}
+
+export type UserAttributes = GitHubUserAttributes & DiscordUserAttributes
 
 export type AuthentikUserResponse = {
   pk: number
@@ -55,6 +68,9 @@ export type AuthentikGroupListResponse = {
 /** Authentik group name → GitHub team slug (from group attribute `github_team`) */
 export type ManagedGitHubTeamMap = Map<string, string>
 
+/** Authentik group name → Discord role snowflake (from group attribute `discord_role`) */
+export type ManagedDiscordRoleMap = Map<string, string>
+
 export type ResolveAuthentikUserInput = {
   sub: string
   email?: string
@@ -84,6 +100,18 @@ export function parseUserAttributes(
     ),
     githubOrgInvitedAt: getString(AUTHENTIK_ATTRIBUTES.GITHUB_ORG_INVITED_AT),
     githubOrgLastError: getString(AUTHENTIK_ATTRIBUTES.GITHUB_ORG_LAST_ERROR),
+    discordUsername: getString(AUTHENTIK_ATTRIBUTES.DISCORD_USERNAME),
+    discordId: getString(AUTHENTIK_ATTRIBUTES.DISCORD_ID),
+    discordConnectedAt: getString(AUTHENTIK_ATTRIBUTES.DISCORD_CONNECTED_AT),
+    discordGuildStatus: parseDiscordGuildStatus(
+      getString(AUTHENTIK_ATTRIBUTES.DISCORD_GUILD_STATUS),
+    ),
+    discordGuildJoinedAt: getString(
+      AUTHENTIK_ATTRIBUTES.DISCORD_GUILD_JOINED_AT,
+    ),
+    discordGuildLastError: getString(
+      AUTHENTIK_ATTRIBUTES.DISCORD_GUILD_LAST_ERROR,
+    ),
   }
 }
 
@@ -97,4 +125,18 @@ function parseGitHubOrgStatus(value: string | null): GitHubOrgStatus | null {
 
 export function isGitHubConnected(attributes: UserAttributes): boolean {
   return Boolean(attributes.githubUsername && attributes.githubId)
+}
+
+function parseDiscordGuildStatus(
+  value: string | null,
+): DiscordGuildStatus | null {
+  if (value === 'member') {
+    return value
+  }
+
+  return null
+}
+
+export function isDiscordConnected(attributes: UserAttributes): boolean {
+  return Boolean(attributes.discordUsername && attributes.discordId)
 }
