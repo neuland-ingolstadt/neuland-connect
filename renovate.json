@@ -46,14 +46,20 @@
       "groupName": "production dependencies",
       "groupSlug": "prod",
       "matchDepTypes": ["dependencies"],
-      "excludePackageNames": ["@biomejs/biome", "@tanstack/**"]
+      "matchPackageNames": [
+        "!@biomejs/biome",
+        "!@tanstack/**"
+      ]
     },
     {
       "description": "Development dependencies",
       "groupName": "dev dependencies",
       "groupSlug": "dev",
       "matchDepTypes": ["devDependencies"],
-      "excludePackageNames": ["@biomejs/biome", "@tanstack/**"]
+      "matchPackageNames": [
+        "!@biomejs/biome",
+        "!@tanstack/**"
+      ]
     },
     {
       "description": "Docker base images",
