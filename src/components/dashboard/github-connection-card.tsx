@@ -3,6 +3,8 @@ import { useServerFn } from '@tanstack/react-start'
 import { Link2Off, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { INTEGRATION_CARD_IDS } from '#/components/dashboard/dashboard-action-banner'
+import { IntegrationProgressInline } from '#/components/dashboard/integration-progress-inline'
 import { GitHubIcon } from '#/components/icons/github-icon'
 import {
   AlertDialog,
@@ -17,8 +19,6 @@ import {
 } from '#/components/ui/alert-dialog'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
-import { INTEGRATION_CARD_IDS } from '#/components/dashboard/dashboard-action-banner'
-import { IntegrationProgressInline } from '#/components/dashboard/integration-progress-inline'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import type { UserAttributes } from '#/lib/authentik/types'
 import { GITHUB_ORG_STATUSES, ROUTES } from '#/lib/constants'

@@ -1,9 +1,9 @@
 import { ArrowRight } from 'lucide-react'
 import {
-  GITHUB_ORG_STATUSES,
-  ROUTES,
   type DiscordGuildStatus,
+  GITHUB_ORG_STATUSES,
   type GitHubOrgStatus,
+  ROUTES,
 } from '#/lib/constants'
 import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-display'
 import { githubOrgInvitationUrl } from '#/lib/integrations/github/org-status-display'
