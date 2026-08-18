@@ -18,8 +18,10 @@ import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
 import { Route as ApiIntegrationsDiscordCallbackRouteImport } from './routes/api/integrations/discord/callback'
 import { Route as ApiIntegrationsDiscordConnectRouteImport } from './routes/api/integrations/discord/connect'
 import { Route as ApiIntegrationsDiscordInteractionsRouteImport } from './routes/api/integrations/discord/interactions'
+import { Route as ApiIntegrationsDiscordLinkedRoleRouteImport } from './routes/api/integrations/discord/linked-role'
 import { Route as ApiIntegrationsGithubCallbackRouteImport } from './routes/api/integrations/github/callback'
 import { Route as ApiIntegrationsGithubConnectRouteImport } from './routes/api/integrations/github/connect'
+import { Route as ApiInternalDiscordLinkedRolesRegisterRouteImport } from './routes/api/internal/discord-linked-roles/register'
 import { Route as ApiInternalDiscordRolesSyncRouteImport } from './routes/api/internal/discord-roles/sync'
 import { Route as ApiInternalGithubOrgSyncRouteImport } from './routes/api/internal/github-org/sync'
 import { Route as ApiInternalGithubTeamsSyncRouteImport } from './routes/api/internal/github-teams/sync'
@@ -72,6 +74,12 @@ const ApiIntegrationsDiscordInteractionsRoute =
     path: '/api/integrations/discord/interactions',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiIntegrationsDiscordLinkedRoleRoute =
+  ApiIntegrationsDiscordLinkedRoleRouteImport.update({
+    id: '/api/integrations/discord/linked-role',
+    path: '/api/integrations/discord/linked-role',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiIntegrationsGithubCallbackRoute =
   ApiIntegrationsGithubCallbackRouteImport.update({
     id: '/api/integrations/github/callback',
@@ -82,6 +90,12 @@ const ApiIntegrationsGithubConnectRoute =
   ApiIntegrationsGithubConnectRouteImport.update({
     id: '/api/integrations/github/connect',
     path: '/api/integrations/github/connect',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiInternalDiscordLinkedRolesRegisterRoute =
+  ApiInternalDiscordLinkedRolesRegisterRouteImport.update({
+    id: '/api/internal/discord-linked-roles/register',
+    path: '/api/internal/discord-linked-roles/register',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiInternalDiscordRolesSyncRoute =
@@ -113,8 +127,10 @@ export interface FileRoutesByFullPath {
   '/api/integrations/discord/callback': typeof ApiIntegrationsDiscordCallbackRoute
   '/api/integrations/discord/connect': typeof ApiIntegrationsDiscordConnectRoute
   '/api/integrations/discord/interactions': typeof ApiIntegrationsDiscordInteractionsRoute
+  '/api/integrations/discord/linked-role': typeof ApiIntegrationsDiscordLinkedRoleRoute
   '/api/integrations/github/callback': typeof ApiIntegrationsGithubCallbackRoute
   '/api/integrations/github/connect': typeof ApiIntegrationsGithubConnectRoute
+  '/api/internal/discord-linked-roles/register': typeof ApiInternalDiscordLinkedRolesRegisterRoute
   '/api/internal/discord-roles/sync': typeof ApiInternalDiscordRolesSyncRoute
   '/api/internal/github-org/sync': typeof ApiInternalGithubOrgSyncRoute
   '/api/internal/github-teams/sync': typeof ApiInternalGithubTeamsSyncRoute
@@ -129,8 +145,10 @@ export interface FileRoutesByTo {
   '/api/integrations/discord/callback': typeof ApiIntegrationsDiscordCallbackRoute
   '/api/integrations/discord/connect': typeof ApiIntegrationsDiscordConnectRoute
   '/api/integrations/discord/interactions': typeof ApiIntegrationsDiscordInteractionsRoute
+  '/api/integrations/discord/linked-role': typeof ApiIntegrationsDiscordLinkedRoleRoute
   '/api/integrations/github/callback': typeof ApiIntegrationsGithubCallbackRoute
   '/api/integrations/github/connect': typeof ApiIntegrationsGithubConnectRoute
+  '/api/internal/discord-linked-roles/register': typeof ApiInternalDiscordLinkedRolesRegisterRoute
   '/api/internal/discord-roles/sync': typeof ApiInternalDiscordRolesSyncRoute
   '/api/internal/github-org/sync': typeof ApiInternalGithubOrgSyncRoute
   '/api/internal/github-teams/sync': typeof ApiInternalGithubTeamsSyncRoute
@@ -146,8 +164,10 @@ export interface FileRoutesById {
   '/api/integrations/discord/callback': typeof ApiIntegrationsDiscordCallbackRoute
   '/api/integrations/discord/connect': typeof ApiIntegrationsDiscordConnectRoute
   '/api/integrations/discord/interactions': typeof ApiIntegrationsDiscordInteractionsRoute
+  '/api/integrations/discord/linked-role': typeof ApiIntegrationsDiscordLinkedRoleRoute
   '/api/integrations/github/callback': typeof ApiIntegrationsGithubCallbackRoute
   '/api/integrations/github/connect': typeof ApiIntegrationsGithubConnectRoute
+  '/api/internal/discord-linked-roles/register': typeof ApiInternalDiscordLinkedRolesRegisterRoute
   '/api/internal/discord-roles/sync': typeof ApiInternalDiscordRolesSyncRoute
   '/api/internal/github-org/sync': typeof ApiInternalGithubOrgSyncRoute
   '/api/internal/github-teams/sync': typeof ApiInternalGithubTeamsSyncRoute
@@ -164,8 +184,10 @@ export interface FileRouteTypes {
     | '/api/integrations/discord/callback'
     | '/api/integrations/discord/connect'
     | '/api/integrations/discord/interactions'
+    | '/api/integrations/discord/linked-role'
     | '/api/integrations/github/callback'
     | '/api/integrations/github/connect'
+    | '/api/internal/discord-linked-roles/register'
     | '/api/internal/discord-roles/sync'
     | '/api/internal/github-org/sync'
     | '/api/internal/github-teams/sync'
@@ -180,8 +202,10 @@ export interface FileRouteTypes {
     | '/api/integrations/discord/callback'
     | '/api/integrations/discord/connect'
     | '/api/integrations/discord/interactions'
+    | '/api/integrations/discord/linked-role'
     | '/api/integrations/github/callback'
     | '/api/integrations/github/connect'
+    | '/api/internal/discord-linked-roles/register'
     | '/api/internal/discord-roles/sync'
     | '/api/internal/github-org/sync'
     | '/api/internal/github-teams/sync'
@@ -196,8 +220,10 @@ export interface FileRouteTypes {
     | '/api/integrations/discord/callback'
     | '/api/integrations/discord/connect'
     | '/api/integrations/discord/interactions'
+    | '/api/integrations/discord/linked-role'
     | '/api/integrations/github/callback'
     | '/api/integrations/github/connect'
+    | '/api/internal/discord-linked-roles/register'
     | '/api/internal/discord-roles/sync'
     | '/api/internal/github-org/sync'
     | '/api/internal/github-teams/sync'
@@ -213,8 +239,10 @@ export interface RootRouteChildren {
   ApiIntegrationsDiscordCallbackRoute: typeof ApiIntegrationsDiscordCallbackRoute
   ApiIntegrationsDiscordConnectRoute: typeof ApiIntegrationsDiscordConnectRoute
   ApiIntegrationsDiscordInteractionsRoute: typeof ApiIntegrationsDiscordInteractionsRoute
+  ApiIntegrationsDiscordLinkedRoleRoute: typeof ApiIntegrationsDiscordLinkedRoleRoute
   ApiIntegrationsGithubCallbackRoute: typeof ApiIntegrationsGithubCallbackRoute
   ApiIntegrationsGithubConnectRoute: typeof ApiIntegrationsGithubConnectRoute
+  ApiInternalDiscordLinkedRolesRegisterRoute: typeof ApiInternalDiscordLinkedRolesRegisterRoute
   ApiInternalDiscordRolesSyncRoute: typeof ApiInternalDiscordRolesSyncRoute
   ApiInternalGithubOrgSyncRoute: typeof ApiInternalGithubOrgSyncRoute
   ApiInternalGithubTeamsSyncRoute: typeof ApiInternalGithubTeamsSyncRoute
@@ -285,6 +313,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiIntegrationsDiscordInteractionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/integrations/discord/linked-role': {
+      id: '/api/integrations/discord/linked-role'
+      path: '/api/integrations/discord/linked-role'
+      fullPath: '/api/integrations/discord/linked-role'
+      preLoaderRoute: typeof ApiIntegrationsDiscordLinkedRoleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/integrations/github/callback': {
       id: '/api/integrations/github/callback'
       path: '/api/integrations/github/callback'
@@ -297,6 +332,13 @@ declare module '@tanstack/react-router' {
       path: '/api/integrations/github/connect'
       fullPath: '/api/integrations/github/connect'
       preLoaderRoute: typeof ApiIntegrationsGithubConnectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/internal/discord-linked-roles/register': {
+      id: '/api/internal/discord-linked-roles/register'
+      path: '/api/internal/discord-linked-roles/register'
+      fullPath: '/api/internal/discord-linked-roles/register'
+      preLoaderRoute: typeof ApiInternalDiscordLinkedRolesRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/internal/discord-roles/sync': {
@@ -334,8 +376,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiIntegrationsDiscordConnectRoute: ApiIntegrationsDiscordConnectRoute,
   ApiIntegrationsDiscordInteractionsRoute:
     ApiIntegrationsDiscordInteractionsRoute,
+  ApiIntegrationsDiscordLinkedRoleRoute: ApiIntegrationsDiscordLinkedRoleRoute,
   ApiIntegrationsGithubCallbackRoute: ApiIntegrationsGithubCallbackRoute,
   ApiIntegrationsGithubConnectRoute: ApiIntegrationsGithubConnectRoute,
+  ApiInternalDiscordLinkedRolesRegisterRoute:
+    ApiInternalDiscordLinkedRolesRegisterRoute,
   ApiInternalDiscordRolesSyncRoute: ApiInternalDiscordRolesSyncRoute,
   ApiInternalGithubOrgSyncRoute: ApiInternalGithubOrgSyncRoute,
   ApiInternalGithubTeamsSyncRoute: ApiInternalGithubTeamsSyncRoute,

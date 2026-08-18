@@ -11,20 +11,14 @@ const GATEWAY_OPCODES = {
   HEARTBEAT_ACK: 11,
 } as const
 
+const DEFAULT_RECONNECT_DELAY_MS = 1_000
+const RESUME_RECONNECT_DELAY_MS = 1_000
+const INVALID_SESSION_RECONNECT_DELAY_MS = 5_000
 const MAX_RECONNECT_DELAY_MS = 60_000
 const DEFAULT_HEARTBEAT_INTERVAL_MS = 41_250
-const MIN_HEARTBEAT_INTERVAL_MS = 1_000
-const MAX_HEARTBEAT_INTERVAL_MS = 60_000
 
-function clampHeartbeatInterval(intervalMs: unknown): number {
-  if (typeof intervalMs !== 'number' || !Number.isFinite(intervalMs)) {
-    return DEFAULT_HEARTBEAT_INTERVAL_MS
-  }
-
-  return Math.min(
-    Math.max(Math.trunc(intervalMs), MIN_HEARTBEAT_INTERVAL_MS),
-    MAX_HEARTBEAT_INTERVAL_MS,
-  )
+function clampReconnectDelay(delayMs: number): number {
+  return Math.min(Math.max(Math.trunc(delayMs), 0), MAX_RECONNECT_DELAY_MS)
 }
 
 type GatewayPayload = {
@@ -80,7 +74,7 @@ class DiscordGatewayClient {
 
     socket.addEventListener('close', () => {
       this.cleanupSocket()
-      this.scheduleReconnect()
+      this.scheduleReconnect(DEFAULT_RECONNECT_DELAY_MS)
     })
 
     socket.addEventListener('error', () => {
@@ -103,10 +97,7 @@ class DiscordGatewayClient {
 
     switch (payload.op) {
       case GATEWAY_OPCODES.HELLO: {
-        const heartbeatInterval = clampHeartbeatInterval(
-          (payload.d as { heartbeat_interval?: number }).heartbeat_interval,
-        )
-        this.startHeartbeat(heartbeatInterval)
+        this.startHeartbeat()
         this.identify()
         break
       }
@@ -119,12 +110,16 @@ class DiscordGatewayClient {
         break
       case GATEWAY_OPCODES.RECONNECT:
         this.cleanupSocket()
-        this.scheduleReconnect()
+        this.scheduleReconnect(DEFAULT_RECONNECT_DELAY_MS)
         break
       case GATEWAY_OPCODES.INVALID_SESSION: {
         const resume = Boolean(payload.d)
         this.cleanupSocket()
-        this.scheduleReconnect(resume ? 1_000 : 5_000)
+        this.scheduleReconnect(
+          resume
+            ? RESUME_RECONNECT_DELAY_MS
+            : INVALID_SESSION_RECONNECT_DELAY_MS,
+        )
         break
       }
       default:
@@ -164,7 +159,7 @@ class DiscordGatewayClient {
     })
   }
 
-  private startHeartbeat(intervalMs: number): void {
+  private startHeartbeat(): void {
     this.clearHeartbeat()
 
     this.heartbeatTimer = setInterval(() => {
@@ -172,7 +167,7 @@ class DiscordGatewayClient {
         op: GATEWAY_OPCODES.HEARTBEAT,
         d: this.lastSequence,
       })
-    }, intervalMs)
+    }, DEFAULT_HEARTBEAT_INTERVAL_MS)
   }
 
   private send(payload: GatewayPayload): void {
@@ -181,17 +176,14 @@ class DiscordGatewayClient {
     }
   }
 
-  private scheduleReconnect(baseDelayMs = 1_000): void {
+  private scheduleReconnect(baseDelayMs: number): void {
     if (this.stopped) {
       return
     }
 
     this.clearReconnectTimer()
 
-    const delay = Math.min(
-      baseDelayMs * 2 ** this.reconnectAttempts,
-      MAX_RECONNECT_DELAY_MS,
-    )
+    const delay = clampReconnectDelay(baseDelayMs * 2 ** this.reconnectAttempts)
     this.reconnectAttempts += 1
 
     this.reconnectTimer = setTimeout(() => {

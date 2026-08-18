@@ -1,22 +1,23 @@
-# Discord-Rollen-Sync
+# Discord-Guild-Sync und Linked Roles
 
-Mitglieder verknüpfen Discord, treten dem Server bei, danach weist der Bot Rollen zu.
+Mitglieder verknüpfen Discord, treten dem Server bei, danach weist der Bot Rollen zu. Optional schreibt Connect **Linked Roles**-Metadaten (kein YouTube/Riot-Partner nötig — jede Discord-App).
 
 ## Für Mitglieder
 
 1. **Discord verbinden** auf dem Dashboard – Connect speichert deine Discord-User-ID und lädt dich direkt in den Server ein (`guilds.join`).
 2. **Rollen** – sobald du im Server bist, ordnet der Bot deine Vereinsgruppen den Discord-Rollen zu (automatisch per Cron oder „Rollen synchronisieren“).
 3. **`/connect` im Discord** – öffnet einen Link zu Neuland Connect (nur Weiterleitung, keine Sync-Logik im Bot).
+4. **Linked Roles** (optional) – im Discord-Servermenü unter **Linked Roles** Connect als Nachweis hinterlegen. Die Metadaten kommen aus Authentik (Mitglied, Vorstand, Ehrenmitglied, Ressorts).
 
-Falls du den Server verlassen hast oder der automatische Beitritt fehlschlägt: **Discord erneut verbinden** – der OAuth-Flow versucht den Serverbeitritt erneut.
+Falls du den Server verlassen hast oder der automatische Beitritt fehlschlägt: **Discord erneut verbinden** – der OAuth-Flow versucht den Serverbeitritt erneut. Neu verbinden aktualisiert auch die Linked-Role-Metadaten (Tokens werden nicht gespeichert).
 
-Beim Trennen der Verknüpfung bleibst du im Discord-Server, verlierst aber alle Rollen.
+Beim Trennen der Verknüpfung bleibst du im Discord-Server, verlierst aber alle **Bot-Rollen**. Die Discord-Linked-Role bleibt, bis du sie in Discord selbst trennst (ohne User-Token kann Connect sie nicht löschen).
 
 ## Zwei getrennte Credentials
 
 | Credential | Zweck | Berechtigung |
 |------------|-------|--------------|
-| **OAuth App** | Mitglied verknüpft sein Discord-Konto | `identify`, `guilds.join` |
+| **OAuth App** | Mitglied verknüpft sein Discord-Konto + Linked Roles | `identify`, `guilds.join`, `role_connections.write` |
 | **Bot** | Serverbeitritt per User-Token + Rollen setzen | Create Instant Invite (für PUT member), Manage Roles |
 
 OAuth-Tokens werden **nicht** gespeichert.
@@ -30,12 +31,14 @@ OAuth-Tokens werden **nicht** gespeichert.
 3. Wenn nein: `PUT /guilds/{guild}/members/{id}` mit dem noch gültigen User-Access-Token (`guilds.join`)
 4. Wenn im Server: `discord_guild_status = member`, Rollen synchronisieren
 5. Wenn Beitritt fehlschlägt: `discord_guild_last_error` optional; Mitglied kann über „Erneut verbinden“ erneut versuchen
+6. Parallel: Linked-Role-Metadaten per User-Token schreiben; Token danach verwerfen
 
 ### Trennen
 
 1. Bot entfernt alle Rollen des Members (`PATCH` mit leerer Rollenliste, Fallback: einzelne `DELETE`)
 2. Mitgliedschaft im Server bleibt bestehen (kein Kick)
 3. Authentik-Attribute (`discord_*`) werden gelöscht
+4. Discord-Linked-Role wird nicht automatisch entfernt (kein User-Token)
 
 ### Cron
 
@@ -87,6 +90,52 @@ Discord zeigt das, wenn innerhalb von 3 Sekunden **keine gültige Interaction-Re
 
 Server-Logs bei fehlgeschlagener Signatur: `[discord-interactions] Rejected request: invalid signature`
 
+## Linked Roles (Application Role Connections)
+
+Eigene Apps stehen **nicht** neben YouTube/League in User Settings → Connections. Sie erscheinen erst unter **Server Settings → Roles → Links → Add requirement**, wenn Verification-URL und Metadata-Schema gesetzt sind. Kein Partner-Status nötig.
+
+### Einmalig im Discord Developer Portal
+
+1. Derselbe Bot wie für Role-Sync ist auf dem Neuland-Server.
+2. **General Information** → **Linked Roles Verification URL**:
+
+```
+{APP_URL}/api/integrations/discord/linked-role
+```
+
+Produktion: `https://connect.neuland.ing/api/integrations/discord/linked-role`
+
+3. **OAuth2 → Redirects** bleibt `{APP_URL}/api/integrations/discord/callback`.
+4. Metadata-Schema mit Bot-Token registrieren (passiert auch automatisch beim ersten Connect):
+
+```bash
+curl -X POST https://connect.neuland.ing/api/internal/discord-linked-roles/register \
+  -H "Authorization: Bearer $CRON_SECRET"
+```
+
+Danach taucht die App unter **Links → Add requirement** auf.
+
+### Metadaten (max. 5)
+
+| Key | Bedeutung |
+|-----|-----------|
+| `is_member` | Authentik-User mit dieser Discord-ID verknüpft |
+| `is_vorstand` | Authentik-Gruppe `Vorstand` |
+| `is_ehrenmitglied` | Gruppe matcht Ehrenmitglied |
+| `is_organisation` | Ressort `organisation` |
+| `is_engineering` | Ressort `engineering` |
+
+Beispiel: Rolle „Neuland-Mitglied“ mit Requirement `is_member = wahr`.
+
+### Mitgliedsfluss
+
+1. Discord in Connect verknüpfen (`discord_id` in Authentik).
+2. Servername → **Linked Roles** → Rolle → Connect.
+3. Discord öffnet die Verification-URL. Connect startet OAuth (`identify` + `role_connections.write`), schreibt Metadaten, verwirft den Token.
+4. Discord vergibt die Rolle, wenn die Requirements passen.
+
+Ohne Connect-Verknüpfung schreibt Connect `is_member = 0`. Der Cron kann Linked Roles **nicht** nachziehen (kein gespeichertes User-Token). Nach Gruppenänderungen: **Neu verbinden** oder Linked Roles in Discord erneut auslösen.
+
 ## Authentik-Attribute
 
 | Attribut | Werte / Zweck |
@@ -130,4 +179,7 @@ DISCORD_BOT_GATEWAY=true
 | Rollen-Sync | `src/lib/integrations/discord/roles-sync.ts` |
 | Cron | `src/routes/api/internal/discord-roles/sync.ts` |
 | Interactions API | `src/routes/api/integrations/discord/interactions.ts` |
+| Linked Roles | `src/lib/integrations/discord/linked-roles.ts` |
+| Verification URL | `GET /api/integrations/discord/linked-role` |
+| Metadata register | `POST /api/internal/discord-linked-roles/register` |
 | Dashboard | `src/components/dashboard/discord-connection-card.tsx` |
