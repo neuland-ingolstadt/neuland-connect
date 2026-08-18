@@ -95,6 +95,9 @@ export const serverConfig = {
     get guildId() {
       return optionalEnv('DISCORD_GUILD_ID')
     },
+    get publicKey() {
+      return optionalEnv('DISCORD_PUBLIC_KEY')
+    },
     get isOAuthConfigured() {
       return Boolean(
         serverConfig.discord.clientId && serverConfig.discord.clientSecret,
@@ -103,6 +106,14 @@ export const serverConfig = {
     get isRoleSyncConfigured() {
       return Boolean(
         serverConfig.discord.botToken && serverConfig.discord.guildId,
+      )
+    },
+    get isInteractionsConfigured() {
+      return Boolean(
+        serverConfig.discord.botToken &&
+          serverConfig.discord.publicKey &&
+          serverConfig.discord.clientId &&
+          serverConfig.discord.guildId,
       )
     },
   },

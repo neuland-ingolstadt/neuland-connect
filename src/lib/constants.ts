@@ -19,6 +19,7 @@ export const ROUTES = {
   GITHUB_CALLBACK: '/api/integrations/github/callback',
   DISCORD_CONNECT: '/api/integrations/discord/connect',
   DISCORD_CALLBACK: '/api/integrations/discord/callback',
+  DISCORD_INTERACTIONS: '/api/integrations/discord/interactions',
 } as const
 
 export const AUTHENTIK_ATTRIBUTES = {
