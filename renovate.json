@@ -3,6 +3,7 @@
   "extends": [
     "config:recommended",
     "customManagers:biomeVersions",
+    ":configMigration",
     ":semanticCommits",
     ":semanticCommitScope(package)",
     "helpers:pinGitHubActionDigests",
@@ -29,11 +30,10 @@
   },
   "packageRules": [
     {
-      "description": "Group Biome package, schema, and bun lockfile",
+      "description": "Keep @biomejs/biome, bun.lock, and biome.json $schema in one PR",
+      "matchPackageNames": ["@biomejs/biome"],
       "groupName": "biome",
-      "groupSlug": "biome",
-      "matchDepNames": ["@biomejs/biome"],
-      "matchManagers": ["bun", "custom.jsonata"]
+      "groupSlug": "biome"
     },
     {
       "description": "Group TanStack packages",
@@ -46,14 +46,14 @@
       "groupName": "production dependencies",
       "groupSlug": "prod",
       "matchDepTypes": ["dependencies"],
-      "excludePackageNames": ["@biomejs/biome", "@tanstack/**"]
+      "matchPackageNames": ["!@biomejs/biome", "!@tanstack/**"]
     },
     {
       "description": "Development dependencies",
       "groupName": "dev dependencies",
       "groupSlug": "dev",
       "matchDepTypes": ["devDependencies"],
-      "excludePackageNames": ["@biomejs/biome", "@tanstack/**"]
+      "matchPackageNames": ["!@biomejs/biome", "!@tanstack/**"]
     },
     {
       "description": "Docker base images",
