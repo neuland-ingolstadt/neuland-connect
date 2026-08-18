@@ -143,7 +143,7 @@ class DiscordGatewayClient {
             type: 0,
           },
         ],
-        status: 'online',
+        status: 'dnd',
         afk: false,
       },
     })
