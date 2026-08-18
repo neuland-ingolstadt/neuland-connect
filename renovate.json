@@ -33,7 +33,7 @@
       "groupName": "biome",
       "groupSlug": "biome",
       "matchDepNames": ["@biomejs/biome"],
-      "matchManagers": ["bun", "custom.regex", "jsonata"]
+      "matchManagers": ["bun", "custom.jsonata"]
     },
     {
       "description": "Group TanStack packages",
