@@ -3,7 +3,7 @@ import { useServerFn } from '@tanstack/react-start'
 import { Link2Off, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { GitHubIcon } from '#/components/icons/github-icon'
+import { DiscordIcon } from '#/components/icons/discord-icon'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,80 +21,76 @@ import { INTEGRATION_CARD_IDS } from '#/components/dashboard/dashboard-action-ba
 import { IntegrationProgressInline } from '#/components/dashboard/integration-progress-inline'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import type { UserAttributes } from '#/lib/authentik/types'
-import { GITHUB_ORG_STATUSES, ROUTES } from '#/lib/constants'
-import { buildGitHubIntegrationProgress } from '#/lib/integrations/github/integration-progress'
+import { ROUTES } from '#/lib/constants'
+import { buildDiscordIntegrationProgress } from '#/lib/integrations/discord/integration-progress'
 import {
-  getGitHubOrgStatusDisplay,
-  githubOrgInvitationUrl,
-  githubProfileUrl,
-} from '#/lib/integrations/github/org-status-display'
+  discordProfileUrl,
+  getDiscordGuildStatusDisplay,
+  isDiscordInGuild,
+} from '#/lib/integrations/discord/guild-status-display'
 import { formatDate } from '#/lib/utils'
-import { disconnectGitHubFn } from '#/server/disconnect-github'
-import { syncGitHubTeamsFn } from '#/server/sync-github-teams'
+import { disconnectDiscordFn } from '#/server/disconnect-discord'
+import { syncDiscordRolesFn } from '#/server/sync-discord-roles'
 
-const VISIBLE_TEAM_LIMIT = 4
+const VISIBLE_ROLE_LIMIT = 4
 
-type GitHubConnectionCardProps = {
+type DiscordConnectionCardProps = {
   connected: boolean
   attributes: UserAttributes
-  githubOrg: string | null
-  teamSyncEnabled: boolean
-  githubTeams: string[]
+  roleSyncEnabled: boolean
+  discordRoles: string[]
 }
 
-export function GitHubConnectionCard({
+export function DiscordConnectionCard({
   connected,
   attributes,
-  githubOrg,
-  teamSyncEnabled,
-  githubTeams,
-}: GitHubConnectionCardProps) {
+  roleSyncEnabled,
+  discordRoles,
+}: DiscordConnectionCardProps) {
   const router = useRouter()
-  const disconnectGitHub = useServerFn(disconnectGitHubFn)
-  const syncGitHubTeams = useServerFn(syncGitHubTeamsFn)
+  const disconnectDiscord = useServerFn(disconnectDiscordFn)
+  const syncDiscordRoles = useServerFn(syncDiscordRolesFn)
   const [disconnectOpen, setDisconnectOpen] = useState(false)
   const [isDisconnecting, setIsDisconnecting] = useState(false)
-  const [isSyncingTeams, setIsSyncingTeams] = useState(false)
-  const [teamsExpanded, setTeamsExpanded] = useState(false)
-  const orgStatus = getGitHubOrgStatusDisplay(attributes.githubOrgStatus)
-  const hasMoreTeams = githubTeams.length > VISIBLE_TEAM_LIMIT
-  const visibleTeams =
-    teamsExpanded || !hasMoreTeams
-      ? githubTeams
-      : githubTeams.slice(0, VISIBLE_TEAM_LIMIT)
-  const hiddenTeamCount = githubTeams.length - visibleTeams.length
-  const showInvitationLink =
-    connected && attributes.githubOrgStatus === 'invited' && githubOrg !== null
-  const canSyncTeams =
-    connected &&
-    teamSyncEnabled &&
-    (attributes.githubOrgStatus === GITHUB_ORG_STATUSES.MEMBER ||
-      attributes.githubOrgStatus === GITHUB_ORG_STATUSES.ADMIN)
-  const integrationProgress = buildGitHubIntegrationProgress({
+  const [isSyncingRoles, setIsSyncingRoles] = useState(false)
+  const [rolesExpanded, setRolesExpanded] = useState(false)
+  const guildStatus = getDiscordGuildStatusDisplay(
+    attributes.discordGuildStatus,
+  )
+  const inGuild = isDiscordInGuild(attributes.discordGuildStatus)
+  const hasMoreRoles = discordRoles.length > VISIBLE_ROLE_LIMIT
+  const visibleRoles =
+    rolesExpanded || !hasMoreRoles
+      ? discordRoles
+      : discordRoles.slice(0, VISIBLE_ROLE_LIMIT)
+  const hiddenRoleCount = discordRoles.length - visibleRoles.length
+  const canSyncRoles = connected && roleSyncEnabled && inGuild
+  const integrationProgress = buildDiscordIntegrationProgress({
     connected,
-    githubOrgStatus: attributes.githubOrgStatus,
+    discordGuildStatus: attributes.discordGuildStatus,
+    roleSyncEnabled,
   })
 
   async function handleDisconnect() {
     setIsDisconnecting(true)
 
     try {
-      await disconnectGitHub()
-      toast.success('GitHub-Verbindung getrennt.')
+      await disconnectDiscord()
+      toast.success('Discord-Verbindung getrennt.')
       setDisconnectOpen(false)
       await router.invalidate()
     } catch {
-      toast.error('GitHub-Verbindung konnte nicht getrennt werden.')
+      toast.error('Discord-Verbindung konnte nicht getrennt werden.')
     } finally {
       setIsDisconnecting(false)
     }
   }
 
-  async function handleSyncTeams() {
-    setIsSyncingTeams(true)
+  async function handleSyncRoles() {
+    setIsSyncingRoles(true)
 
     try {
-      const result = await syncGitHubTeams()
+      const result = await syncDiscordRoles()
       const parts: string[] = []
       if (result.added.length > 0) {
         parts.push(`+${result.added.join(', ')}`)
@@ -102,26 +98,30 @@ export function GitHubConnectionCard({
       if (result.removed.length > 0) {
         parts.push(`−${result.removed.join(', ')}`)
       }
-      toast.success(
-        parts.length > 0
-          ? `Teams aktualisiert (${parts.join('; ')}).`
-          : 'Teams sind bereits aktuell.',
-      )
+
+      if (parts.length > 0) {
+        toast.success(`Rollen aktualisiert (${parts.join('; ')}).`)
+      } else {
+        toast.success('Rollen sind bereits aktuell.')
+      }
+
       await router.invalidate()
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Teams konnten nicht synchronisiert werden.',
+          : 'Rollen konnten nicht synchronisiert werden.',
       )
+      // Sync may clear stale guild status in Authentik before failing.
+      await router.invalidate()
     } finally {
-      setIsSyncingTeams(false)
+      setIsSyncingRoles(false)
     }
   }
 
   return (
     <TerminalPanel
-      title="GitHub"
+      title="Discord"
       titleAside={
         <IntegrationProgressInline
           steps={integrationProgress.steps}
@@ -130,54 +130,60 @@ export function GitHubConnectionCard({
       }
     >
       <div
-        id={INTEGRATION_CARD_IDS.github}
+        id={INTEGRATION_CARD_IDS.discord}
         className="space-y-4 p-4 scroll-mt-24"
       >
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="flex size-10 shrink-0 items-center justify-center border border-terminal-window-border bg-terminal-card">
-              <GitHubIcon className="size-5" />
+              <DiscordIcon className="size-5" />
             </div>
             <div>
               <p className="font-mono text-sm font-semibold text-terminal-lightGreen">
-                {connected && attributes.githubUsername ? (
+                {connected && attributes.discordUsername ? (
                   <a
-                    href={githubProfileUrl(attributes.githubUsername)}
+                    href={
+                      attributes.discordId
+                        ? discordProfileUrl(attributes.discordId)
+                        : undefined
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                     className="transition-colors hover:text-terminal-cyan"
                   >
-                    @{attributes.githubUsername}
+                    @{attributes.discordUsername}
                   </a>
                 ) : (
-                  'Teil der GitHub-Organisation werden'
+                  'Discord verbinden'
                 )}
               </p>
               <p className="mt-0.5 text-xs leading-snug text-terminal-text/50">
                 {connected
                   ? integrationProgress.isComplete
-                    ? 'Verbunden für Org-Zugang'
+                    ? roleSyncEnabled
+                      ? 'Verbunden – Rollen werden synchronisiert'
+                      : 'Verbunden – im Discord-Server'
                     : integrationProgress.hint
-                  : 'Verbinde, um eingeladen zu werden.'}
+                  : 'Verbinde dein Konto für Serverbeitritt und Rollen.'}
               </p>
             </div>
           </div>
           {connected ? (
             <div className="flex flex-wrap gap-2">
-              <Badge variant={orgStatus.variant}>{orgStatus.label}</Badge>
+              <Badge variant={guildStatus.variant}>{guildStatus.label}</Badge>
             </div>
           ) : null}
         </div>
 
         {connected ? (
           <div className="space-y-4">
-            {attributes.githubOrgLastError ? (
+            {attributes.discordGuildLastError ? (
               <div className="border border-destructive/30 bg-destructive/5 px-3 py-2.5">
                 <p className="font-mono text-[10px] uppercase tracking-wider text-destructive-foreground/70">
                   Sync-Fehler
                 </p>
                 <p className="mt-1 font-mono text-xs leading-relaxed text-terminal-text/80">
-                  {attributes.githubOrgLastError}
+                  {attributes.discordGuildLastError}
                 </p>
                 <p className="mt-2 text-xs text-terminal-text/50">
                   Bei anhaltenden Problemen den Admin kontaktieren.
@@ -188,95 +194,97 @@ export function GitHubConnectionCard({
             <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
               <DetailItem
                 label="Username"
-                value={attributes.githubUsername}
+                value={attributes.discordUsername}
                 href={
-                  attributes.githubUsername
-                    ? githubProfileUrl(attributes.githubUsername)
+                  attributes.discordId
+                    ? discordProfileUrl(attributes.discordId)
                     : undefined
                 }
               />
-              {attributes.githubConnectedAt ? (
+              {attributes.discordConnectedAt ? (
                 <DetailItem
                   label="Seit"
-                  value={formatDate(attributes.githubConnectedAt)}
+                  value={formatDate(attributes.discordConnectedAt)}
                 />
               ) : null}
-              {attributes.githubOrgInvitedAt ? (
+              {inGuild && attributes.discordGuildJoinedAt ? (
                 <DetailItem
-                  label="Eingeladen"
-                  value={formatDate(attributes.githubOrgInvitedAt)}
+                  label="Im Server seit"
+                  value={formatDate(attributes.discordGuildJoinedAt)}
                 />
               ) : null}
             </dl>
 
-            {githubTeams.length > 0 ? (
+            {inGuild && discordRoles.length > 0 ? (
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
-                  Teams
+                  Rollen
                   <span className="ml-1 text-terminal-text/25">
-                    ({githubTeams.length})
+                    ({discordRoles.length})
                   </span>
                 </p>
                 <ul className="mt-2 flex flex-wrap gap-1.5">
-                  {visibleTeams.map(team => (
-                    <li key={team} className="min-w-0 max-w-full">
+                  {visibleRoles.map(role => (
+                    <li key={role} className="min-w-0 max-w-full">
                       <Badge
                         variant="secondary"
                         className="max-w-full truncate"
                       >
-                        {team}
+                        {role}
                       </Badge>
                     </li>
                   ))}
                 </ul>
-                {hasMoreTeams ? (
+                {hasMoreRoles ? (
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     className="mt-2 h-auto px-0 py-0 font-mono text-[11px] text-terminal-text/50 hover:bg-transparent hover:text-terminal-cyan"
-                    onClick={() => setTeamsExpanded(expanded => !expanded)}
+                    onClick={() => setRolesExpanded(expanded => !expanded)}
                   >
-                    {teamsExpanded
+                    {rolesExpanded
                       ? 'Weniger anzeigen'
-                      : `+${hiddenTeamCount} weitere`}
+                      : `+${hiddenRoleCount} weitere`}
                   </Button>
                 ) : null}
               </div>
+            ) : inGuild && roleSyncEnabled ? (
+              <p className="text-xs leading-relaxed text-terminal-text/50">
+                Keine Vereinsgruppen mit Discord-Rollen-Mapping gefunden. In
+                Authentik braucht die Gruppe das Attribut{' '}
+                <span className="font-mono">discord_role</span> und du musst
+                Mitglied dieser Gruppe sein.
+              </p>
             ) : null}
 
             <div className="flex flex-wrap gap-2">
-              {canSyncTeams ? (
+              {canSyncRoles ? (
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  disabled={isSyncingTeams}
+                  disabled={isSyncingRoles}
                   onClick={() => {
-                    void handleSyncTeams()
+                    void handleSyncRoles()
                   }}
                 >
                   <RefreshCw
-                    className={isSyncingTeams ? 'animate-spin' : undefined}
+                    className={isSyncingRoles ? 'animate-spin' : undefined}
                   />
-                  {isSyncingTeams ? 'Synchronisiere…' : 'Teams synchronisieren'}
+                  {isSyncingRoles
+                    ? 'Synchronisiere…'
+                    : 'Rollen synchronisieren'}
                 </Button>
               ) : null}
-              {showInvitationLink ? (
-                <Button variant="outline" size="sm" asChild>
-                  <a
-                    href={githubOrgInvitationUrl(githubOrg)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Einladung öffnen
-                  </a>
-                </Button>
-              ) : null}
-              <Button variant="outline" size="sm" asChild>
-                <a href={ROUTES.GITHUB_CONNECT}>
-                  <GitHubIcon className="text-inherit" />
-                  Neu verbinden
+              <Button
+                variant={inGuild ? 'outline' : 'default'}
+                size="sm"
+                asChild
+              >
+                <a href={ROUTES.DISCORD_CONNECT}>
+                  <DiscordIcon className="text-inherit" />
+                  {inGuild ? 'Neu verbinden' : 'Erneut beitreten'}
                 </a>
               </Button>
               <AlertDialog
@@ -297,10 +305,11 @@ export function GitHubConnectionCard({
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>
-                      GitHub-Verbindung trennen?
+                      Discord-Verbindung trennen?
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                      Der Org-Zugang kann dabei entfallen.
+                      Du bleibst im Discord-Server, verlierst aber alle Rollen.
+                      Connect vergisst die Verknüpfung.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -325,7 +334,7 @@ export function GitHubConnectionCard({
         ) : (
           <div>
             <Button asChild>
-              <a href={ROUTES.GITHUB_CONNECT}>Mit GitHub verbinden</a>
+              <a href={ROUTES.DISCORD_CONNECT}>Mit Discord verbinden</a>
             </Button>
           </div>
         )}

@@ -36,16 +36,18 @@ src/
   routes/                    # Pages + API routes (file-based)
     api/auth/                # OIDC login, callback, logout
     api/integrations/github/ # GitHub OAuth connect + callback
+    api/integrations/discord/ # Discord OAuth connect + callback
     dashboard.tsx            # Main member dashboard (auth required)
     login.tsx
   server/                    # createServerFn handlers (getCurrentUser, disconnectGitHub)
   lib/
     auth/                    # OIDC flow, crypto (PKCE)
     authentik/               # API client, attribute parsing, user resolution
-    integrations/github/     # OAuth + onboarding status logic
+    integrations/github/     # OAuth + integration progress logic
+    integrations/discord/    # OAuth + guild role sync
     session.server.ts        # Encrypted session (server-only)
   components/
-    dashboard/               # GitHub card, profile card, onboarding progress
+    dashboard/               # GitHub/Discord cards, action banner, progress bars
     layout/                  # AppHeader, PageShell, theme toggle
     ui/                      # Button, Badge, TerminalPanel, etc.
 ```
@@ -62,21 +64,22 @@ Defined in `src/lib/constants.ts` → `AUTHENTIK_ATTRIBUTES`:
 | `github_id` | Linked GitHub numeric ID | ✅ implemented |
 | `github_connected_at` | ISO timestamp of link | ✅ implemented |
 | `github_org_status` | `invited` \| `member` | 🔜 prepared, not written yet |
+| `discord_username` | Linked Discord login | ✅ implemented |
+| `discord_id` | Linked Discord snowflake ID | ✅ implemented |
+| `discord_connected_at` | ISO timestamp of link | ✅ implemented |
+| `discord_guild_status` | `member` when in guild | ✅ implemented |
+| `discord_role` (group attr) | Discord role snowflake for role sync | ✅ implemented |
 
 Parse via `parseUserAttributes()` in `src/lib/authentik/types.ts`.
 
 **User resolution:** OIDC `sub` may not equal Authentik API user PK. `resolveAuthentikUser()` falls back by email/username; `authentikUserId` is cached in session at login.
 
-## Dashboard onboarding (4 steps)
+## Dashboard setup UX
 
-Logic in `src/lib/integrations/github/onboarding-status.ts`, UI in `OnboardingProgress`:
-
-1. **Mitglied** - always complete when logged in (no role check; Authentik gates login)
-2. **Verknüpft** - `github_username` + `github_id` present
-3. **Eingeladen** - `github_org_status === 'invited'` (or member)
-4. **Org-Zugang** - `github_org_status === 'member'`
-
-Steps 3–4 are UI-ready; backend automation not built yet.
+- **Action banner** (`DashboardActionBanner`) – appears only when something needs attention (GitHub/Discord connect, org invite, guild join); hidden when complete
+- **Per-integration progress** – dot indicator + fraction in panel title row (`IntegrationProgressInline`); hint in card subtitle when incomplete
+- GitHub steps: Verbunden → Eingeladen → Org-Zugang
+- Discord steps: Verbunden → Server → Rollen (Rollen step only when role sync enabled)
 
 ## GitHub integration (current)
 
@@ -85,6 +88,18 @@ Steps 3–4 are UI-ready; backend automation not built yet.
 - Implementation: `src/lib/integrations/github/oauth.ts`
 - On success: PATCH Authentik user attributes via `updateAuthentikUserAttributes()`
 - Disconnect: `disconnectGitHubFn` clears GitHub attributes
+
+## Discord integration
+
+- **OAuth App** (`identify` + `guilds.join`) for linking – tokens are discarded after callback (used for `/users/@me` and guild join)
+- **Bot** on the Neuland guild for guild join (PUT member with user token) and role assignment
+- Routes: `GET /api/integrations/discord/connect`, `GET /api/integrations/discord/callback`
+- Implementation: `src/lib/integrations/discord/`
+- Member flow: link account → auto-join guild on callback → bot syncs roles from Authentik groups with `discord_role`
+- Cron: `POST /api/internal/discord-roles/sync` (Bearer `CRON_SECRET`)
+- Disconnect: `disconnectDiscordFn` clears Discord attributes and strips guild roles (no kick)
+
+See `docs/discord-guild-sync.md` for ops details.
 
 ## Future plan: GitHub Org invitations (GitHub App)
 

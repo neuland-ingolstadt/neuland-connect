@@ -79,6 +79,33 @@ export const serverConfig = {
       return serverConfig.github.isOrgSyncConfigured
     },
   },
+  discord: {
+    get clientId() {
+      return optionalEnv('DISCORD_CLIENT_ID')
+    },
+    get clientSecret() {
+      return optionalEnv('DISCORD_CLIENT_SECRET')
+    },
+    get redirectUri() {
+      return `${serverConfig.appUrl}/api/integrations/discord/callback`
+    },
+    get botToken() {
+      return optionalEnv('DISCORD_BOT_TOKEN')
+    },
+    get guildId() {
+      return optionalEnv('DISCORD_GUILD_ID')
+    },
+    get isOAuthConfigured() {
+      return Boolean(
+        serverConfig.discord.clientId && serverConfig.discord.clientSecret,
+      )
+    },
+    get isRoleSyncConfigured() {
+      return Boolean(
+        serverConfig.discord.botToken && serverConfig.discord.guildId,
+      )
+    },
+  },
   get cronSecret() {
     return optionalEnv('CRON_SECRET')
   },

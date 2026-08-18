@@ -16,4 +16,5 @@ export type SessionData = {
   oidcState?: string
   oidcCodeVerifier?: string
   githubOAuthState?: string
+  discordOAuthState?: string
 }

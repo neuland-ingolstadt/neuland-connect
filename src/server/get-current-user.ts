@@ -1,5 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
-import { isGitHubConnected, parseUserAttributes } from '#/lib/authentik/types'
+import {
+  isDiscordConnected,
+  isGitHubConnected,
+  parseUserAttributes,
+} from '#/lib/authentik/types'
 
 export type CurrentUser = {
   sub: string
@@ -14,6 +18,11 @@ export type CurrentUser = {
   teamSyncEnabled: boolean
   /** GitHub team slugs mapped from Authentik groups the user belongs to */
   githubTeams: string[]
+  discordConnected: boolean
+  discordOAuthEnabled: boolean
+  roleSyncEnabled: boolean
+  /** Authentik group names that map to Discord roles */
+  discordRoles: string[]
 }
 
 export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
@@ -23,6 +32,7 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
     const {
       getAuthentikUser,
       getAuthentikUserGroups,
+      getManagedDiscordRoleMap,
       getManagedGitHubTeamMap,
     } = await import('#/lib/authentik/client')
     const { resolveSessionAuthentikUserId } = await import(
@@ -55,6 +65,7 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
 
     const hiddenGroups = new Set<string>()
     let githubTeams: string[] = []
+    let discordRoles: string[] = []
     if (serverConfig.github.isTeamSyncConfigured) {
       try {
         const managedMap = await getManagedGitHubTeamMap()
@@ -71,6 +82,22 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
         ].sort((a, b) => a.localeCompare(b))
       } catch {
         // Profile still works if team mapping is temporarily unavailable.
+      }
+    }
+
+    if (serverConfig.discord.isRoleSyncConfigured) {
+      try {
+        const managedMap = await getManagedDiscordRoleMap()
+        for (const groupName of managedMap.keys()) {
+          hiddenGroups.add(groupName)
+        }
+        discordRoles = [
+          ...new Set(
+            groups.flatMap(group => (managedMap.has(group) ? [group] : [])),
+          ),
+        ].sort((a, b) => a.localeCompare(b, 'de'))
+      } catch {
+        // Profile still works if role mapping is temporarily unavailable.
       }
     }
 
@@ -91,6 +118,10 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       githubOrg: serverConfig.github.org ?? null,
       teamSyncEnabled: serverConfig.github.isTeamSyncConfigured,
       githubTeams,
+      discordConnected: isDiscordConnected(attributes),
+      discordOAuthEnabled: serverConfig.discord.isOAuthConfigured,
+      roleSyncEnabled: serverConfig.discord.isRoleSyncConfigured,
+      discordRoles,
     }
   },
 )

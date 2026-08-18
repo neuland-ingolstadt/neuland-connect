@@ -16,12 +16,6 @@
 
   --font-mono: "Noto Sans Mono", ui-monospace, monospace;
   --font-sans: "Noto Sans", ui-sans-serif, system-ui, sans-serif;
-
-  --animate-onboarding-step-complete: onboarding-step-complete 520ms
-    cubic-bezier(0.34, 1.4, 0.64, 1);
-  --animate-onboarding-check-in: onboarding-check-in 360ms
-    cubic-bezier(0.34, 1.4, 0.64, 1) 120ms both;
-  --animate-onboarding-step-pulse: onboarding-step-pulse 2s ease-in-out infinite;
 }
 
 @theme inline {
@@ -214,66 +208,4 @@ h4 {
       rgba(74, 222, 128, 0.04),
       transparent 60%
     );
-}
-
-@keyframes onboarding-step-complete {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 transparent;
-  }
-
-  45% {
-    transform: scale(1.14);
-    box-shadow: 0 0 0 2px
-      color-mix(in oklch, var(--terminal-cyan) 55%, transparent);
-  }
-
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 transparent;
-  }
-}
-
-@keyframes onboarding-check-in {
-  0% {
-    transform: scale(0.2) rotate(-40deg);
-    opacity: 0;
-  }
-
-  70% {
-    transform: scale(1.12) rotate(0deg);
-    opacity: 1;
-  }
-
-  100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-}
-
-@keyframes onboarding-step-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0
-      color-mix(in oklch, var(--terminal-cyan) 0%, transparent);
-    border-color: var(--terminal-cyan);
-  }
-
-  50% {
-    box-shadow: 0 0 0 3px
-      color-mix(in oklch, var(--terminal-cyan) 35%, transparent);
-    border-color: color-mix(
-      in oklch,
-      var(--terminal-lightGreen) 70%,
-      var(--terminal-cyan)
-    );
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .onboarding-step-animate,
-  .onboarding-check-animate,
-  .onboarding-step-pulse {
-    animation: none !important;
-  }
 }

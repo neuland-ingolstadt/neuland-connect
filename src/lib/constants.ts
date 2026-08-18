@@ -17,6 +17,8 @@ export const ROUTES = {
   AUTH_LOGOUT: '/api/auth/logout',
   GITHUB_CONNECT: '/api/integrations/github/connect',
   GITHUB_CALLBACK: '/api/integrations/github/callback',
+  DISCORD_CONNECT: '/api/integrations/discord/connect',
+  DISCORD_CALLBACK: '/api/integrations/discord/callback',
 } as const
 
 export const AUTHENTIK_ATTRIBUTES = {
@@ -28,6 +30,14 @@ export const AUTHENTIK_ATTRIBUTES = {
   GITHUB_ORG_LAST_ERROR: 'github_org_last_error',
   /** Authentik *group* attribute: GitHub team slug for team sync */
   GITHUB_TEAM: 'github_team',
+  DISCORD_USERNAME: 'discord_username',
+  DISCORD_ID: 'discord_id',
+  DISCORD_CONNECTED_AT: 'discord_connected_at',
+  DISCORD_GUILD_STATUS: 'discord_guild_status',
+  DISCORD_GUILD_JOINED_AT: 'discord_guild_joined_at',
+  DISCORD_GUILD_LAST_ERROR: 'discord_guild_last_error',
+  /** Authentik *group* attribute: Discord role snowflake for role sync */
+  DISCORD_ROLE: 'discord_role',
 } as const
 
 export const GITHUB_ORG_STATUSES = {
@@ -40,6 +50,15 @@ export type GitHubOrgStatus =
   (typeof GITHUB_ORG_STATUSES)[keyof typeof GITHUB_ORG_STATUSES]
 
 export const GITHUB_OAUTH_SCOPE = 'read:user' as const
+
+export const DISCORD_GUILD_STATUSES = {
+  MEMBER: 'member',
+} as const
+
+export type DiscordGuildStatus =
+  (typeof DISCORD_GUILD_STATUSES)[keyof typeof DISCORD_GUILD_STATUSES]
+
+export const DISCORD_OAUTH_SCOPE = 'identify guilds.join' as const
 
 export const SESSION_COOKIE_NAME = 'neuland-connect-session' as const
 

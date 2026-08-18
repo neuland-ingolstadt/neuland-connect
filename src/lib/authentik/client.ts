@@ -1,3 +1,4 @@
+import { parseAuthentikJson } from '#/lib/authentik/json'
 import type {
   AuthentikGroupListResponse,
   AuthentikGroupResponse,
@@ -8,6 +9,7 @@ import type {
 import { serverConfig } from '#/lib/config'
 import { AUTHENTIK_ATTRIBUTES } from '#/lib/constants'
 import { getAuthentikErrorMessage } from '#/lib/errors'
+import { parseDiscordSnowflakeAttribute } from '#/lib/integrations/discord/snowflake'
 
 class AuthentikApiError extends Error {
   constructor(
@@ -56,7 +58,8 @@ async function authentikFetch<T>(path: string, init?: RequestInit): Promise<T> {
     throw new AuthentikApiError(response.status)
   }
 
-  return response.json() as Promise<T>
+  const text = await response.text()
+  return parseAuthentikJson<T>(text)
 }
 
 function encodeUserId(userId: string | number): string {
@@ -101,17 +104,45 @@ export async function getAuthentikUserGroups(
     .sort((a, b) => a.localeCompare(b, 'de'))
 }
 
+function readAuthentikScalarAttribute(
+  attributes: Record<string, unknown> | undefined,
+  key: string,
+): string | null {
+  const value = attributes?.[key]
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    return trimmed.length > 0 ? trimmed : null
+  }
+
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    // Authentik may store snowflakes as integers. Prefer string attributes in
+    // Authentik for Discord IDs — JSON numbers can lose precision above 2^53-1.
+    return String(Math.trunc(value))
+  }
+
+  if (Array.isArray(value) && value.length > 0) {
+    return readAuthentikScalarAttribute({ [key]: value[0] }, key)
+  }
+
+  return null
+}
+
 function readGitHubTeamSlug(
   attributes: Record<string, unknown> | undefined,
 ): string | null {
-  const value = attributes?.[AUTHENTIK_ATTRIBUTES.GITHUB_TEAM]
-  if (typeof value === 'string' && value.length > 0) {
-    return value
-  }
-  if (Array.isArray(value) && typeof value[0] === 'string' && value[0]) {
-    return value[0]
-  }
-  return null
+  return readAuthentikScalarAttribute(
+    attributes,
+    AUTHENTIK_ATTRIBUTES.GITHUB_TEAM,
+  )
+}
+
+function readDiscordRoleId(
+  attributes: Record<string, unknown> | undefined,
+): string | null {
+  return parseDiscordSnowflakeAttribute(
+    attributes?.[AUTHENTIK_ATTRIBUTES.DISCORD_ROLE],
+  )
 }
 
 /**
@@ -120,6 +151,42 @@ function readGitHubTeamSlug(
 export async function getManagedGitHubTeamMap(): Promise<Map<string, string>> {
   const teams = await getManagedGitHubTeams()
   return new Map(teams.map(team => [team.groupName, team.slug]))
+}
+
+/**
+ * Authentik group name → Discord role snowflake for every group with `discord_role` set.
+ */
+export async function getManagedDiscordRoleMap(): Promise<Map<string, string>> {
+  const managed = new Map<string, string>()
+  let page = 1
+  const pageSize = 100
+
+  while (true) {
+    const params = new URLSearchParams({
+      include_users: 'false',
+      page_size: String(pageSize),
+      page: String(page),
+    })
+
+    const response = await authentikFetch<AuthentikGroupListResponse>(
+      `/api/v3/core/groups/?${params.toString()}`,
+    )
+
+    for (const group of response.results) {
+      const roleId = readDiscordRoleId(group.attributes)
+      if (roleId) {
+        managed.set(group.name, roleId)
+      }
+    }
+
+    if (response.results.length < pageSize) {
+      break
+    }
+
+    page += 1
+  }
+
+  return managed
 }
 
 export type ManagedGitHubTeam = {
@@ -251,23 +318,50 @@ export async function updateAuthentikUserAttributes(
   })
 }
 
+function isAbsentAttribute(value: unknown): boolean {
+  return value === undefined || value === null || value === ''
+}
+
 export async function patchAuthentikUserAttributes(
   userId: string | number,
   options: {
     set?: Record<string, string>
+    setIfAbsent?: Record<string, string>
     remove?: string[]
   },
 ): Promise<AuthentikUserResponse> {
   return withAuthentikUserAttributeLock(userId, async () => {
     const currentUser = await getAuthentikUser(userId)
     const attributes = { ...currentUser.attributes }
+    let changed = false
 
     for (const key of options.remove ?? []) {
-      delete attributes[key]
+      if (key in attributes) {
+        delete attributes[key]
+        changed = true
+      }
     }
 
     if (options.set) {
-      Object.assign(attributes, options.set)
+      for (const [key, value] of Object.entries(options.set)) {
+        if (attributes[key] !== value) {
+          attributes[key] = value
+          changed = true
+        }
+      }
+    }
+
+    if (options.setIfAbsent) {
+      for (const [key, value] of Object.entries(options.setIfAbsent)) {
+        if (isAbsentAttribute(attributes[key])) {
+          attributes[key] = value
+          changed = true
+        }
+      }
+    }
+
+    if (!changed) {
+      return currentUser
     }
 
     return authentikFetch<AuthentikUserResponse>(
@@ -320,6 +414,33 @@ export async function clearGitHubUserAttributes(
     delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_ORG_STATUS]
     delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_ORG_INVITED_AT]
     delete attributes[AUTHENTIK_ATTRIBUTES.GITHUB_ORG_LAST_ERROR]
+
+    return authentikFetch<AuthentikUserResponse>(
+      `/api/v3/core/users/${encodeUserId(userId)}/`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ attributes }),
+      },
+    )
+  })
+}
+
+export async function clearDiscordUserAttributes(
+  userId: string | number,
+): Promise<AuthentikUserResponse> {
+  return withAuthentikUserAttributeLock(userId, async () => {
+    const currentUser = await getAuthentikUser(userId)
+    const attributes = { ...currentUser.attributes }
+
+    delete attributes[AUTHENTIK_ATTRIBUTES.DISCORD_USERNAME]
+    delete attributes[AUTHENTIK_ATTRIBUTES.DISCORD_ID]
+    delete attributes[AUTHENTIK_ATTRIBUTES.DISCORD_CONNECTED_AT]
+    delete attributes[AUTHENTIK_ATTRIBUTES.DISCORD_GUILD_STATUS]
+    delete attributes[AUTHENTIK_ATTRIBUTES.DISCORD_GUILD_JOINED_AT]
+    delete attributes[AUTHENTIK_ATTRIBUTES.DISCORD_GUILD_LAST_ERROR]
 
     return authentikFetch<AuthentikUserResponse>(
       `/api/v3/core/users/${encodeUserId(userId)}/`,

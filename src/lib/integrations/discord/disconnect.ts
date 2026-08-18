@@ -1,6 +1,6 @@
-export async function disconnectGitHubConnection(): Promise<void> {
+export async function disconnectDiscordConnection(): Promise<void> {
   const { requireSessionUser } = await import('#/lib/session.server')
-  const { clearGitHubUserAttributes, getAuthentikUser } = await import(
+  const { clearDiscordUserAttributes, getAuthentikUser } = await import(
     '#/lib/authentik/client'
   )
   const { parseUserAttributes } = await import('#/lib/authentik/types')
@@ -8,8 +8,8 @@ export async function disconnectGitHubConnection(): Promise<void> {
     '#/lib/authentik/session-user'
   )
   const { serverConfig } = await import('#/lib/config')
-  const { clearManagedGitHubTeams } = await import(
-    '#/lib/integrations/github/teams-sync'
+  const { clearGuildMemberRoles } = await import(
+    '#/lib/integrations/discord/guild'
   )
 
   const sessionData = await requireSessionUser()
@@ -21,12 +21,9 @@ export async function disconnectGitHubConnection(): Promise<void> {
   const authentikUser = await getAuthentikUser(authentikUserId)
   const attributes = parseUserAttributes(authentikUser.attributes)
 
-  if (
-    attributes.githubUsername &&
-    serverConfig.github.isTeamSyncConfigured
-  ) {
-    await clearManagedGitHubTeams(attributes.githubUsername)
+  if (attributes.discordId && serverConfig.discord.isRoleSyncConfigured) {
+    await clearGuildMemberRoles(attributes.discordId)
   }
 
-  await clearGitHubUserAttributes(authentikUserId)
+  await clearDiscordUserAttributes(authentikUserId)
 }
