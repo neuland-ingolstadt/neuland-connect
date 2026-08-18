@@ -17,6 +17,7 @@ import { Route as ApiAuthLoginRouteImport } from './routes/api/auth/login'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
 import { Route as ApiIntegrationsDiscordCallbackRouteImport } from './routes/api/integrations/discord/callback'
 import { Route as ApiIntegrationsDiscordConnectRouteImport } from './routes/api/integrations/discord/connect'
+import { Route as ApiIntegrationsDiscordInteractionsRouteImport } from './routes/api/integrations/discord/interactions'
 import { Route as ApiIntegrationsDiscordLinkedRoleRouteImport } from './routes/api/integrations/discord/linked-role'
 import { Route as ApiIntegrationsGithubCallbackRouteImport } from './routes/api/integrations/github/callback'
 import { Route as ApiIntegrationsGithubConnectRouteImport } from './routes/api/integrations/github/connect'
@@ -65,6 +66,12 @@ const ApiIntegrationsDiscordConnectRoute =
   ApiIntegrationsDiscordConnectRouteImport.update({
     id: '/api/integrations/discord/connect',
     path: '/api/integrations/discord/connect',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiIntegrationsDiscordInteractionsRoute =
+  ApiIntegrationsDiscordInteractionsRouteImport.update({
+    id: '/api/integrations/discord/interactions',
+    path: '/api/integrations/discord/interactions',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiIntegrationsDiscordLinkedRoleRoute =
@@ -119,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/integrations/discord/callback': typeof ApiIntegrationsDiscordCallbackRoute
   '/api/integrations/discord/connect': typeof ApiIntegrationsDiscordConnectRoute
+  '/api/integrations/discord/interactions': typeof ApiIntegrationsDiscordInteractionsRoute
   '/api/integrations/discord/linked-role': typeof ApiIntegrationsDiscordLinkedRoleRoute
   '/api/integrations/github/callback': typeof ApiIntegrationsGithubCallbackRoute
   '/api/integrations/github/connect': typeof ApiIntegrationsGithubConnectRoute
@@ -136,6 +144,7 @@ export interface FileRoutesByTo {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/integrations/discord/callback': typeof ApiIntegrationsDiscordCallbackRoute
   '/api/integrations/discord/connect': typeof ApiIntegrationsDiscordConnectRoute
+  '/api/integrations/discord/interactions': typeof ApiIntegrationsDiscordInteractionsRoute
   '/api/integrations/discord/linked-role': typeof ApiIntegrationsDiscordLinkedRoleRoute
   '/api/integrations/github/callback': typeof ApiIntegrationsGithubCallbackRoute
   '/api/integrations/github/connect': typeof ApiIntegrationsGithubConnectRoute
@@ -154,6 +163,7 @@ export interface FileRoutesById {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/integrations/discord/callback': typeof ApiIntegrationsDiscordCallbackRoute
   '/api/integrations/discord/connect': typeof ApiIntegrationsDiscordConnectRoute
+  '/api/integrations/discord/interactions': typeof ApiIntegrationsDiscordInteractionsRoute
   '/api/integrations/discord/linked-role': typeof ApiIntegrationsDiscordLinkedRoleRoute
   '/api/integrations/github/callback': typeof ApiIntegrationsGithubCallbackRoute
   '/api/integrations/github/connect': typeof ApiIntegrationsGithubConnectRoute
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/integrations/discord/callback'
     | '/api/integrations/discord/connect'
+    | '/api/integrations/discord/interactions'
     | '/api/integrations/discord/linked-role'
     | '/api/integrations/github/callback'
     | '/api/integrations/github/connect'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/integrations/discord/callback'
     | '/api/integrations/discord/connect'
+    | '/api/integrations/discord/interactions'
     | '/api/integrations/discord/linked-role'
     | '/api/integrations/github/callback'
     | '/api/integrations/github/connect'
@@ -207,6 +219,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/integrations/discord/callback'
     | '/api/integrations/discord/connect'
+    | '/api/integrations/discord/interactions'
     | '/api/integrations/discord/linked-role'
     | '/api/integrations/github/callback'
     | '/api/integrations/github/connect'
@@ -225,6 +238,7 @@ export interface RootRouteChildren {
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiIntegrationsDiscordCallbackRoute: typeof ApiIntegrationsDiscordCallbackRoute
   ApiIntegrationsDiscordConnectRoute: typeof ApiIntegrationsDiscordConnectRoute
+  ApiIntegrationsDiscordInteractionsRoute: typeof ApiIntegrationsDiscordInteractionsRoute
   ApiIntegrationsDiscordLinkedRoleRoute: typeof ApiIntegrationsDiscordLinkedRoleRoute
   ApiIntegrationsGithubCallbackRoute: typeof ApiIntegrationsGithubCallbackRoute
   ApiIntegrationsGithubConnectRoute: typeof ApiIntegrationsGithubConnectRoute
@@ -292,6 +306,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiIntegrationsDiscordConnectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/integrations/discord/interactions': {
+      id: '/api/integrations/discord/interactions'
+      path: '/api/integrations/discord/interactions'
+      fullPath: '/api/integrations/discord/interactions'
+      preLoaderRoute: typeof ApiIntegrationsDiscordInteractionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/integrations/discord/linked-role': {
       id: '/api/integrations/discord/linked-role'
       path: '/api/integrations/discord/linked-role'
@@ -353,6 +374,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiIntegrationsDiscordCallbackRoute: ApiIntegrationsDiscordCallbackRoute,
   ApiIntegrationsDiscordConnectRoute: ApiIntegrationsDiscordConnectRoute,
+  ApiIntegrationsDiscordInteractionsRoute:
+    ApiIntegrationsDiscordInteractionsRoute,
   ApiIntegrationsDiscordLinkedRoleRoute: ApiIntegrationsDiscordLinkedRoleRoute,
   ApiIntegrationsGithubCallbackRoute: ApiIntegrationsGithubCallbackRoute,
   ApiIntegrationsGithubConnectRoute: ApiIntegrationsGithubConnectRoute,
@@ -365,3 +388,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

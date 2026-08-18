@@ -98,6 +98,10 @@ export const serverConfig = {
     get guildId() {
       return optionalEnv('DISCORD_GUILD_ID')
     },
+    get publicKey() {
+      const value = optionalEnv('DISCORD_PUBLIC_KEY')
+      return value ? value.trim().replace(/^['"]|['"]$/g, '') : undefined
+    },
     get isOAuthConfigured() {
       return Boolean(
         serverConfig.discord.clientId && serverConfig.discord.clientSecret,
@@ -106,6 +110,14 @@ export const serverConfig = {
     get isRoleSyncConfigured() {
       return Boolean(
         serverConfig.discord.botToken && serverConfig.discord.guildId,
+      )
+    },
+    get isInteractionsConfigured() {
+      return Boolean(
+        serverConfig.discord.botToken &&
+          serverConfig.discord.publicKey &&
+          serverConfig.discord.clientId &&
+          serverConfig.discord.guildId,
       )
     },
     /** Metadata schema register needs the bot token; user write uses the OAuth token. */

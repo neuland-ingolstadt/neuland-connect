@@ -6,7 +6,8 @@ Mitglieder verknüpfen Discord, treten dem Server bei, danach weist der Bot Roll
 
 1. **Discord verbinden** auf dem Dashboard – Connect speichert deine Discord-User-ID und lädt dich direkt in den Server ein (`guilds.join`).
 2. **Rollen** – sobald du im Server bist, ordnet der Bot deine Vereinsgruppen den Discord-Rollen zu (automatisch per Cron oder „Rollen synchronisieren“).
-3. **Linked Roles** (optional) – im Discord-Servermenü unter **Linked Roles** Connect als Nachweis hinterlegen. Die Metadaten kommen aus Authentik (Mitglied, Vorstand, Ehrenmitglied, Ressorts).
+3. **`/connect` im Discord** – öffnet einen Link zu Neuland Connect (nur Weiterleitung, keine Sync-Logik im Bot).
+4. **Linked Roles** (optional) – im Discord-Servermenü unter **Linked Roles** Connect als Nachweis hinterlegen. Die Metadaten kommen aus Authentik (Mitglied, Vorstand, Ehrenmitglied, Ressorts).
 
 Falls du den Server verlassen hast oder der automatische Beitritt fehlschlägt: **Discord erneut verbinden** – der OAuth-Flow versucht den Serverbeitritt erneut. Neu verbinden aktualisiert auch die Linked-Role-Metadaten (Tokens werden nicht gespeichert).
 
@@ -58,6 +59,36 @@ curl -X POST https://connect.neuland.ing/api/internal/discord-roles/sync \
 ```
 
 Empfohlenes Intervall: alle 15–60 Minuten.
+
+## Discord-Bot: Online-Status und `/connect`
+
+Wenn `DISCORD_BOT_TOKEN` gesetzt ist, hält Connect optional eine **Gateway-WebSocket-Verbindung** offen, damit der Bot im Mitgliederverzeichnis als online erscheint.
+
+| Variable | Zweck |
+|----------|--------|
+| `DISCORD_PUBLIC_KEY` | Ed25519 Public Key aus dem Discord Developer Portal (für Interactions-Signatur) |
+| `DISCORD_BOT_GATEWAY` | `true` (Standard) = Gateway starten; `false` auf zusätzlichen Replikas bei horizontaler Skalierung |
+
+**Interactions-URL** (Discord Developer Portal → Application → Interactions Endpoint URL):
+
+```text
+https://connect.neuland.ing/api/integrations/discord/interactions
+```
+
+Beim Start registriert Connect den Guild-Befehl **`/connect`** (Link zum Dashboard, ephemeral). Keine Authentik- oder Sync-Logik im Handler.
+
+### Troubleshooting: „The application did not respond“
+
+Discord zeigt das, wenn innerhalb von 3 Sekunden **keine gültige Interaction-Response** (HTTP 200 + JSON mit `type`) ankommt.
+
+| Ursache | Prüfung |
+|---------|---------|
+| Route nicht deployed | `curl -X POST https://connect.neuland.ing/api/integrations/discord/interactions` sollte **nicht** HTML 404 liefern |
+| Falsche Interactions URL | Developer Portal → URL muss exakt `…/api/integrations/discord/interactions` sein (ohne trailing slash) |
+| Falscher Public Key | `DISCORD_PUBLIC_KEY` = **Public Key** aus General Information (64 Hex-Zeichen), nicht Client Secret |
+| Key/App-Mismatch | Public Key und Bot-Token müssen zur **gleichen** Discord Application gehören |
+
+Server-Logs bei fehlgeschlagener Signatur: `[discord-interactions] Rejected request: invalid signature`
 
 ## Linked Roles (Application Role Connections)
 
@@ -133,6 +164,8 @@ DISCORD_CLIENT_ID=
 DISCORD_CLIENT_SECRET=
 DISCORD_BOT_TOKEN=
 DISCORD_GUILD_ID=
+DISCORD_PUBLIC_KEY=
+DISCORD_BOT_GATEWAY=true
 ```
 
 ## Code
@@ -141,8 +174,11 @@ DISCORD_GUILD_ID=
 |---------|------|
 | OAuth | `src/lib/integrations/discord/oauth.ts` |
 | Bot API | `src/lib/integrations/discord/guild.ts` |
+| Gateway (online) | `src/lib/integrations/discord/gateway.ts` |
+| Slash `/connect` | `src/lib/integrations/discord/interactions.ts` |
 | Rollen-Sync | `src/lib/integrations/discord/roles-sync.ts` |
 | Cron | `src/routes/api/internal/discord-roles/sync.ts` |
+| Interactions API | `src/routes/api/integrations/discord/interactions.ts` |
 | Linked Roles | `src/lib/integrations/discord/linked-roles.ts` |
 | Verification URL | `GET /api/integrations/discord/linked-role` |
 | Metadata register | `POST /api/internal/discord-linked-roles/register` |
