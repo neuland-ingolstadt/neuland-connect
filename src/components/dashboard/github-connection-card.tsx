@@ -73,6 +73,7 @@ export function GitHubConnectionCard({
   const integrationProgress = buildGitHubIntegrationProgress({
     connected,
     githubOrgStatus: attributes.githubOrgStatus,
+    teamSyncEnabled,
   })
 
   async function handleDisconnect() {
@@ -155,10 +156,8 @@ export function GitHubConnectionCard({
               </p>
               <p className="mt-0.5 text-xs leading-snug text-terminal-text/50">
                 {connected
-                  ? integrationProgress.isComplete
-                    ? 'Verbunden für Org-Zugang'
-                    : integrationProgress.hint
-                  : 'Verbinde, um eingeladen zu werden.'}
+                  ? integrationProgress.hint
+                  : 'Verbinde für Org-Einladung und Team-Sync.'}
               </p>
             </div>
           </div>

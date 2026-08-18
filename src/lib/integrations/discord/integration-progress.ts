@@ -50,9 +50,9 @@ export function buildDiscordIntegrationProgress(
   } else if (!inGuild) {
     hint = 'Discord erneut verbinden, um dem Server beizutreten.'
   } else if (input.roleSyncEnabled) {
-    hint = 'Rollen werden automatisch synchronisiert.'
+    hint = 'Im Server – Rollen werden synchronisiert.'
   } else {
-    hint = 'Im Discord-Server.'
+    hint = 'Im Server.'
   }
 
   return {

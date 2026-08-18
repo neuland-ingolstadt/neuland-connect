@@ -159,12 +159,8 @@ export function DiscordConnectionCard({
               </p>
               <p className="mt-0.5 text-xs leading-snug text-terminal-text/50">
                 {connected
-                  ? integrationProgress.isComplete
-                    ? roleSyncEnabled
-                      ? 'Verbunden – Rollen werden synchronisiert'
-                      : 'Verbunden – im Discord-Server'
-                    : integrationProgress.hint
-                  : 'Verbinde dein Konto für Serverbeitritt und Rollen.'}
+                  ? integrationProgress.hint
+                  : 'Verbinde für Serverbeitritt und Rollen-Sync.'}
               </p>
             </div>
           </div>

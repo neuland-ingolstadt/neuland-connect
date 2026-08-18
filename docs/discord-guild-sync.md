@@ -71,7 +71,7 @@ Empfohlenes Intervall: alle 15–60 Minuten.
 
 Authentik-Gruppenattribut `discord_role` = Discord-Rollen-Snowflake als **Text (String)**.
 
-**Wichtig:** Nicht als Integer/Zahl speichern. Discord-IDs sind größer als JavaScript sicher verarbeiten kann — als Zahl werden sie verfälscht und Discord antwortet mit `Unknown Role (10011)`.
+**Wichtig:** Nicht als Integer/Zahl speichern. Discord-IDs sind größer als JavaScript sicher verarbeiten kann - als Zahl werden sie verfälscht und Discord antwortet mit `Unknown Role (10011)`.
 
 1. Authentik → Gruppe → Attribute → Typ **String**
 2. Wert aus Discord kopieren (Entwicklermodus → Rolle → ID kopieren), z. B. `1539348988757803100`

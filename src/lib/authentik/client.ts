@@ -117,7 +117,7 @@ function readAuthentikScalarAttribute(
 
   if (typeof value === 'number' && Number.isFinite(value)) {
     // Authentik may store snowflakes as integers. Prefer string attributes in
-    // Authentik for Discord IDs — JSON numbers can lose precision above 2^53-1.
+    // Authentik for Discord IDs - JSON numbers can lose precision above 2^53-1.
     return String(Math.trunc(value))
   }
 

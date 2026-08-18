@@ -1,7 +1,7 @@
 /**
  * Authentik may return Discord/GitHub snowflakes as JSON numbers. JS cannot
  * parse integers above 2^53-1 safely, but the raw JSON text still has the
- * correct digits — quote them before JSON.parse.
+ * correct digits - quote them before JSON.parse.
  */
 const SNOWFLAKE_ATTRIBUTE_KEYS = [
   'discord_role',

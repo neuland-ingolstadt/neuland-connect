@@ -10,6 +10,7 @@ export type IntegrationProgressStep = {
 type BuildGitHubIntegrationProgressInput = {
   connected: boolean
   githubOrgStatus: GitHubOrgStatus | null
+  teamSyncEnabled: boolean
 }
 
 export function buildGitHubIntegrationProgress(
@@ -22,6 +23,7 @@ export function buildGitHubIntegrationProgress(
   const isInOrg = isGitHubInOrg(input.githubOrgStatus)
   const isInvited =
     input.githubOrgStatus === GITHUB_ORG_STATUSES.INVITED || isInOrg
+  const isAdmin = input.githubOrgStatus === GITHUB_ORG_STATUSES.ADMIN
 
   const steps: IntegrationProgressStep[] = [
     {
@@ -41,6 +43,14 @@ export function buildGitHubIntegrationProgress(
     },
   ]
 
+  if (input.teamSyncEnabled) {
+    steps.push({
+      id: 'teams',
+      label: 'Teams',
+      complete: isInOrg,
+    })
+  }
+
   let hint: string
 
   if (!input.connected) {
@@ -48,10 +58,13 @@ export function buildGitHubIntegrationProgress(
   } else if (input.githubOrgStatus === GITHUB_ORG_STATUSES.INVITED) {
     hint = 'Einladung in GitHub annehmen.'
   } else if (isInOrg) {
-    hint =
-      input.githubOrgStatus === GITHUB_ORG_STATUSES.ADMIN
-        ? 'Admin in der Organisation.'
-        : 'Mitglied in der Organisation.'
+    if (input.teamSyncEnabled) {
+      hint = isAdmin
+        ? 'Admin in der Organisation – Teams werden synchronisiert.'
+        : 'In der Organisation – Teams werden synchronisiert.'
+    } else {
+      hint = isAdmin ? 'Admin in der Organisation.' : 'In der Organisation.'
+    }
   } else if (!isInvited) {
     hint = 'Einladung folgt automatisch.'
   } else {
