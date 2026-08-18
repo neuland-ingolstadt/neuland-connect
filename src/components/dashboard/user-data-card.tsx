@@ -122,11 +122,7 @@ function ProfileGroupBadge({ group }: { group: string }) {
   }
 
   return (
-    <span
-      className="neuland-badge-hint inline-flex max-w-full"
-      tabIndex={0}
-      title={hint}
-    >
+    <span className="neuland-badge-hint inline-flex max-w-full" title={hint}>
       <Badge variant={variant} className="cursor-help">
         {label}
       </Badge>

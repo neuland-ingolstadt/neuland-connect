@@ -15,10 +15,7 @@ export function IntegrationProgressInline({
   const currentIndex = steps.findIndex(step => !step.complete)
 
   return (
-    <div
-      className="flex items-center gap-1.5"
-      aria-label={`${completedCount} von ${total} Schritten abgeschlossen`}
-    >
+    <div className="flex items-center gap-1.5">
       {steps.map((step, index) => (
         <span
           key={step.id}
