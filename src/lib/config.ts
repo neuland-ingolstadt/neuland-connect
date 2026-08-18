@@ -89,6 +89,9 @@ export const serverConfig = {
     get redirectUri() {
       return `${serverConfig.appUrl}/api/integrations/discord/callback`
     },
+    get linkedRoleVerificationUrl() {
+      return `${serverConfig.appUrl}/api/integrations/discord/linked-role`
+    },
     get botToken() {
       return optionalEnv('DISCORD_BOT_TOKEN')
     },
@@ -103,6 +106,12 @@ export const serverConfig = {
     get isRoleSyncConfigured() {
       return Boolean(
         serverConfig.discord.botToken && serverConfig.discord.guildId,
+      )
+    },
+    /** Metadata schema register needs the bot token; user write uses the OAuth token. */
+    get isLinkedRolesConfigured() {
+      return Boolean(
+        serverConfig.discord.isOAuthConfigured && serverConfig.discord.botToken,
       )
     },
   },

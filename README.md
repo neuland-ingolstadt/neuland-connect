@@ -39,6 +39,7 @@ Member portal for **[Neuland Ingolstadt](https://neuland-ingolstadt.de)**. Membe
 - **Member dashboard** - profile overview, GitHub connection card, four-step onboarding progress
 - **GitHub account linking** - OAuth App with `read:user` scope; connect, reconnect, and disconnect
 - **GitHub org onboarding** - optional GitHub App for org invites and membership sync
+- **Discord account linking** - OAuth with guild join, role sync, and Linked Roles (tokens discarded)
 - **Integration state in Authentik** - user attributes, not a local DB
 - **Terminal-inspired UI** - Neuland CI, dark/light theme
 
@@ -133,7 +134,11 @@ Copy [`.env.example`](./.env.example) to `.env` (or `.env.local` for Vite). Dock
 | `GITHUB_APP_PRIVATE_KEY` | Org sync | PEM private key (single line with `\n` is fine) |
 | `GITHUB_APP_INSTALLATION_ID` | Org sync | App installation ID on the organization |
 | `GITHUB_ORG` | Org sync | Organization slug (e.g. `neuland-ingolstadt`) |
-| `CRON_SECRET` | Org/team sync | Bearer token for internal cron endpoints |
+| `CRON_SECRET` | Org/team/Discord sync | Bearer token for internal cron endpoints |
+| `DISCORD_CLIENT_ID` | Discord | Discord OAuth App client ID |
+| `DISCORD_CLIENT_SECRET` | Discord | Discord OAuth App client secret |
+| `DISCORD_BOT_TOKEN` | Discord | Bot token (guild join, role sync, Linked Roles metadata) |
+| `DISCORD_GUILD_ID` | Discord | Neuland guild snowflake |
 
 ## Authentik setup
 
@@ -223,6 +228,18 @@ Stateless full reconcile of GitHub teams from Authentik:
 2. Put users in those groups. Cron or dashboard „Teams synchronisieren“ adds/removes only groups that have `github_team` set.
 
 Full behaviour, edge cases, and dashboard steps: [docs/github-org-sync.md](./docs/github-org-sync.md).
+
+## Discord integration
+
+Connect uses an **OAuth App** (member linking + Linked Roles) and a **bot** (guild join, role assignment). Access tokens are discarded after the callback.
+
+**Linked Roles** work with this custom app (not only YouTube / League). The app appears under **Server Settings → Roles → Links** only after:
+
+1. Bot is in the guild
+2. Developer Portal **Linked Roles Verification URL** = `{APP_URL}/api/integrations/discord/linked-role`
+3. Metadata schema registered (`POST /api/internal/discord-linked-roles/register` or first successful connect)
+
+Ops details: [docs/discord-guild-sync.md](./docs/discord-guild-sync.md).
 
 ## Docker
 

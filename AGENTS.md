@@ -36,7 +36,7 @@ src/
   routes/                    # Pages + API routes (file-based)
     api/auth/                # OIDC login, callback, logout
     api/integrations/github/ # GitHub OAuth connect + callback
-    api/integrations/discord/ # Discord OAuth connect + callback
+    api/integrations/discord/ # Discord OAuth connect + callback + linked-role
     dashboard.tsx            # Main member dashboard (auth required)
     login.tsx
   server/                    # createServerFn handlers (getCurrentUser, disconnectGitHub)
@@ -44,7 +44,7 @@ src/
     auth/                    # OIDC flow, crypto (PKCE)
     authentik/               # API client, attribute parsing, user resolution
     integrations/github/     # OAuth + integration progress logic
-    integrations/discord/    # OAuth + guild role sync
+    integrations/discord/    # OAuth + guild role sync + Linked Roles
     session.server.ts        # Encrypted session (server-only)
   components/
     dashboard/               # GitHub/Discord cards, action banner, progress bars
@@ -91,13 +91,13 @@ Parse via `parseUserAttributes()` in `src/lib/authentik/types.ts`.
 
 ## Discord integration
 
-- **OAuth App** (`identify` + `guilds.join`) for linking – tokens are discarded after callback (used for `/users/@me` and guild join)
+- **OAuth App** (`identify` + `guilds.join` + `role_connections.write`) for linking – tokens are discarded after callback (used for `/users/@me`, guild join, Linked Role metadata)
 - **Bot** on the Neuland guild for guild join (PUT member with user token) and role assignment
-- Routes: `GET /api/integrations/discord/connect`, `GET /api/integrations/discord/callback`
+- Routes: `GET /api/integrations/discord/connect`, `GET /api/integrations/discord/callback`, `GET /api/integrations/discord/linked-role` (Developer Portal verification URL)
 - Implementation: `src/lib/integrations/discord/`
-- Member flow: link account → auto-join guild on callback → bot syncs roles from Authentik groups with `discord_role`
-- Cron: `POST /api/internal/discord-roles/sync` (Bearer `CRON_SECRET`)
-- Disconnect: `disconnectDiscordFn` clears Discord attributes and strips guild roles (no kick)
+- Member flow: link account → auto-join guild on callback → bot syncs roles from Authentik groups with `discord_role` → write Linked Role metadata (non-blocking)
+- Cron: `POST /api/internal/discord-roles/sync` (Bearer `CRON_SECRET`); metadata register: `POST /api/internal/discord-linked-roles/register`
+- Disconnect: `disconnectDiscordFn` clears Discord attributes and strips guild roles (no kick; Linked Role in Discord is left in place)
 
 See `docs/discord-guild-sync.md` for ops details.
 
