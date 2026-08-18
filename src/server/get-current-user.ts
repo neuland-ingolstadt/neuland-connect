@@ -110,10 +110,9 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
     }
 
     const integrationGroupsShownSeparately = hiddenGroups.size > 0
-    const profileGroups =
-      integrationGroupsShownSeparately
-        ? groups.filter(group => !hiddenGroups.has(group))
-        : groups
+    const profileGroups = integrationGroupsShownSeparately
+      ? groups.filter(group => !hiddenGroups.has(group))
+      : groups
 
     return {
       sub: user.sub,

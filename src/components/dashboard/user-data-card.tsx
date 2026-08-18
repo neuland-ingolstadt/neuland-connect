@@ -30,8 +30,12 @@ export function UserDataCard({
   accountCreatedAt,
 }: UserDataCardProps) {
   const [groupsExpanded, setGroupsExpanded] = useState(false)
-  const { honorGroups, ressortGroups, otherGroups, ordered: sortedGroups } =
-    useMemo(() => partitionProfileGroups(groups), [groups])
+  const {
+    honorGroups,
+    ressortGroups,
+    otherGroups,
+    ordered: sortedGroups,
+  } = useMemo(() => partitionProfileGroups(groups), [groups])
   const frontGroups = useMemo(
     () => [...honorGroups, ...ressortGroups],
     [honorGroups, ressortGroups],
