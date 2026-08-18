@@ -160,7 +160,7 @@ export function DiscordConnectionCard({
               <p className="mt-0.5 text-xs leading-snug text-terminal-text/50">
                 {connected
                   ? integrationProgress.hint
-                  : 'Verbinde für Serverbeitritt und Rollen-Sync.'}
+                  : 'Verbinde für Serverbeitritt, Rollen-Sync und Linked Roles.'}
               </p>
             </div>
           </div>
@@ -210,6 +210,12 @@ export function DiscordConnectionCard({
                 />
               ) : null}
             </dl>
+
+            <p className="text-xs leading-relaxed text-terminal-text/50">
+              Linked Roles im Discord-Servermenü nutzen Connect als Nachweis.
+              Nach Gruppenänderungen hier neu verbinden, damit die Metadaten
+              aktuell bleiben.
+            </p>
 
             {inGuild && discordRoles.length > 0 ? (
               <div>

@@ -84,6 +84,12 @@ function DashboardPage() {
 
     if (search.status === 'success') {
       toast.success('Discord verbunden.')
+    } else if (search.status === 'linked_role') {
+      toast.success('Discord Linked Role aktualisiert.')
+    } else if (search.status === 'not_linked') {
+      toast.error(
+        'Dieses Discord-Konto ist in Connect noch nicht verknüpft. Bitte zuerst verbinden.',
+      )
     } else if (search.status === 'disconnected') {
       toast.success('Discord-Verbindung getrennt.')
     } else if (search.status === 'error') {
