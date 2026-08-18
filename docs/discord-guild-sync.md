@@ -74,6 +74,19 @@ https://connect.neuland.ing/api/integrations/discord/interactions
 
 Beim Start registriert Connect den Guild-Befehl **`/connect`** (Link zum Dashboard, ephemeral). Keine Authentik- oder Sync-Logik im Handler.
 
+### Troubleshooting: „The application did not respond“
+
+Discord zeigt das, wenn innerhalb von 3 Sekunden **keine gültige Interaction-Response** (HTTP 200 + JSON mit `type`) ankommt.
+
+| Ursache | Prüfung |
+|---------|---------|
+| Route nicht deployed | `curl -X POST https://connect.neuland.ing/api/integrations/discord/interactions` sollte **nicht** HTML 404 liefern |
+| Falsche Interactions URL | Developer Portal → URL muss exakt `…/api/integrations/discord/interactions` sein (ohne trailing slash) |
+| Falscher Public Key | `DISCORD_PUBLIC_KEY` = **Public Key** aus General Information (64 Hex-Zeichen), nicht Client Secret |
+| Key/App-Mismatch | Public Key und Bot-Token müssen zur **gleichen** Discord Application gehören |
+
+Server-Logs bei fehlgeschlagener Signatur: `[discord-interactions] Rejected request: invalid signature`
+
 ## Authentik-Attribute
 
 | Attribut | Werte / Zweck |

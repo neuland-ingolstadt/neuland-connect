@@ -96,7 +96,8 @@ export const serverConfig = {
       return optionalEnv('DISCORD_GUILD_ID')
     },
     get publicKey() {
-      return optionalEnv('DISCORD_PUBLIC_KEY')
+      const value = optionalEnv('DISCORD_PUBLIC_KEY')
+      return value ? value.trim().replace(/^['"]|['"]$/g, '') : undefined
     },
     get isOAuthConfigured() {
       return Boolean(
