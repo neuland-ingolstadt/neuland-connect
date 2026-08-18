@@ -12,6 +12,20 @@ const GATEWAY_OPCODES = {
 } as const
 
 const MAX_RECONNECT_DELAY_MS = 60_000
+const DEFAULT_HEARTBEAT_INTERVAL_MS = 41_250
+const MIN_HEARTBEAT_INTERVAL_MS = 1_000
+const MAX_HEARTBEAT_INTERVAL_MS = 60_000
+
+function clampHeartbeatInterval(intervalMs: unknown): number {
+  if (typeof intervalMs !== 'number' || !Number.isFinite(intervalMs)) {
+    return DEFAULT_HEARTBEAT_INTERVAL_MS
+  }
+
+  return Math.min(
+    Math.max(Math.trunc(intervalMs), MIN_HEARTBEAT_INTERVAL_MS),
+    MAX_HEARTBEAT_INTERVAL_MS,
+  )
+}
 
 type GatewayPayload = {
   op: number
@@ -89,8 +103,9 @@ class DiscordGatewayClient {
 
     switch (payload.op) {
       case GATEWAY_OPCODES.HELLO: {
-        const heartbeatInterval = (payload.d as { heartbeat_interval: number })
-          .heartbeat_interval
+        const heartbeatInterval = clampHeartbeatInterval(
+          (payload.d as { heartbeat_interval?: number }).heartbeat_interval,
+        )
         this.startHeartbeat(heartbeatInterval)
         this.identify()
         break
