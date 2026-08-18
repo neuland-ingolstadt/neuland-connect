@@ -210,6 +210,9 @@ function DashboardPage() {
               email={user.email}
               username={user.username}
               groups={user.groups}
+              integrationGroupsShownSeparately={
+                user.integrationGroupsShownSeparately
+              }
               accountCreatedAt={user.accountCreatedAt}
             />
           </div>

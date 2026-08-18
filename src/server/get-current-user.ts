@@ -11,6 +11,8 @@ export type CurrentUser = {
   name: string
   username: string
   groups: string[]
+  /** Sync-mapped groups are listed under GitHub/Discord cards instead of the profile. */
+  integrationGroupsShownSeparately: boolean
   accountCreatedAt: string | null
   attributes: ReturnType<typeof parseUserAttributes>
   githubConnected: boolean
@@ -62,6 +64,8 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       getAuthentikUserGroups(authentikUserId).catch(() => [] as string[]),
     ])
     const attributes = parseUserAttributes(authentikUser.attributes)
+    const githubConnected = isGitHubConnected(attributes)
+    const discordConnected = isDiscordConnected(attributes)
 
     const hiddenGroups = new Set<string>()
     let githubTeams: string[] = []
@@ -69,8 +73,10 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
     if (serverConfig.github.isTeamSyncConfigured) {
       try {
         const managedMap = await getManagedGitHubTeamMap()
-        for (const groupName of managedMap.keys()) {
-          hiddenGroups.add(groupName)
+        if (githubConnected) {
+          for (const groupName of managedMap.keys()) {
+            hiddenGroups.add(groupName)
+          }
         }
         githubTeams = [
           ...new Set(
@@ -88,8 +94,10 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
     if (serverConfig.discord.isRoleSyncConfigured) {
       try {
         const managedMap = await getManagedDiscordRoleMap()
-        for (const groupName of managedMap.keys()) {
-          hiddenGroups.add(groupName)
+        if (discordConnected) {
+          for (const groupName of managedMap.keys()) {
+            hiddenGroups.add(groupName)
+          }
         }
         discordRoles = [
           ...new Set(
@@ -101,8 +109,9 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       }
     }
 
-    const displayGroups =
-      hiddenGroups.size > 0
+    const integrationGroupsShownSeparately = hiddenGroups.size > 0
+    const profileGroups =
+      integrationGroupsShownSeparately
         ? groups.filter(group => !hiddenGroups.has(group))
         : groups
 
@@ -111,14 +120,15 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       email: user.email || authentikUser.email,
       name: user.name || authentikUser.name,
       username: authentikUser.username,
-      groups: displayGroups,
+      groups: profileGroups,
+      integrationGroupsShownSeparately,
       accountCreatedAt: authentikUser.date_joined ?? null,
       attributes,
-      githubConnected: isGitHubConnected(attributes),
+      githubConnected,
       githubOrg: serverConfig.github.org ?? null,
       teamSyncEnabled: serverConfig.github.isTeamSyncConfigured,
       githubTeams,
-      discordConnected: isDiscordConnected(attributes),
+      discordConnected,
       discordOAuthEnabled: serverConfig.discord.isOAuthConfigured,
       roleSyncEnabled: serverConfig.discord.isRoleSyncConfigured,
       discordRoles,

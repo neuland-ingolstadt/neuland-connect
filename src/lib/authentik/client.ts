@@ -90,18 +90,33 @@ export async function getAuthentikUser(
 export async function getAuthentikUserGroups(
   userId: string | number,
 ): Promise<string[]> {
-  const params = new URLSearchParams({
-    members_by_pk: String(userId),
-    page_size: '100',
-  })
+  const groupNames = new Set<string>()
+  let page = 1
+  const pageSize = 100
 
-  const response = await authentikFetch<AuthentikGroupListResponse>(
-    `/api/v3/core/groups/?${params.toString()}`,
-  )
+  while (true) {
+    const params = new URLSearchParams({
+      members_by_pk: String(userId),
+      page_size: String(pageSize),
+      page: String(page),
+    })
 
-  return response.results
-    .map(group => group.name)
-    .sort((a, b) => a.localeCompare(b, 'de'))
+    const response = await authentikFetch<AuthentikGroupListResponse>(
+      `/api/v3/core/groups/?${params.toString()}`,
+    )
+
+    for (const group of response.results) {
+      groupNames.add(group.name)
+    }
+
+    if (response.results.length < pageSize) {
+      break
+    }
+
+    page += 1
+  }
+
+  return [...groupNames].sort((a, b) => a.localeCompare(b, 'de'))
 }
 
 function readAuthentikScalarAttribute(

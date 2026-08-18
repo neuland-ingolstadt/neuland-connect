@@ -211,7 +211,7 @@ export function GitHubConnectionCard({
             {githubTeams.length > 0 ? (
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
-                  Teams
+                  GitHub-Teams
                   <span className="ml-1 text-terminal-text/25">
                     ({githubTeams.length})
                   </span>

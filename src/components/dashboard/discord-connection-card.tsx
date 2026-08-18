@@ -214,7 +214,7 @@ export function DiscordConnectionCard({
             {inGuild && discordRoles.length > 0 ? (
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
-                  Rollen
+                  Discord-Rollen
                   <span className="ml-1 text-terminal-text/25">
                     ({discordRoles.length})
                   </span>
