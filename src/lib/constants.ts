@@ -62,7 +62,3 @@ export type DiscordGuildStatus =
 export const DISCORD_OAUTH_SCOPE = 'identify guilds.join' as const
 
 export const SESSION_COOKIE_NAME = 'neuland-connect-session' as const
-
-export const QUERY_KEYS = {
-  CURRENT_USER: ['current-user'] as const,
-} as const

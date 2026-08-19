@@ -16,7 +16,7 @@ import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
 import { getCurrentUserFn } from '#/server/get-current-user'
 
 export const Route = createFileRoute('/dashboard')({
-  staleTime: 0,
+  staleTime: 30_000,
   validateSearch: (search: Record<string, unknown>) => ({
     integration:
       typeof search.integration === 'string' ? search.integration : undefined,
@@ -29,15 +29,15 @@ export const Route = createFileRoute('/dashboard')({
     if (!user) {
       throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
     }
-  },
-  loader: async () => {
-    const user = await getCurrentUserFn()
 
-    if (!user) {
+    return { user }
+  },
+  loader: ({ context }) => {
+    if (!context.user) {
       throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
     }
 
-    return { user }
+    return { user: context.user }
   },
   component: DashboardPage,
 })

@@ -1,12 +1,12 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { ROUTES } from '#/lib/constants'
-import { getCurrentUserFn } from '#/server/get-current-user'
+import { hasActiveSessionFn } from '#/server/get-current-user'
 
 export const Route = createFileRoute('/')({
   beforeLoad: async () => {
-    const user = await getCurrentUserFn()
+    const hasSession = await hasActiveSessionFn()
 
-    if (user) {
+    if (hasSession) {
       throw redirect({
         to: ROUTES.DASHBOARD,
         search: {

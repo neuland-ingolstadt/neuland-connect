@@ -27,6 +27,15 @@ export type CurrentUser = {
   discordRoles: string[]
 }
 
+/** Cookie session only — used by / and /login so those routes skip Authentik. */
+export const hasActiveSessionFn = createServerFn({ method: 'GET' }).handler(
+  async (): Promise<boolean> => {
+    const { requireSessionUser } = await import('#/lib/session.server')
+    const sessionData = await requireSessionUser()
+    return Boolean(sessionData)
+  },
+)
+
 export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
   async (): Promise<CurrentUser | null> => {
     const { requireSessionUser } = await import('#/lib/session.server')
@@ -34,8 +43,7 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
     const {
       getAuthentikUser,
       getAuthentikUserGroups,
-      getManagedDiscordRoleMap,
-      getManagedGitHubTeamMap,
+      getManagedIntegrationMaps,
     } = await import('#/lib/authentik/client')
     const { resolveSessionAuthentikUserId } = await import(
       '#/lib/authentik/session-user'
@@ -59,9 +67,19 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       })
     }
 
-    const [authentikUser, groups] = await Promise.all([
+    const teamSyncEnabled = serverConfig.github.isTeamSyncConfigured
+    const roleSyncEnabled = serverConfig.discord.isRoleSyncConfigured
+    const emptyMaps = {
+      githubTeams: new Map<string, string>(),
+      discordRoles: new Map<string, string>(),
+    }
+
+    const [authentikUser, groups, maps] = await Promise.all([
       getAuthentikUser(authentikUserId),
       getAuthentikUserGroups(authentikUserId).catch(() => [] as string[]),
+      teamSyncEnabled || roleSyncEnabled
+        ? getManagedIntegrationMaps().catch(() => emptyMaps)
+        : Promise.resolve(emptyMaps),
     ])
     const attributes = parseUserAttributes(authentikUser.attributes)
     const githubConnected = isGitHubConnected(attributes)
@@ -70,43 +88,36 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
     const hiddenGroups = new Set<string>()
     let githubTeams: string[] = []
     let discordRoles: string[] = []
-    if (serverConfig.github.isTeamSyncConfigured) {
-      try {
-        const managedMap = await getManagedGitHubTeamMap()
-        if (githubConnected) {
-          for (const groupName of managedMap.keys()) {
-            hiddenGroups.add(groupName)
-          }
+
+    if (teamSyncEnabled) {
+      if (githubConnected) {
+        for (const groupName of maps.githubTeams.keys()) {
+          hiddenGroups.add(groupName)
         }
-        githubTeams = [
-          ...new Set(
-            groups.flatMap(group => {
-              const team = managedMap.get(group)
-              return team ? [team] : []
-            }),
-          ),
-        ].sort((a, b) => a.localeCompare(b))
-      } catch {
-        // Profile still works if team mapping is temporarily unavailable.
       }
+      githubTeams = [
+        ...new Set(
+          groups.flatMap(group => {
+            const team = maps.githubTeams.get(group)
+            return team ? [team] : []
+          }),
+        ),
+      ].sort((a, b) => a.localeCompare(b))
     }
 
-    if (serverConfig.discord.isRoleSyncConfigured) {
-      try {
-        const managedMap = await getManagedDiscordRoleMap()
-        if (discordConnected) {
-          for (const groupName of managedMap.keys()) {
-            hiddenGroups.add(groupName)
-          }
+    if (roleSyncEnabled) {
+      if (discordConnected) {
+        for (const groupName of maps.discordRoles.keys()) {
+          hiddenGroups.add(groupName)
         }
-        discordRoles = [
-          ...new Set(
-            groups.flatMap(group => (managedMap.has(group) ? [group] : [])),
-          ),
-        ].sort((a, b) => a.localeCompare(b, 'de'))
-      } catch {
-        // Profile still works if role mapping is temporarily unavailable.
       }
+      discordRoles = [
+        ...new Set(
+          groups.flatMap(group =>
+            maps.discordRoles.has(group) ? [group] : [],
+          ),
+        ),
+      ].sort((a, b) => a.localeCompare(b, 'de'))
     }
 
     const integrationGroupsShownSeparately = hiddenGroups.size > 0
@@ -125,11 +136,11 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       attributes,
       githubConnected,
       githubOrg: serverConfig.github.org ?? null,
-      teamSyncEnabled: serverConfig.github.isTeamSyncConfigured,
+      teamSyncEnabled,
       githubTeams,
       discordConnected,
       discordOAuthEnabled: serverConfig.discord.isOAuthConfigured,
-      roleSyncEnabled: serverConfig.discord.isRoleSyncConfigured,
+      roleSyncEnabled,
       discordRoles,
     }
   },

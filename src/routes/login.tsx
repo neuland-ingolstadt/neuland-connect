@@ -7,15 +7,15 @@ import { PageShell } from '#/components/layout/page-shell'
 import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import { APP_NAME, ROUTES } from '#/lib/constants'
-import { getCurrentUserFn } from '#/server/get-current-user'
+import { hasActiveSessionFn } from '#/server/get-current-user'
 
 export const Route = createFileRoute('/login')({
   validateSearch: (search: Record<string, unknown>) => ({
     error: typeof search.error === 'string' ? search.error : undefined,
   }),
   beforeLoad: async () => {
-    const user = await getCurrentUserFn()
-    if (user) {
+    const hasSession = await hasActiveSessionFn()
+    if (hasSession) {
       throw redirect({
         to: ROUTES.DASHBOARD,
         search: {

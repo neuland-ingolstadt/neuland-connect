@@ -87,27 +87,29 @@ export async function getAuthentikUser(
   )
 }
 
-export async function getAuthentikUserGroups(
-  userId: string | number,
-): Promise<string[]> {
-  const groupNames = new Set<string>()
+async function listAuthentikGroups(options?: {
+  membersByPk?: string | number
+}): Promise<AuthentikGroupResponse[]> {
+  const groups: AuthentikGroupResponse[] = []
   let page = 1
   const pageSize = 100
 
   while (true) {
     const params = new URLSearchParams({
-      members_by_pk: String(userId),
+      include_users: 'false',
       page_size: String(pageSize),
       page: String(page),
     })
+
+    if (options?.membersByPk !== undefined) {
+      params.set('members_by_pk', String(options.membersByPk))
+    }
 
     const response = await authentikFetch<AuthentikGroupListResponse>(
       `/api/v3/core/groups/?${params.toString()}`,
     )
 
-    for (const group of response.results) {
-      groupNames.add(group.name)
-    }
+    groups.push(...response.results)
 
     if (response.results.length < pageSize) {
       break
@@ -116,6 +118,14 @@ export async function getAuthentikUserGroups(
     page += 1
   }
 
+  return groups
+}
+
+export async function getAuthentikUserGroups(
+  userId: string | number,
+): Promise<string[]> {
+  const groups = await listAuthentikGroups({ membersByPk: userId })
+  const groupNames = new Set(groups.map(group => group.name))
   return [...groupNames].sort((a, b) => a.localeCompare(b, 'de'))
 }
 
@@ -160,48 +170,85 @@ function readDiscordRoleId(
   )
 }
 
+const MANAGED_MAP_CACHE_TTL_MS = 60_000
+
+export type ManagedIntegrationMaps = {
+  githubTeams: Map<string, string>
+  discordRoles: Map<string, string>
+}
+
+let managedMapsCache: {
+  maps: ManagedIntegrationMaps
+  expiresAt: number
+} | null = null
+let managedMapsInFlight: Promise<ManagedIntegrationMaps> | null = null
+
+function emptyManagedMaps(): ManagedIntegrationMaps {
+  return {
+    githubTeams: new Map(),
+    discordRoles: new Map(),
+  }
+}
+
+async function fetchManagedIntegrationMaps(): Promise<ManagedIntegrationMaps> {
+  const maps = emptyManagedMaps()
+  const groups = await listAuthentikGroups()
+
+  for (const group of groups) {
+    const teamSlug = readGitHubTeamSlug(group.attributes)
+    if (teamSlug) {
+      maps.githubTeams.set(group.name, teamSlug)
+    }
+
+    const roleId = readDiscordRoleId(group.attributes)
+    if (roleId) {
+      maps.discordRoles.set(group.name, roleId)
+    }
+  }
+
+  return maps
+}
+
+/**
+ * Group-name maps for GitHub teams and Discord roles from one Authentik
+ * group list. Cached briefly so dashboard loads do not re-walk every group.
+ */
+export async function getManagedIntegrationMaps(): Promise<ManagedIntegrationMaps> {
+  if (managedMapsCache && Date.now() < managedMapsCache.expiresAt) {
+    return managedMapsCache.maps
+  }
+
+  if (!managedMapsInFlight) {
+    managedMapsInFlight = fetchManagedIntegrationMaps()
+      .then(maps => {
+        managedMapsCache = {
+          maps,
+          expiresAt: Date.now() + MANAGED_MAP_CACHE_TTL_MS,
+        }
+        return maps
+      })
+      .finally(() => {
+        managedMapsInFlight = null
+      })
+  }
+
+  return managedMapsInFlight
+}
+
 /**
  * Authentik group name → GitHub team slug for every group with `github_team` set.
  */
 export async function getManagedGitHubTeamMap(): Promise<Map<string, string>> {
-  const teams = await getManagedGitHubTeams()
-  return new Map(teams.map(team => [team.groupName, team.slug]))
+  const maps = await getManagedIntegrationMaps()
+  return maps.githubTeams
 }
 
 /**
  * Authentik group name → Discord role snowflake for every group with `discord_role` set.
  */
 export async function getManagedDiscordRoleMap(): Promise<Map<string, string>> {
-  const managed = new Map<string, string>()
-  let page = 1
-  const pageSize = 100
-
-  while (true) {
-    const params = new URLSearchParams({
-      include_users: 'false',
-      page_size: String(pageSize),
-      page: String(page),
-    })
-
-    const response = await authentikFetch<AuthentikGroupListResponse>(
-      `/api/v3/core/groups/?${params.toString()}`,
-    )
-
-    for (const group of response.results) {
-      const roleId = readDiscordRoleId(group.attributes)
-      if (roleId) {
-        managed.set(group.name, roleId)
-      }
-    }
-
-    if (response.results.length < pageSize) {
-      break
-    }
-
-    page += 1
-  }
-
-  return managed
+  const maps = await getManagedIntegrationMaps()
+  return maps.discordRoles
 }
 
 export type ManagedGitHubTeam = {
@@ -216,38 +263,19 @@ export type ManagedGitHubTeam = {
  * All Authentik groups with attribute `github_team`, including member PKs.
  */
 export async function getManagedGitHubTeams(): Promise<ManagedGitHubTeam[]> {
+  const groups = await listAuthentikGroups()
   const managed: Array<{ groupName: string; groupPk: string; slug: string }> =
     []
-  let page = 1
-  const pageSize = 100
 
-  while (true) {
-    const params = new URLSearchParams({
-      include_users: 'false',
-      page_size: String(pageSize),
-      page: String(page),
-    })
-
-    const response = await authentikFetch<AuthentikGroupListResponse>(
-      `/api/v3/core/groups/?${params.toString()}`,
-    )
-
-    for (const group of response.results) {
-      const slug = readGitHubTeamSlug(group.attributes)
-      if (slug) {
-        managed.push({
-          groupName: group.name,
-          groupPk: group.pk,
-          slug,
-        })
-      }
+  for (const group of groups) {
+    const slug = readGitHubTeamSlug(group.attributes)
+    if (slug) {
+      managed.push({
+        groupName: group.name,
+        groupPk: group.pk,
+        slug,
+      })
     }
-
-    if (response.results.length < pageSize) {
-      break
-    }
-
-    page += 1
   }
 
   return Promise.all(
