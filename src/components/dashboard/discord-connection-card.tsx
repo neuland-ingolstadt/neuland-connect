@@ -211,12 +211,6 @@ export function DiscordConnectionCard({
               ) : null}
             </dl>
 
-            <p className="text-xs leading-relaxed text-terminal-text/50">
-              Linked Roles im Discord-Servermenü nutzen Connect als Nachweis.
-              Nach Gruppenänderungen hier neu verbinden, damit die Metadaten
-              aktuell bleiben.
-            </p>
-
             {inGuild && discordRoles.length > 0 ? (
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
