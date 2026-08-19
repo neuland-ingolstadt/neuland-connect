@@ -392,37 +392,6 @@ export async function patchAuthentikUserAttributes(
   })
 }
 
-export async function findAuthentikUserByDiscordId(
-  discordId: string,
-): Promise<AuthentikUserResponse | null> {
-  let page = 1
-  const pageSize = 100
-
-  while (true) {
-    const response = await listAuthentikUsers({
-      page: String(page),
-      page_size: String(pageSize),
-    })
-
-    for (const user of response.results) {
-      const linkedId = parseDiscordSnowflakeAttribute(
-        user.attributes?.[AUTHENTIK_ATTRIBUTES.DISCORD_ID],
-      )
-      if (linkedId === discordId) {
-        return user
-      }
-    }
-
-    if (response.results.length < pageSize) {
-      break
-    }
-
-    page += 1
-  }
-
-  return null
-}
-
 export async function listAllAuthentikUsers(): Promise<
   AuthentikUserResponse[]
 > {

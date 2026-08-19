@@ -17,5 +17,4 @@ export type SessionData = {
   oidcCodeVerifier?: string
   githubOAuthState?: string
   discordOAuthState?: string
-  discordOAuthPurpose?: 'connect' | 'linked_role'
 }

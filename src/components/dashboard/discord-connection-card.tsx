@@ -160,7 +160,7 @@ export function DiscordConnectionCard({
               <p className="mt-0.5 text-xs leading-snug text-terminal-text/50">
                 {connected
                   ? integrationProgress.hint
-                  : 'Verbinde für Serverbeitritt, Rollen-Sync und Linked Roles.'}
+                  : 'Verbinde für Serverbeitritt und Rollen-Sync.'}
               </p>
             </div>
           </div>

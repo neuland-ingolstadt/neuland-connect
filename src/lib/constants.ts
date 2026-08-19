@@ -20,8 +20,6 @@ export const ROUTES = {
   DISCORD_CONNECT: '/api/integrations/discord/connect',
   DISCORD_CALLBACK: '/api/integrations/discord/callback',
   DISCORD_INTERACTIONS: '/api/integrations/discord/interactions',
-  /** Discord Developer Portal → Linked Roles Verification URL */
-  DISCORD_LINKED_ROLE: '/api/integrations/discord/linked-role',
 } as const
 
 export const AUTHENTIK_ATTRIBUTES = {
@@ -61,12 +59,7 @@ export const DISCORD_GUILD_STATUSES = {
 export type DiscordGuildStatus =
   (typeof DISCORD_GUILD_STATUSES)[keyof typeof DISCORD_GUILD_STATUSES]
 
-export const DISCORD_OAUTH_SCOPE =
-  'identify guilds.join role_connections.write' as const
-
-/** Discord Linked Roles verification URL — no guild join, write connection metadata only. */
-export const DISCORD_LINKED_ROLE_OAUTH_SCOPE =
-  'identify role_connections.write' as const
+export const DISCORD_OAUTH_SCOPE = 'identify guilds.join' as const
 
 export const SESSION_COOKIE_NAME = 'neuland-connect-session' as const
 
