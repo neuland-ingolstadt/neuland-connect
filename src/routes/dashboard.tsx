@@ -1,5 +1,5 @@
-import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
-import { useEffect } from 'react'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { DashboardActionBanner } from '#/components/dashboard/dashboard-action-banner'
 import { DiscordConnectionCard } from '#/components/dashboard/discord-connection-card'
@@ -7,16 +7,25 @@ import { GitHubConnectionCard } from '#/components/dashboard/github-connection-c
 import { MembershipCard } from '#/components/dashboard/membership-card'
 import { UserDataCard } from '#/components/dashboard/user-data-card'
 import { AppHeader } from '#/components/layout/app-header'
+import { ConnectBootScreen } from '#/components/layout/connect-boot-screen'
 import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageShell } from '#/components/layout/page-shell'
-import { Skeleton } from '#/components/ui/skeleton'
 import { ROUTES } from '#/lib/constants'
 import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-display'
 import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
-import { getCurrentUserFn } from '#/server/get-current-user'
+import {
+  type CurrentUser,
+  getCurrentUserFn,
+  hasActiveSessionFn,
+} from '#/server/get-current-user'
+
+const BOOT_MIN_MS = 900
 
 export const Route = createFileRoute('/dashboard')({
   staleTime: 30_000,
+  pendingMs: 0,
+  pendingMinMs: 500,
+  pendingComponent: ConnectBootScreen,
   validateSearch: (search: Record<string, unknown>) => ({
     integration:
       typeof search.integration === 'string' ? search.integration : undefined,
@@ -24,28 +33,65 @@ export const Route = createFileRoute('/dashboard')({
     message: typeof search.message === 'string' ? search.message : undefined,
   }),
   beforeLoad: async () => {
-    const user = await getCurrentUserFn()
+    const hasSession = await hasActiveSessionFn()
 
-    if (!user) {
+    if (!hasSession) {
       throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
     }
-
-    return { user }
-  },
-  loader: ({ context }) => {
-    if (!context.user) {
-      throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
-    }
-
-    return { user: context.user }
   },
   component: DashboardPage,
 })
 
 function DashboardPage() {
-  const router = useRouter()
-  const { user } = Route.useLoaderData()
+  const navigate = useNavigate()
   const search = Route.useSearch()
+  const [user, setUser] = useState<CurrentUser | null>(null)
+
+  const refreshUser = useCallback(async () => {
+    const next = await getCurrentUserFn()
+
+    if (!next) {
+      await navigate({ to: ROUTES.LOGIN, search: { error: undefined } })
+      return null
+    }
+
+    setUser(next)
+    return next
+  }, [navigate])
+
+  useEffect(() => {
+    let cancelled = false
+    const startedAt = Date.now()
+
+    void (async () => {
+      const next = await getCurrentUserFn()
+      if (cancelled) {
+        return
+      }
+
+      if (!next) {
+        await navigate({ to: ROUTES.LOGIN, search: { error: undefined } })
+        return
+      }
+
+      const remaining = BOOT_MIN_MS - (Date.now() - startedAt)
+      if (remaining > 0) {
+        await new Promise(resolve => {
+          window.setTimeout(resolve, remaining)
+        })
+      }
+
+      if (cancelled) {
+        return
+      }
+
+      setUser(next)
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [navigate])
 
   useEffect(() => {
     if (search.integration !== 'github' || !search.status) {
@@ -60,11 +106,11 @@ function DashboardPage() {
       toast.error('GitHub-Verbindung fehlgeschlagen.')
     }
 
-    void router.invalidate()
+    void refreshUser()
 
     const retryInvalidates = [500, 1500, 4000].map(delay =>
       window.setTimeout(() => {
-        void router.invalidate()
+        void refreshUser()
       }, delay),
     )
 
@@ -75,7 +121,7 @@ function DashboardPage() {
         window.clearTimeout(timeoutId)
       }
     }
-  }, [router, search.integration, search.status])
+  }, [refreshUser, search.integration, search.status])
 
   useEffect(() => {
     if (search.integration !== 'discord' || !search.status) {
@@ -90,11 +136,11 @@ function DashboardPage() {
       toast.error('Discord-Verbindung fehlgeschlagen.')
     }
 
-    void router.invalidate()
+    void refreshUser()
 
     const retryInvalidates = [500, 1500, 4000].map(delay =>
       window.setTimeout(() => {
-        void router.invalidate()
+        void refreshUser()
       }, delay),
     )
 
@@ -105,7 +151,7 @@ function DashboardPage() {
         window.clearTimeout(timeoutId)
       }
     }
-  }, [router, search.integration, search.status])
+  }, [refreshUser, search.integration, search.status])
 
   useEffect(() => {
     if (!user?.githubConnected) {
@@ -117,7 +163,7 @@ function DashboardPage() {
     }
 
     const intervalId = window.setInterval(() => {
-      void router.invalidate()
+      void refreshUser()
     }, 3000)
 
     const stopPollingId = window.setTimeout(() => {
@@ -128,7 +174,7 @@ function DashboardPage() {
       window.clearInterval(intervalId)
       window.clearTimeout(stopPollingId)
     }
-  }, [router, user])
+  }, [refreshUser, user])
 
   useEffect(() => {
     if (!user?.discordConnected) {
@@ -140,7 +186,7 @@ function DashboardPage() {
     }
 
     const intervalId = window.setInterval(() => {
-      void router.invalidate()
+      void refreshUser()
     }, 3000)
 
     const stopPollingId = window.setTimeout(() => {
@@ -151,10 +197,10 @@ function DashboardPage() {
       window.clearInterval(intervalId)
       window.clearTimeout(stopPollingId)
     }
-  }, [router, user])
+  }, [refreshUser, user])
 
   if (!user) {
-    return <DashboardSkeleton />
+    return <ConnectBootScreen />
   }
 
   const firstName = user.name.split(' ')[0]
@@ -220,29 +266,6 @@ function DashboardPage() {
       </main>
 
       <LegalFooter className="px-4" />
-    </PageShell>
-  )
-}
-
-function DashboardSkeleton() {
-  return (
-    <PageShell>
-      <div className="border-b border-terminal-window-border bg-terminal-nav">
-        <div className="mx-auto flex h-16 max-w-5xl items-center px-4">
-          <Skeleton className="h-8 w-40 bg-terminal-window-border" />
-        </div>
-      </div>
-      <main className="mx-auto max-w-5xl px-4 py-6">
-        <Skeleton className="mb-6 h-10 w-48 bg-terminal-window-border" />
-        <Skeleton className="mb-5 h-16 bg-terminal-window-border" />
-        <div className="grid gap-5 lg:grid-cols-3">
-          <div className="space-y-5 lg:col-span-2">
-            <Skeleton className="h-52 bg-terminal-window-border" />
-            <Skeleton className="h-52 bg-terminal-window-border" />
-          </div>
-          <Skeleton className="h-52 bg-terminal-window-border" />
-        </div>
-      </main>
     </PageShell>
   )
 }
