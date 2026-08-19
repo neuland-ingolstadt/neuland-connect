@@ -7,15 +7,6 @@ import {
 
 let started = false
 
-function presenceLabel(): string {
-  try {
-    const hostname = new URL(serverConfig.appUrl).hostname
-    return hostname || 'connect.neuland.ing'
-  } catch {
-    return 'connect.neuland.ing'
-  }
-}
-
 function isGatewayEnabled(): boolean {
   const flag = process.env.DISCORD_BOT_GATEWAY?.trim().toLowerCase()
   if (flag === 'false' || flag === '0' || flag === 'off') {
@@ -37,7 +28,7 @@ export async function startDiscordBot(): Promise<void> {
   started = true
 
   if (isGatewayEnabled()) {
-    startDiscordGateway(serverConfig.discord.botToken, presenceLabel())
+    startDiscordGateway(serverConfig.discord.botToken)
   }
 
   if (!serverConfig.discord.isInteractionsConfigured) {

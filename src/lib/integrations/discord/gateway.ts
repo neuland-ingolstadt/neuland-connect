@@ -1,4 +1,6 @@
 const DISCORD_GATEWAY_URL = 'wss://gateway.discord.gg/?v=10&encoding=json'
+const DISCORD_PRESENCE_URL = 'https://connect.neuland.ing'
+const DISCORD_ACTIVITY_WATCHING = 3
 
 const GATEWAY_OPCODES = {
   DISPATCH: 0,
@@ -36,11 +38,9 @@ class DiscordGatewayClient {
   private reconnectAttempts = 0
   private stopped = false
   private readonly token: string
-  private readonly presenceLabel: string
 
-  constructor(token: string, presenceLabel: string) {
+  constructor(token: string) {
     this.token = token
-    this.presenceLabel = presenceLabel
   }
 
   start(): void {
@@ -149,8 +149,9 @@ class DiscordGatewayClient {
         since: null,
         activities: [
           {
-            name: this.presenceLabel,
-            type: 0,
+            name: DISCORD_PRESENCE_URL,
+            type: DISCORD_ACTIVITY_WATCHING,
+            url: DISCORD_PRESENCE_URL,
           },
         ],
         status: 'dnd',
@@ -219,15 +220,12 @@ class DiscordGatewayClient {
 
 let gatewayClient: DiscordGatewayClient | null = null
 
-export function startDiscordGateway(
-  token: string,
-  presenceLabel: string,
-): void {
+export function startDiscordGateway(token: string): void {
   if (gatewayClient) {
     return
   }
 
-  gatewayClient = new DiscordGatewayClient(token, presenceLabel)
+  gatewayClient = new DiscordGatewayClient(token)
   gatewayClient.start()
 }
 
