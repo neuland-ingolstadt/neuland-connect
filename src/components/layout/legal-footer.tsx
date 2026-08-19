@@ -1,3 +1,4 @@
+import { BUILD_COMMIT } from '#/lib/build-info'
 import { EXTERNAL_LINKS } from '#/lib/constants'
 import { cn } from '#/lib/utils'
 
@@ -45,6 +46,32 @@ export function LegalFooter({ className }: LegalFooterProps) {
           GitHub
         </a>
       </nav>
+      <p className="mt-3">
+        Build:{' '}
+        <span className="rounded border border-terminal-window-border/80 px-1.5 py-0.5 font-mono text-terminal-text/60">
+          {BUILD_COMMIT}
+        </span>
+      </p>
+      <p className="mt-2">
+        Copyright © 2026{' '}
+        <a
+          href={EXTERNAL_LINKS.EGGL_DEV}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-colors hover:text-terminal-cyan"
+        >
+          Robert Eggl
+        </a>{' '}
+        and{' '}
+        <a
+          href={EXTERNAL_LINKS.WEBSITE}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-colors hover:text-terminal-cyan"
+        >
+          Neuland Ingolstadt e.V.
+        </a>
+      </p>
     </footer>
   )
 }

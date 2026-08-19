@@ -9,6 +9,8 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 FROM base AS build
+ARG VITE_BUILD_COMMIT=dev
+ENV VITE_BUILD_COMMIT=$VITE_BUILD_COMMIT
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN bun run generate-routes && bun run build
