@@ -13,6 +13,13 @@ export type DiscordGuildMember = {
   roles: string[]
 }
 
+export type DiscordGuildRole = {
+  id: string
+  name: string
+  position: number
+  managed: boolean
+}
+
 class DiscordApiError extends Error {
   constructor(
     readonly status: number,
@@ -141,6 +148,19 @@ async function discordBotFetch<T>(
   }
 
   return response.json() as Promise<T>
+}
+
+export async function listGuildRoles(): Promise<DiscordGuildRole[]> {
+  const guildId = serverConfig.discord.guildId
+  if (!guildId) {
+    throw new Error('DISCORD_GUILD_ID is not configured')
+  }
+
+  const roles = await discordBotFetch<DiscordGuildRole[]>(
+    `/guilds/${guildId}/roles`,
+  )
+
+  return roles.sort((a, b) => b.position - a.position)
 }
 
 export async function getGuildMember(
