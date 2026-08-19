@@ -406,18 +406,6 @@ h4 {
   border-width: 0 2px 2px 0;
 }
 
-.connect-boot-scan {
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    color-mix(in oklab, var(--terminal-cyan) 12%, transparent) 50%,
-    transparent 100%
-  );
-  background-size: 100% 28%;
-  animation: connect-boot-scan 2.8s linear infinite;
-  opacity: 0.45;
-}
-
 .connect-boot-palm-wrap {
   animation: connect-boot-palm 2.4s ease-in-out infinite;
 }
@@ -451,15 +439,6 @@ h4 {
   height: 100%;
   background: var(--terminal-cyan);
   animation: connect-boot-bar 1.35s ease-in-out infinite;
-}
-
-@keyframes connect-boot-scan {
-  0% {
-    background-position: 0 -40%;
-  }
-  100% {
-    background-position: 0 140%;
-  }
 }
 
 @keyframes connect-boot-palm {
@@ -502,7 +481,6 @@ h4 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .connect-boot-scan,
   .connect-boot-palm-wrap,
   .connect-boot-cursor,
   .connect-boot-bar {
