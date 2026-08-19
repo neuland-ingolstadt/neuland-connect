@@ -231,11 +231,37 @@ Stateless full reconcile of GitHub teams from Authentik:
 
 Connect uses an **OAuth App** (member linking + Linked Roles) and a **bot** (guild join, role assignment). Access tokens are discarded after the callback.
 
-**Linked Roles** work with this custom app (not only YouTube / League). The app appears under **Server Settings → Roles → Links** only after:
+### Bot role sync (arbitrary group → role mapping)
+
+For automatic role assignment based on Authentik groups, set the group attribute `discord_role` to the Discord role snowflake ID. The bot syncs roles on connect and via cron (`POST /api/internal/discord-roles/sync`). This is **not** configured in Discord's Linked Roles UI.
+
+### Linked Roles (self-assignable roles with criteria)
+
+Linked Roles let members claim roles in **Server Settings → Linked Roles** when they meet criteria. Connect exposes these as **separate requirements** in Discord (not a single „group mapping“ dropdown):
+
+| Metadata key | Discord label | Source |
+|--------------|---------------|--------|
+| `is_member` | Mitglied | Any linked Connect member |
+| `is_vorstand` | Vorstand | Authentik group `vorstand` |
+| `is_ehrenmitglied` | Ehrenmitglied | Authentik Ehrenmitglied group |
+| `is_organisation` | Ressort Organisation | Authentik group `organisation` |
+| `is_engineering` | Ressort Engineering | Authentik group `engineering` |
+
+**Setup checklist:**
 
 1. Bot is in the guild
 2. Developer Portal **Linked Roles Verification URL** = `{APP_URL}/api/integrations/discord/linked-role`
-3. Metadata schema registered (`POST /api/internal/discord-linked-roles/register` or first successful connect)
+3. Metadata schema registered (on server start when Discord is configured, or `POST /api/internal/discord-linked-roles/register`)
+
+**Creating a Linked Role in Discord:**
+
+1. Server Settings → Roles → create role → **Links** tab
+2. **+ Add requirement** → select **Neuland Connect** → „Must connect … account“ (connection requirement)
+3. **+ Add requirement** again → select **Neuland Connect** → pick a metadata field (e.g. „Vorstand“ = true)
+
+If step 3 only shows the connection and no metadata fields (Mitglied, Vorstand, …), the metadata schema is not registered yet — restart Connect or call the register endpoint.
+
+Discord allows at most **5 metadata fields per app**; arbitrary per-group mapping beyond the table above requires bot role sync with `discord_role`.
 
 ## Docker
 

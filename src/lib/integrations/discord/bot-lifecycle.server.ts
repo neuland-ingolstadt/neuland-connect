@@ -4,6 +4,7 @@ import {
   startDiscordGateway,
   stopDiscordGateway,
 } from '#/lib/integrations/discord/gateway'
+import { ensureDiscordRoleConnectionMetadata } from '#/lib/integrations/discord/linked-roles'
 
 let started = false
 
@@ -38,6 +39,18 @@ export async function startDiscordBot(): Promise<void> {
 
   if (isGatewayEnabled()) {
     startDiscordGateway(serverConfig.discord.botToken, presenceLabel())
+  }
+
+  if (serverConfig.discord.isLinkedRolesConfigured) {
+    try {
+      await ensureDiscordRoleConnectionMetadata()
+      console.log('[discord-bot] Registered Linked Roles metadata schema')
+    } catch (error) {
+      console.error(
+        '[discord-bot] Failed to register Linked Roles metadata:',
+        error,
+      )
+    }
   }
 
   if (!serverConfig.discord.isInteractionsConfigured) {

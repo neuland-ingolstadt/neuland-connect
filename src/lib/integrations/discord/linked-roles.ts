@@ -14,9 +14,9 @@ import {
 
 const DISCORD_API_BASE = 'https://discord.com/api/v10'
 
-/** Discord BOOLEAN metadata: string "1" / "0". */
-const BOOL_TRUE = '1'
-const BOOL_FALSE = '0'
+/** Discord BOOLEAN metadata: integer 1 / 0 (not boolean true/false). */
+const BOOL_TRUE = 1
+const BOOL_FALSE = 0
 
 /** ApplicationRoleConnectionMetadataType.BOOLEAN_EQUAL */
 const BOOLEAN_EQUAL = 7
@@ -75,14 +75,14 @@ export const DISCORD_ROLE_CONNECTION_METADATA: DiscordRoleConnectionMetadataReco
   ]
 
 export type DiscordRoleConnectionMetadataValues = {
-  [DISCORD_ROLE_CONNECTION_KEYS.IS_MEMBER]: string
-  [DISCORD_ROLE_CONNECTION_KEYS.IS_VORSTAND]: string
-  [DISCORD_ROLE_CONNECTION_KEYS.IS_EHRENMITGLIED]: string
-  [DISCORD_ROLE_CONNECTION_KEYS.IS_ORGANISATION]: string
-  [DISCORD_ROLE_CONNECTION_KEYS.IS_ENGINEERING]: string
+  [DISCORD_ROLE_CONNECTION_KEYS.IS_MEMBER]: number
+  [DISCORD_ROLE_CONNECTION_KEYS.IS_VORSTAND]: number
+  [DISCORD_ROLE_CONNECTION_KEYS.IS_EHRENMITGLIED]: number
+  [DISCORD_ROLE_CONNECTION_KEYS.IS_ORGANISATION]: number
+  [DISCORD_ROLE_CONNECTION_KEYS.IS_ENGINEERING]: number
 }
 
-function boolMeta(value: boolean): string {
+function boolMeta(value: boolean): number {
   return value ? BOOL_TRUE : BOOL_FALSE
 }
 
