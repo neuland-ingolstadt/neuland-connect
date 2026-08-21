@@ -12,6 +12,8 @@ import { AUTHENTIK_ATTRIBUTES, DISCORD_GUILD_STATUSES } from '#/lib/constants'
 import {
   addGuildMember,
   addGuildMemberRole,
+  DISCORD_ERROR_UNKNOWN_ROLE,
+  DiscordApiError,
   getGuildMember,
   removeGuildMemberRole,
 } from '#/lib/integrations/discord/guild'
@@ -85,6 +87,71 @@ function groupNamesForRoleId(
     })
     .map(([groupName]) => groupName)
     .sort((a, b) => a.localeCompare(b, 'de'))
+}
+
+function roleLabelForError(
+  roleId: string,
+  managedMap: Map<string, string>,
+  userGroupNames?: string[],
+): string {
+  const groupNames = groupNamesForRoleId(roleId, managedMap, userGroupNames)
+  return groupNames.length > 0 ? groupNames.join(', ') : roleId
+}
+
+/** User-facing role sync failure that already logged technical details. */
+class DiscordRoleSyncError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'DiscordRoleSyncError'
+  }
+}
+
+function formatRoleMutationError(
+  error: unknown,
+  action: 'add' | 'remove',
+  roleId: string,
+  managedMap: Map<string, string>,
+  context: {
+    authentikUserId: string
+    discordUserId: string
+    userGroupNames?: string[]
+  },
+): Error {
+  const groupNames = groupNamesForRoleId(
+    roleId,
+    managedMap,
+    context.userGroupNames,
+  )
+  const roleLabel = roleLabelForError(
+    roleId,
+    managedMap,
+    context.userGroupNames,
+  )
+
+  console.error('[discord-roles] Role mutation failed:', {
+    action,
+    roleId,
+    groupNames,
+    authentikUserId: context.authentikUserId,
+    discordUserId: context.discordUserId,
+    status: error instanceof DiscordApiError ? error.status : undefined,
+    discordCode: error instanceof DiscordApiError ? error.code : undefined,
+    error: error instanceof Error ? error.message : error,
+  })
+
+  if (
+    error instanceof DiscordApiError &&
+    error.code === DISCORD_ERROR_UNKNOWN_ROLE
+  ) {
+    return new DiscordRoleSyncError(
+      `Unbekannte Discord-Rolle „${roleLabel}“. Prüfe das Attribut discord_role in Authentik.`,
+    )
+  }
+
+  const detail =
+    error instanceof Error ? error.message : 'Unbekannter Discord-Sync-Fehler'
+
+  return new DiscordRoleSyncError(`Discord-Rolle „${roleLabel}“: ${detail}`)
 }
 
 async function writeGuildMemberStatus(
@@ -245,15 +312,30 @@ export async function syncUserDiscordRoles(
 
     for (const roleId of desiredRoleIdList) {
       if (!currentManagedSet.has(roleId)) {
-        await addGuildMemberRole(discordUserId, roleId)
-        added.push(...groupNamesForRoleId(roleId, managedMap, userGroups))
+        try {
+          await addGuildMemberRole(discordUserId, roleId)
+          added.push(...groupNamesForRoleId(roleId, managedMap, userGroups))
+        } catch (error) {
+          throw formatRoleMutationError(error, 'add', roleId, managedMap, {
+            authentikUserId: userId,
+            discordUserId,
+            userGroupNames: userGroups,
+          })
+        }
       }
     }
 
     for (const roleId of currentManaged) {
       if (!desiredSet.has(roleId)) {
-        await removeGuildMemberRole(discordUserId, roleId)
-        removed.push(...groupNamesForRoleId(roleId, managedMap))
+        try {
+          await removeGuildMemberRole(discordUserId, roleId)
+          removed.push(...groupNamesForRoleId(roleId, managedMap))
+        } catch (error) {
+          throw formatRoleMutationError(error, 'remove', roleId, managedMap, {
+            authentikUserId: userId,
+            discordUserId,
+          })
+        }
       }
     }
 
@@ -272,6 +354,14 @@ export async function syncUserDiscordRoles(
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Unbekannter Discord-Sync-Fehler'
+
+    if (!(error instanceof DiscordRoleSyncError)) {
+      console.error('[discord-roles] Sync failed:', {
+        authentikUserId: userId,
+        discordUserId,
+        error: message,
+      })
+    }
 
     await writeGuildSyncError(authentikUserId, message).catch(() => undefined)
 

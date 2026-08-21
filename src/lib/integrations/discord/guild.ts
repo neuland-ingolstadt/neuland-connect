@@ -24,11 +24,15 @@ class DiscordApiError extends Error {
   constructor(
     readonly status: number,
     message?: string,
+    readonly code?: number,
   ) {
     super(message ?? `Discord API error (${status})`)
     this.name = 'DiscordApiError'
   }
 }
+
+/** Discord API error code: Unknown Role */
+export const DISCORD_ERROR_UNKNOWN_ROLE = 10011
 
 function clampRetryAfterMs(value: number): number {
   if (!Number.isFinite(value) || value < 0) {
@@ -65,7 +69,7 @@ function parseRetryAfterHeader(response: Response): number | null {
 
 async function readDiscordErrorBody(
   response: Response,
-): Promise<{ message?: string; retryAfterMs?: number }> {
+): Promise<{ message?: string; code?: number; retryAfterMs?: number }> {
   try {
     const data = (await response.json()) as {
       message?: string
@@ -82,7 +86,11 @@ async function readDiscordErrorBody(
         ? clampRetryAfterMs(data.retry_after * 1000)
         : undefined
 
-    return { message, retryAfterMs }
+    return {
+      message,
+      code: typeof data.code === 'number' ? data.code : undefined,
+      retryAfterMs,
+    }
   } catch {
     return {}
   }
@@ -136,10 +144,11 @@ async function discordBotFetch<T>(
   const response = await discordApiFetch(path, init)
 
   if (!response.ok) {
-    const { message } = await readDiscordErrorBody(response)
+    const { message, code } = await readDiscordErrorBody(response)
     throw new DiscordApiError(
       response.status,
       message ? `Discord API ${response.status}: ${message}` : undefined,
+      code,
     )
   }
 
@@ -181,10 +190,11 @@ export async function getGuildMember(
   }
 
   if (!response.ok) {
-    const { message } = await readDiscordErrorBody(response)
+    const { message, code } = await readDiscordErrorBody(response)
     throw new DiscordApiError(
       response.status,
       message ? `Discord API ${response.status}: ${message}` : undefined,
+      code,
     )
   }
 
@@ -226,8 +236,8 @@ export async function addGuildMember(
     return 'already_member'
   }
 
-  const { message } = await readDiscordErrorBody(response)
-  throw new DiscordApiError(response.status, message)
+  const { message, code } = await readDiscordErrorBody(response)
+  throw new DiscordApiError(response.status, message, code)
 }
 
 export async function addGuildMemberRole(
