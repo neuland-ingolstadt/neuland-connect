@@ -216,7 +216,7 @@ function DashboardPage() {
         className="flex flex-1 flex-col"
         inert={showExplainer ? true : undefined}
       >
-        <AppHeader userName={user.name} />
+        <AppHeader isSignedIn />
 
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
           <header className="mb-6 flex flex-wrap items-end justify-between gap-4">

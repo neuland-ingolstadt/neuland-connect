@@ -16,6 +16,7 @@ export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
   DASHBOARD: '/dashboard',
+  FAQ: '/faq',
   AUTH_LOGIN: '/api/auth/login',
   AUTH_CALLBACK: '/api/auth/callback',
   AUTH_LOGOUT: '/api/auth/logout',
