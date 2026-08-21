@@ -175,29 +175,12 @@ export async function handleOidcCallback(request: Request): Promise<Response> {
   return redirectResponse(ROUTES.DASHBOARD)
 }
 
-/** Clears the app session and returns where the browser should go next. */
-export async function completeOidcLogout(): Promise<{ redirectTo: string }> {
-  const session = await useAppSession()
-  const idToken = session.data.oidc?.idToken
-  const discovery = await getOidcDiscovery()
-
-  await session.clear()
-
-  if (idToken && discovery.end_session_endpoint) {
-    const params = new URLSearchParams({
-      id_token_hint: idToken,
-      post_logout_redirect_uri: serverConfig.appUrl,
-    })
-
-    return {
-      redirectTo: `${discovery.end_session_endpoint}?${params.toString()}`,
-    }
-  }
-
-  return { redirectTo: ROUTES.LOGIN }
-}
-
+/**
+ * Ends the Connect session only — does not call Authentik end_session, so the
+ * IdP SSO session stays. User lands on the Connect login screen.
+ */
 export async function initiateOidcLogout(): Promise<Response> {
-  const { redirectTo } = await completeOidcLogout()
-  return redirectResponse(redirectTo)
+  const session = await useAppSession()
+  await session.clear()
+  return redirectResponse(ROUTES.LOGIN)
 }
