@@ -16,9 +16,6 @@ export function LegalFooter({ className, onShowIntro }: LegalFooterProps) {
       )}
     >
       <nav className="flex flex-wrap items-center justify-center gap-4">
-        <span aria-hidden="true" className="text-terminal-window-border">
-          |
-        </span>
         <a
           href={EXTERNAL_LINKS.IMPRESSUM}
           target="_blank"

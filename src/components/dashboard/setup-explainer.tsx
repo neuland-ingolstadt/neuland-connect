@@ -76,7 +76,7 @@ export function SetupExplainer({
         id: 'datenschutz',
         kicker: 'über',
         title: 'Datenschutz',
-        body: 'Wir haben keinen Zugriff auf deine verknüpften Accounts oder Passwörter. Lediglich die Account-ID wird in deinem Authentik-Profil hinterlegt.',
+        body: 'Wir haben keinen Zugriff auf deine verknüpften Accounts oder Passwörter. Mehr Details findest du in unserem FAQ.',
         icon: 'privacy',
       },
     ]
