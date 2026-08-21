@@ -21,12 +21,12 @@ const RESSORT_GROUP_ORDER: ProfileRessortGroup[] = [
 ]
 
 const RESSORT_DISPLAY_LABELS: Record<ProfileRessortGroup, string> = {
-  [PROFILE_RESSORT_GROUPS.organisation]: 'Ressort Organisation',
-  [PROFILE_RESSORT_GROUPS.engineering]: 'Ressort Engineering',
-  [PROFILE_RESSORT_GROUPS.designPr]: 'Ressort Design & PR',
-  [PROFILE_RESSORT_GROUPS.management]: 'Ressort Management',
-  [PROFILE_RESSORT_GROUPS.hr]: 'Ressort HR',
-  [PROFILE_RESSORT_GROUPS.events]: 'Ressort Events',
+  [PROFILE_RESSORT_GROUPS.organisation]: 'Organisation',
+  [PROFILE_RESSORT_GROUPS.engineering]: 'Engineering',
+  [PROFILE_RESSORT_GROUPS.designPr]: 'Design & PR',
+  [PROFILE_RESSORT_GROUPS.management]: 'Management',
+  [PROFILE_RESSORT_GROUPS.hr]: 'HR',
+  [PROFILE_RESSORT_GROUPS.events]: 'Events',
 }
 
 const HONOR_GROUP_PATTERN = /ehrenmitglied/i
@@ -89,7 +89,7 @@ export function getProfileGroupBadgeHint(group: string): string | null {
   return null
 }
 
-/** Badge label; Ressorts get a readable „Ressort …“ prefix. */
+/** Badge label; Ressorts use the readable ressort name without a prefix. */
 export function getProfileGroupDisplayLabel(group: string): string {
   const ressort = getProfileRessortGroup(group)
   if (ressort) {

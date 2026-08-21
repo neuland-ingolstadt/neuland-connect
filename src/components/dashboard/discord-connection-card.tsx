@@ -1,22 +1,12 @@
 import { useRouter } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
-import { Link2Off, RefreshCw } from 'lucide-react'
+import { RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { INTEGRATION_CARD_IDS } from '#/components/dashboard/dashboard-action-banner'
+import { IntegrationOverflowMenu } from '#/components/dashboard/integration-overflow-menu'
 import { IntegrationProgressInline } from '#/components/dashboard/integration-progress-inline'
 import { DiscordIcon } from '#/components/icons/discord-icon'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '#/components/ui/alert-dialog'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
@@ -254,7 +244,7 @@ export function DiscordConnectionCard({
               </p>
             ) : null}
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {canSyncRoles ? (
                 <Button
                   type="button"
@@ -271,55 +261,19 @@ export function DiscordConnectionCard({
                   {isSyncingRoles ? 'Synchronisiere…' : 'Synchronisieren'}
                 </Button>
               ) : null}
-              <Button variant="outline" size="sm" asChild>
-                <a href={ROUTES.DISCORD_CONNECT}>
-                  <DiscordIcon className="text-inherit" />
-                  {inGuild ? 'Neu verbinden' : 'Erneut beitreten'}
-                </a>
-              </Button>
-              <AlertDialog
-                open={disconnectOpen}
-                onOpenChange={setDisconnectOpen}
-              >
-                <AlertDialogTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="text-destructive hover:border-destructive/40 hover:text-destructive"
-                    disabled={isDisconnecting}
-                  >
-                    <Link2Off />
-                    Trennen
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Discord-Verbindung trennen?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Du bleibst im Discord-Server, verlierst aber alle Rollen.
-                      Connect vergisst die Verknüpfung.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel disabled={isDisconnecting}>
-                      Abbrechen
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      variant="destructive"
-                      disabled={isDisconnecting}
-                      onClick={event => {
-                        event.preventDefault()
-                        void handleDisconnect()
-                      }}
-                    >
-                      {isDisconnecting ? 'Trennen…' : 'Trennen'}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <IntegrationOverflowMenu
+                reconnectHref={ROUTES.DISCORD_CONNECT}
+                reconnectLabel={inGuild ? 'Neu verbinden' : 'Erneut beitreten'}
+                reconnectIcon={<DiscordIcon className="text-inherit" />}
+                disconnectTitle="Discord-Verbindung trennen?"
+                disconnectDescription="Du bleibst im Discord-Server, verlierst aber alle Rollen. Connect vergisst die Verknüpfung."
+                disconnectOpen={disconnectOpen}
+                onDisconnectOpenChange={setDisconnectOpen}
+                isDisconnecting={isDisconnecting}
+                onDisconnect={() => {
+                  void handleDisconnect()
+                }}
+              />
             </div>
           </div>
         ) : (

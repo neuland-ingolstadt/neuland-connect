@@ -29,7 +29,7 @@ export async function logGuildRolesForAuthentikSetup(): Promise<void> {
   )
 
   const lines = [
-    '[discord-bot] Discord guild roles — copy IDs into Authentik group attributes:',
+    '[discord-bot] Discord guild roles - copy IDs into Authentik group attributes:',
     '',
     `  ${padEnd('Role name', nameWidth)}  Role ID`,
     `  ${'-'.repeat(nameWidth)}  ${'-'.repeat(19)}`,

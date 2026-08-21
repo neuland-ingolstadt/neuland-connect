@@ -66,3 +66,15 @@ export type DiscordGuildStatus =
 export const DISCORD_OAUTH_SCOPE = 'identify guilds.join' as const
 
 export const SESSION_COOKIE_NAME = 'neuland-connect-session' as const
+
+/** Query flag set by the OIDC callback so the dashboard can run first-run UX */
+export const DASHBOARD_INTRO_SEARCH = 'neu' as const
+
+export function isDashboardIntroFlag(value: unknown): boolean {
+  return (
+    value === DASHBOARD_INTRO_SEARCH ||
+    value === true ||
+    value === 1 ||
+    value === '1'
+  )
+}

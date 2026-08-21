@@ -10,7 +10,7 @@ import {
 } from '#/lib/authentik/client'
 import type { AuthentikUserResponse } from '#/lib/authentik/types'
 import { serverConfig } from '#/lib/config'
-import { ROUTES } from '#/lib/constants'
+import { DASHBOARD_INTRO_SEARCH, ROUTES } from '#/lib/constants'
 import { useAppSession } from '#/lib/session.server'
 
 let cachedDiscovery: OidcDiscoveryDocument | null = null
@@ -158,11 +158,7 @@ export async function handleOidcCallback(request: Request): Promise<Response> {
       sub: userInfo.sub,
       authentikUserId: getAuthentikApiUserId(authentikUser),
       email: userInfo.email ?? authentikUser.email,
-      name:
-        userInfo.name ??
-        userInfo.preferred_username ??
-        authentikUser.name ??
-        'Mitglied',
+      name: authentikUser.name.trim() || userInfo.name || 'Mitglied',
       username: userInfo.preferred_username ?? authentikUser.username,
     },
     oidc: {
@@ -172,11 +168,11 @@ export async function handleOidcCallback(request: Request): Promise<Response> {
     oidcCodeVerifier: undefined,
   })
 
-  return redirectResponse(ROUTES.DASHBOARD)
+  return redirectResponse(`${ROUTES.DASHBOARD}?intro=${DASHBOARD_INTRO_SEARCH}`)
 }
 
 /**
- * Ends the Connect session only — does not call Authentik end_session, so the
+ * Ends the Connect session only - does not call Authentik end_session, so the
  * IdP SSO session stays. User lands on the Connect login screen.
  */
 export async function initiateOidcLogout(): Promise<Response> {

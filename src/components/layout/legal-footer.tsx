@@ -4,9 +4,10 @@ import { cn } from '#/lib/utils'
 
 type LegalFooterProps = {
   className?: string
+  onShowIntro?: () => void
 }
 
-export function LegalFooter({ className }: LegalFooterProps) {
+export function LegalFooter({ className, onShowIntro }: LegalFooterProps) {
   return (
     <footer
       className={cn(
@@ -45,6 +46,20 @@ export function LegalFooter({ className }: LegalFooterProps) {
         >
           GitHub
         </a>
+        {onShowIntro ? (
+          <>
+            <span aria-hidden="true" className="text-terminal-window-border">
+              |
+            </span>
+            <button
+              type="button"
+              onClick={onShowIntro}
+              className="cursor-pointer transition-colors hover:text-terminal-cyan"
+            >
+              Einführung
+            </button>
+          </>
+        ) : null}
       </nav>
       <p className="mt-3">
         Build:{' '}
@@ -53,7 +68,9 @@ export function LegalFooter({ className }: LegalFooterProps) {
         </span>
       </p>
       <p className="mt-2">
-        Copyright © 2026{' '}
+        Copyright © 2026
+        <br />
+        by{' '}
         <a
           href={EXTERNAL_LINKS.EGGL_DEV}
           target="_blank"

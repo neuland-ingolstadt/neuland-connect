@@ -634,7 +634,7 @@ export async function listNeulandNextRefreshTokensForUser(
       await authentikFetch<AuthentikOAuth2RefreshTokenListResponse>(
         `/api/v3/oauth2/refresh_tokens/?${params.toString()}`,
       )
-    // Authentik includes the refresh token secret in this payload — keep
+    // Authentik includes the refresh token secret in this payload - keep
     // only status fields so it never sits in memory or logs.
     tokens.push(
       ...response.results.map(token => ({

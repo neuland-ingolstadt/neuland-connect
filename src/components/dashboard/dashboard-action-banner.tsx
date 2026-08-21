@@ -80,10 +80,10 @@ function buildSetupTasks({
 
   tasks.push({
     id: 'next',
-    label: 'Next',
+    label: 'Neuland Next',
     icon: <NeulandPalm className="size-4 text-terminal-text" />,
     complete: nextSignedIn,
-    actionLabel: 'App holen',
+    actionLabel: 'Installieren',
     href: EXTERNAL_LINKS.NEULAND_NEXT_GET,
     external: true,
   })
@@ -100,7 +100,7 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
   }
 
   return (
-    <div className="overflow-hidden border border-terminal-window-border bg-terminal-window">
+    <div className="hidden overflow-hidden border border-terminal-window-border bg-terminal-window sm:block">
       <div className="flex h-0.5">
         {tasks.map(task => (
           <div
@@ -146,14 +146,14 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
               rel={task.external ? 'noopener noreferrer' : undefined}
               className="group flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-terminal-cyan/[0.06]"
             >
-              <span className="flex size-8 shrink-0 items-center justify-center border border-terminal-cyan/35 bg-terminal-card text-terminal-text transition-colors group-hover:border-terminal-cyan/70">
+              <span className="flex size-8 shrink-0 items-center justify-center border border-terminal-window-border bg-terminal-card text-terminal-text">
                 {task.icon}
               </span>
               <div className="min-w-0">
-                <p className="font-mono text-xs font-semibold tracking-wide text-terminal-lightGreen">
+                <p className="font-mono text-xs font-semibold tracking-wide text-terminal-text">
                   {task.label}
                 </p>
-                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.16em] text-terminal-cyan transition-colors group-hover:text-terminal-lightGreen">
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.16em] text-terminal-text/50 transition-colors group-hover:text-terminal-cyan">
                   {task.actionLabel} →
                 </p>
               </div>

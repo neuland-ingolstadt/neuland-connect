@@ -13,6 +13,7 @@ export const Route = createFileRoute('/')({
           integration: undefined,
           status: undefined,
           message: undefined,
+          intro: undefined,
         },
       })
     }

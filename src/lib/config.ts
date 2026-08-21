@@ -40,7 +40,7 @@ export const serverConfig = {
       return requireEnv('AUTHENTIK_API_TOKEN')
     },
     /**
-     * OAuth2 provider PK for Neuland Next (Member ID). Optional — Connect
+     * OAuth2 provider PK for Neuland Next (Member ID). Optional - Connect
      * resolves it from the Authentik app slug when unset.
      */
     get nextMemberOAuthProviderId() {

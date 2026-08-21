@@ -13,11 +13,6 @@ export type CurrentUser = {
   name: string
   username: string
   groups: string[]
-  /**
-   * Secondary GitHub/Discord-synced groups are listed under the integration
-   * cards instead of the profile. Honor, Vorstand, and Ressort groups stay.
-   */
-  integrationGroupsShownSeparately: boolean
   accountCreatedAt: string | null
   attributes: ReturnType<typeof parseUserAttributes>
   githubConnected: boolean
@@ -34,7 +29,7 @@ export type CurrentUser = {
   nextSession: NeulandNextMemberSession
 }
 
-/** Cookie session only — used by / and /login so those routes skip Authentik. */
+/** Cookie session only - used by / and /login so those routes skip Authentik. */
 export const hasActiveSessionFn = createServerFn({ method: 'GET' }).handler(
   async (): Promise<boolean> => {
     const { requireSessionUser } = await import('#/lib/session.server')
@@ -142,18 +137,17 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       ].sort((a, b) => a.localeCompare(b, 'de'))
     }
 
-    const integrationGroupsShownSeparately = hiddenGroups.size > 0
-    const profileGroups = integrationGroupsShownSeparately
-      ? groups.filter(group => !hiddenGroups.has(group))
-      : groups
+    const profileGroups =
+      hiddenGroups.size > 0
+        ? groups.filter(group => !hiddenGroups.has(group))
+        : groups
 
     return {
       sub: user.sub,
       email: user.email || authentikUser.email,
-      name: user.name || authentikUser.name,
+      name: authentikUser.name.trim() || user.name,
       username: authentikUser.username,
       groups: profileGroups,
-      integrationGroupsShownSeparately,
       accountCreatedAt: authentikUser.date_joined ?? null,
       attributes,
       githubConnected,

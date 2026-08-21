@@ -53,22 +53,22 @@
   --muted-foreground: 150 9% 70%;
   --border: 150 7% 20%;
   --input: 150 7% 20%;
-  --ring: 149 65% 52%;
-  --primary: 149 65% 52%;
+  --ring: 149 42% 46%;
+  --primary: 149 42% 46%;
   --primary-foreground: 160 30% 12%;
   --secondary: 150 9% 22%;
   --secondary-foreground: 160 20% 94%;
-  --accent: 149 80% 55%;
-  --accent-foreground: 160 35% 12%;
+  --accent: 149 48% 48%;
+  --accent-foreground: 160 28% 14%;
   --destructive: 0 70% 45%;
   --destructive-foreground: 0 0% 98%;
   --radius: 0;
 
   --terminal-bg: #020302;
   --terminal-text: #f6fff8;
-  --terminal-cyan: oklch(0.825 0.3281 142.83);
-  --terminal-highlight: oklch(0.8544 0.3379 142.83);
-  --terminal-lightGreen: oklch(0.79 0.2935 142.83);
+  --terminal-cyan: oklch(0.74 0.17 142.83);
+  --terminal-highlight: oklch(0.78 0.15 142.83);
+  --terminal-lightGreen: oklch(0.7 0.14 142.83);
   --terminal-mutedGreen: #0a4f2b;
   --terminal-window: #0b0b0b;
   --terminal-window-border: #333333;
@@ -79,7 +79,7 @@
 
   --ambient-background: #010101;
   --ambient-grid-line: rgba(156, 163, 175, 0.12);
-  --ambient-glow: rgba(74, 222, 128, 0.08);
+  --ambient-glow: rgba(74, 180, 110, 0.06);
 
   --honor-badge-text: #fef3c7;
   --honor-badge-border: rgba(251, 191, 36, 0.5);
@@ -89,12 +89,6 @@
     rgba(250, 204, 21, 0.15),
     rgba(217, 119, 6, 0.2)
   );
-  --honor-badge-shadow:
-    0 0 14px rgba(251, 191, 36, 0.35), 0 0 28px rgba(245, 158, 11, 0.15);
-  --honor-badge-glow-strong:
-    0 0 18px rgba(251, 191, 36, 0.45), 0 0 36px rgba(245, 158, 11, 0.2);
-  --honor-badge-glow-soft:
-    0 0 12px rgba(251, 191, 36, 0.3), 0 0 24px rgba(245, 158, 11, 0.12);
 
   --ressort-badge-text: #bfdbfe;
   --ressort-badge-border: rgba(96, 165, 250, 0.5);
@@ -104,8 +98,6 @@
     rgba(37, 99, 235, 0.16),
     rgba(29, 78, 216, 0.22)
   );
-  --ressort-badge-shadow:
-    0 0 12px rgba(59, 130, 246, 0.28), 0 0 24px rgba(37, 99, 235, 0.12);
 }
 
 :root[data-theme="dark"] {
@@ -157,12 +149,6 @@
       rgba(250, 204, 21, 0.35),
       rgba(245, 158, 11, 0.4)
     );
-    --honor-badge-shadow:
-      0 0 14px rgba(251, 191, 36, 0.28), 0 0 28px rgba(245, 158, 11, 0.12);
-    --honor-badge-glow-strong:
-      0 0 18px rgba(251, 191, 36, 0.38), 0 0 36px rgba(245, 158, 11, 0.16);
-    --honor-badge-glow-soft:
-      0 0 12px rgba(251, 191, 36, 0.24), 0 0 24px rgba(245, 158, 11, 0.1);
 
     --ressort-badge-text: #1e3a8a;
     --ressort-badge-border: rgba(37, 99, 235, 0.55);
@@ -172,8 +158,6 @@
       rgba(59, 130, 246, 0.3),
       rgba(37, 99, 235, 0.35)
     );
-    --ressort-badge-shadow:
-      0 0 12px rgba(59, 130, 246, 0.22), 0 0 24px rgba(37, 99, 235, 0.1);
   }
 }
 
@@ -221,12 +205,6 @@
     rgba(250, 204, 21, 0.35),
     rgba(245, 158, 11, 0.4)
   );
-  --honor-badge-shadow:
-    0 0 14px rgba(251, 191, 36, 0.28), 0 0 28px rgba(245, 158, 11, 0.12);
-  --honor-badge-glow-strong:
-    0 0 18px rgba(251, 191, 36, 0.38), 0 0 36px rgba(245, 158, 11, 0.16);
-  --honor-badge-glow-soft:
-    0 0 12px rgba(251, 191, 36, 0.24), 0 0 24px rgba(245, 158, 11, 0.1);
 
   --ressort-badge-text: #1e3a8a;
   --ressort-badge-border: rgba(37, 99, 235, 0.55);
@@ -236,8 +214,6 @@
     rgba(59, 130, 246, 0.3),
     rgba(37, 99, 235, 0.35)
   );
-  --ressort-badge-shadow:
-    0 0 12px rgba(59, 130, 246, 0.22), 0 0 24px rgba(37, 99, 235, 0.1);
 }
 
 * {
@@ -288,16 +264,6 @@ h4 {
     );
 }
 
-@keyframes neuland-honor-glow {
-  0%,
-  100% {
-    box-shadow: var(--honor-badge-glow-soft);
-  }
-  50% {
-    box-shadow: var(--honor-badge-glow-strong);
-  }
-}
-
 .neuland-honor-badge {
   max-width: 100%;
   overflow: hidden;
@@ -306,8 +272,6 @@ h4 {
   border: 1px solid var(--honor-badge-border);
   background: var(--honor-badge-bg);
   color: var(--honor-badge-text);
-  box-shadow: var(--honor-badge-shadow);
-  animation: neuland-honor-glow 3s ease-in-out infinite;
 }
 
 .neuland-ressort-badge {
@@ -318,7 +282,6 @@ h4 {
   border: 1px solid var(--ressort-badge-border);
   background: var(--ressort-badge-bg);
   color: var(--ressort-badge-text);
-  box-shadow: var(--ressort-badge-shadow);
 }
 
 .neuland-badge-hint {
@@ -480,10 +443,120 @@ h4 {
   }
 }
 
+.setup-explainer {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: var(--terminal-bg);
+  animation: setup-explainer-enter 0.55s ease-out both;
+}
+
+.setup-explainer--exit {
+  animation: setup-explainer-exit 0.72s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  pointer-events: none;
+}
+
+.setup-explainer-panel {
+  animation: setup-explainer-panel 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.setup-explainer-slide {
+  animation: setup-explainer-slide 0.48s ease-out both;
+}
+
+.setup-explainer-icon {
+  animation: setup-explainer-icon 0.7s ease-out both;
+}
+
+.dashboard-reveal > * {
+  animation: dashboard-reveal 0.55s ease-out both;
+}
+
+.dashboard-reveal > *:nth-child(1) {
+  animation-delay: 40ms;
+}
+
+.dashboard-reveal > *:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.dashboard-reveal > *:nth-child(3) {
+  animation-delay: 200ms;
+}
+
+@keyframes setup-explainer-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes setup-explainer-exit {
+  from {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+@keyframes setup-explainer-panel {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes setup-explainer-slide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes setup-explainer-icon {
+  from {
+    opacity: 0.4;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dashboard-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .connect-boot-palm-wrap,
   .connect-boot-cursor,
-  .connect-boot-bar {
+  .connect-boot-bar,
+  .setup-explainer,
+  .setup-explainer-panel,
+  .setup-explainer-slide,
+  .setup-explainer-icon,
+  .dashboard-reveal > * {
     animation: none;
   }
 
@@ -497,5 +570,9 @@ h4 {
     width: 100%;
     transform: none;
     opacity: 0.55;
+  }
+
+  .setup-explainer--exit {
+    opacity: 0;
   }
 }

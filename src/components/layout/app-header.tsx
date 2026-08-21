@@ -38,6 +38,7 @@ export function AppHeader({
               integration: undefined,
               status: undefined,
               message: undefined,
+              intro: undefined,
             }}
             className="group flex items-center gap-3 no-underline"
           >
