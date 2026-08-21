@@ -40,7 +40,7 @@ type ExplainerSlide = {
   href?: string
 }
 
-const SLIDE_MS = 4200
+const SLIDE_MS = 3900
 
 export function SetupExplainer({ firstName, onFinished }: SetupExplainerProps) {
   const titleId = useId()
