@@ -306,26 +306,33 @@ export async function resolveAuthentikUser(
   }
 
   if (input.email) {
-    const byEmail = await listAuthentikUsers({ email: input.email })
-    const user = byEmail.results[0]
-    if (user) {
-      return user
+    const normalizedEmail = input.email.trim().toLowerCase()
+    if (normalizedEmail.length > 0) {
+      const byEmail = await listAuthentikUsers({ email: input.email.trim() })
+      const user = requireUniqueExactUserMatch(
+        byEmail,
+        candidate => candidate.email.trim().toLowerCase() === normalizedEmail,
+      )
+      if (user) {
+        return user
+      }
     }
   }
 
   if (input.username) {
-    const byUsername = await listAuthentikUsers({ username: input.username })
-    const user = byUsername.results[0]
-    if (user) {
-      return user
-    }
-  }
-
-  if (input.email) {
-    const bySearch = await listAuthentikUsers({ search: input.email })
-    const user = bySearch.results[0]
-    if (user) {
-      return user
+    const normalizedUsername = input.username.trim().toLowerCase()
+    if (normalizedUsername.length > 0) {
+      const byUsername = await listAuthentikUsers({
+        username: input.username.trim(),
+      })
+      const user = requireUniqueExactUserMatch(
+        byUsername,
+        candidate =>
+          candidate.username.trim().toLowerCase() === normalizedUsername,
+      )
+      if (user) {
+        return user
+      }
     }
   }
 
@@ -334,6 +341,34 @@ export async function resolveAuthentikUser(
     `Benutzer konnte in Authentik nicht gefunden werden (sub: "${input.sub}"). ` +
       'Bitte wende dich an den Administrator.',
   )
+}
+
+/**
+ * Fail closed on ambiguous Authentik list results. Never bind `results[0]`
+ * without an exact predicate match and pagination.count === 1.
+ */
+function requireUniqueExactUserMatch(
+  response: AuthentikUserListResponse,
+  isExactMatch: (user: AuthentikUserResponse) => boolean,
+): AuthentikUserResponse | null {
+  if (response.pagination.count > 1) {
+    throw new AuthentikApiError(
+      409,
+      'Mehrere Authentik-Benutzer passen zur Anmeldung. ' +
+        'Bitte wende dich an den Administrator.',
+    )
+  }
+
+  if (response.pagination.count === 0 || response.results.length === 0) {
+    return null
+  }
+
+  const matches = response.results.filter(isExactMatch)
+  if (matches.length === 1) {
+    return matches[0]
+  }
+
+  return null
 }
 
 export async function updateAuthentikUserAttributes(

@@ -83,15 +83,24 @@ export async function handleOidcCallback(request: Request): Promise<Response> {
   }
 
   const session = await useAppSession()
+  const expectedState = session.data.oidcState
+  const codeVerifier = session.data.oidcCodeVerifier
 
-  if (!code || !state || state !== session.data.oidcState) {
+  if (!code || !state || !expectedState || state !== expectedState) {
     return redirectResponse(`${ROUTES.LOGIN}?error=invalid_state`)
   }
 
-  const codeVerifier = session.data.oidcCodeVerifier
   if (!codeVerifier) {
     return redirectResponse(`${ROUTES.LOGIN}?error=missing_verifier`)
   }
+
+  // Single-use: consume state/verifier before token exchange so parallel
+  // callback replays cannot reuse the same authorization response.
+  await session.update({
+    ...session.data,
+    oidcState: undefined,
+    oidcCodeVerifier: undefined,
+  })
 
   const discovery = await getOidcDiscovery()
   const redirectUri = `${serverConfig.appUrl}${ROUTES.AUTH_CALLBACK}`
@@ -166,7 +175,8 @@ export async function handleOidcCallback(request: Request): Promise<Response> {
   return redirectResponse(ROUTES.DASHBOARD)
 }
 
-export async function initiateOidcLogout(): Promise<Response> {
+/** Clears the app session and returns where the browser should go next. */
+export async function completeOidcLogout(): Promise<{ redirectTo: string }> {
   const session = await useAppSession()
   const idToken = session.data.oidc?.idToken
   const discovery = await getOidcDiscovery()
@@ -179,10 +189,15 @@ export async function initiateOidcLogout(): Promise<Response> {
       post_logout_redirect_uri: serverConfig.appUrl,
     })
 
-    return redirectResponse(
-      `${discovery.end_session_endpoint}?${params.toString()}`,
-    )
+    return {
+      redirectTo: `${discovery.end_session_endpoint}?${params.toString()}`,
+    }
   }
 
-  return redirectResponse(ROUTES.LOGIN)
+  return { redirectTo: ROUTES.LOGIN }
+}
+
+export async function initiateOidcLogout(): Promise<Response> {
+  const { redirectTo } = await completeOidcLogout()
+  return redirectResponse(redirectTo)
 }

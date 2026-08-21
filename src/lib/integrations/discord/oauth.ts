@@ -131,21 +131,28 @@ export async function handleDiscordCallback(
 
   const session = await useAppSession()
   const user = session.data.user
+  const expectedState = session.data.discordOAuthState
 
-  if (!code || !state || state !== session.data.discordOAuthState) {
+  if (!code || !state || !expectedState || state !== expectedState) {
     return redirectResponse(
       '/dashboard?integration=discord&status=error&message=invalid_state',
     )
   }
 
+  if (!user) {
+    return redirectResponse('/login')
+  }
+
+  // Single-use: consume state before token exchange.
+  await session.update({
+    ...session.data,
+    discordOAuthState: undefined,
+  })
+
   try {
     const accessToken = await exchangeDiscordCode(code)
     const discordUser = await fetchDiscordUser(accessToken)
     // Token is intentionally not stored - only used during this callback.
-
-    if (!user) {
-      return redirectResponse('/login')
-    }
 
     const { getAuthentikUser, patchAuthentikUserAttributes } = await import(
       '#/lib/authentik/client'

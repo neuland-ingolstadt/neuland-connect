@@ -13,18 +13,21 @@ import { PageShell } from '#/components/layout/page-shell'
 import { ROUTES } from '#/lib/constants'
 import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-display'
 import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
-import {
-  type CurrentUser,
-  getCurrentUserFn,
-  hasActiveSessionFn,
-} from '#/server/get-current-user'
+import { type CurrentUser, getCurrentUserFn } from '#/server/get-current-user'
 
-const BOOT_MIN_MS = 900
+/**
+ * Boot UX middle ground:
+ * - pendingMs: skip the boot screen when the loader finishes quickly (cache / warm Authentik)
+ * - pendingMinMs: if boot does show, hold briefly so it does not flash off
+ * Replaces the old fixed 900ms client delay after data was already ready.
+ */
+const BOOT_PENDING_MS = 150
+const BOOT_PENDING_MIN_MS = 350
 
 export const Route = createFileRoute('/dashboard')({
   staleTime: 30_000,
-  pendingMs: 0,
-  pendingMinMs: 500,
+  pendingMs: BOOT_PENDING_MS,
+  pendingMinMs: BOOT_PENDING_MIN_MS,
   pendingComponent: ConnectBootScreen,
   validateSearch: (search: Record<string, unknown>) => ({
     integration:
@@ -32,12 +35,14 @@ export const Route = createFileRoute('/dashboard')({
     status: typeof search.status === 'string' ? search.status : undefined,
     message: typeof search.message === 'string' ? search.message : undefined,
   }),
-  beforeLoad: async () => {
-    const hasSession = await hasActiveSessionFn()
+  loader: async () => {
+    const user = await getCurrentUserFn()
 
-    if (!hasSession) {
+    if (!user) {
       throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
     }
+
+    return user
   },
   component: DashboardPage,
 })
@@ -45,7 +50,12 @@ export const Route = createFileRoute('/dashboard')({
 function DashboardPage() {
   const navigate = useNavigate()
   const search = Route.useSearch()
-  const [user, setUser] = useState<CurrentUser | null>(null)
+  const loaderUser = Route.useLoaderData()
+  const [user, setUser] = useState<CurrentUser>(loaderUser)
+
+  useEffect(() => {
+    setUser(loaderUser)
+  }, [loaderUser])
 
   const refreshUser = useCallback(async () => {
     const next = await getCurrentUserFn()
@@ -57,40 +67,6 @@ function DashboardPage() {
 
     setUser(next)
     return next
-  }, [navigate])
-
-  useEffect(() => {
-    let cancelled = false
-    const startedAt = Date.now()
-
-    void (async () => {
-      const next = await getCurrentUserFn()
-      if (cancelled) {
-        return
-      }
-
-      if (!next) {
-        await navigate({ to: ROUTES.LOGIN, search: { error: undefined } })
-        return
-      }
-
-      const remaining = BOOT_MIN_MS - (Date.now() - startedAt)
-      if (remaining > 0) {
-        await new Promise(resolve => {
-          window.setTimeout(resolve, remaining)
-        })
-      }
-
-      if (cancelled) {
-        return
-      }
-
-      setUser(next)
-    })()
-
-    return () => {
-      cancelled = true
-    }
   }, [navigate])
 
   useEffect(() => {
@@ -154,7 +130,7 @@ function DashboardPage() {
   }, [refreshUser, search.integration, search.status])
 
   useEffect(() => {
-    if (!user?.githubConnected) {
+    if (!user.githubConnected) {
       return
     }
 
@@ -174,10 +150,10 @@ function DashboardPage() {
       window.clearInterval(intervalId)
       window.clearTimeout(stopPollingId)
     }
-  }, [refreshUser, user])
+  }, [refreshUser, user.githubConnected, user.attributes.githubOrgStatus])
 
   useEffect(() => {
-    if (!user?.discordConnected) {
+    if (!user.discordConnected) {
       return
     }
 
@@ -197,11 +173,7 @@ function DashboardPage() {
       window.clearInterval(intervalId)
       window.clearTimeout(stopPollingId)
     }
-  }, [refreshUser, user])
-
-  if (!user) {
-    return <ConnectBootScreen />
-  }
+  }, [refreshUser, user.discordConnected, user.attributes.discordGuildStatus])
 
   const firstName = user.name.split(' ')[0]
 

@@ -111,11 +111,18 @@ export async function handleGitHubCallback(
     return redirectResponse('/login')
   }
 
-  if (!code || !state || state !== session.data.githubOAuthState) {
+  const expectedState = session.data.githubOAuthState
+  if (!code || !state || !expectedState || state !== expectedState) {
     return redirectResponse(
       '/dashboard?integration=github&status=error&message=invalid_state',
     )
   }
+
+  // Single-use: consume state before token exchange.
+  await session.update({
+    ...session.data,
+    githubOAuthState: undefined,
+  })
 
   try {
     const accessToken = await exchangeGitHubCode(code)
@@ -132,7 +139,7 @@ export async function handleGitHubCallback(
     const { clearManagedGitHubTeams } = await import(
       '#/lib/integrations/github/teams-sync'
     )
-    const { syncUserOrgStatus } = await import('#/lib/integrations/github/sync')
+    const { enqueueOrgInvite } = await import('#/lib/integrations/github/sync')
     const { AUTHENTIK_ATTRIBUTES } = await import('#/lib/constants')
 
     const authentikUserId = await resolveSessionAuthentikUserId(user)
@@ -163,7 +170,7 @@ export async function handleGitHubCallback(
       ],
     })
 
-    await syncUserOrgStatus(authentikUserId, githubUser.login, newGitHubId)
+    enqueueOrgInvite(authentikUserId, githubUser.login, newGitHubId)
 
     await session.update({
       ...session.data,
