@@ -26,4 +26,8 @@ export async function disconnectDiscordConnection(): Promise<void> {
   }
 
   await clearDiscordUserAttributes(authentikUserId)
+  const { invalidateCurrentUserCache } = await import(
+    '#/server/get-current-user'
+  )
+  invalidateCurrentUserCache(authentikUserId)
 }

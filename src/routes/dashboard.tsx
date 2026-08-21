@@ -1,4 +1,10 @@
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import {
+  Await,
+  createFileRoute,
+  defer,
+  redirect,
+  useNavigate,
+} from '@tanstack/react-router'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { DashboardActionBanner } from '#/components/dashboard/dashboard-action-banner'
@@ -18,21 +24,69 @@ import { PageShell } from '#/components/layout/page-shell'
 import { isDashboardIntroFlag, ROUTES } from '#/lib/constants'
 import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-display'
 import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
-import { type CurrentUser, getCurrentUserFn } from '#/server/get-current-user'
+import {
+  type CurrentUser,
+  currentUserEquals,
+  getCurrentUserFn,
+  refreshCurrentUserFn,
+} from '#/server/get-current-user'
 
 /**
- * Boot UX middle ground:
- * - pendingMs: skip the boot screen when the loader finishes quickly (cache / warm Authentik)
- * - pendingMinMs: if boot does show, hold briefly so it does not flash off
- * Replaces the old fixed 900ms client delay after data was already ready.
+ * First SSR document: Authentik still runs on the server. Router pending UI
+ * is client-only, so we race and defer to stream ConnectBootScreen if slow.
+ *
+ * Client navigations (FAQ → dashboard): never defer. Router SWR shows the
+ * cached dashboard immediately and revalidates in the background.
  */
 const BOOT_PENDING_MS = 150
 const BOOT_PENDING_MIN_MS = 350
 
+function waitMs(ms: number) {
+  return new Promise<void>(resolve => {
+    setTimeout(resolve, ms)
+  })
+}
+
+function isDeferredUser(
+  user: CurrentUser | Promise<CurrentUser>,
+): user is Promise<CurrentUser> {
+  return typeof (user as Promise<CurrentUser>).then === 'function'
+}
+
+function resolvedCachedUser(
+  user: CurrentUser | Promise<CurrentUser>,
+): CurrentUser | null {
+  if (!isDeferredUser(user)) {
+    return user
+  }
+
+  const deferredState = (
+    user as Promise<CurrentUser> & {
+      [key: symbol]: { status?: string; data?: CurrentUser }
+    }
+  )[Symbol.for('TSR_DEFERRED_PROMISE')]
+
+  if (deferredState?.status === 'success' && deferredState.data) {
+    return deferredState.data
+  }
+
+  return null
+}
+
+async function requireDashboardUser(): Promise<CurrentUser> {
+  const user = await getCurrentUserFn()
+
+  if (!user) {
+    throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
+  }
+
+  return user
+}
+
 export const Route = createFileRoute('/dashboard')({
-  staleTime: 30_000,
-  pendingMs: BOOT_PENDING_MS,
-  pendingMinMs: BOOT_PENDING_MIN_MS,
+  staleTime: 0,
+  gcTime: 5 * 60_000,
+  pendingMs: Number.POSITIVE_INFINITY,
   pendingComponent: ConnectBootScreen,
   validateSearch: (search: Record<string, unknown>) => ({
     integration:
@@ -42,21 +96,60 @@ export const Route = createFileRoute('/dashboard')({
     intro: isDashboardIntroFlag(search.intro) ? true : undefined,
   }),
   loader: async () => {
-    const user = await getCurrentUserFn()
+    const userPromise = requireDashboardUser()
 
-    if (!user) {
-      throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
+    if (!import.meta.env.SSR) {
+      return { user: await userPromise }
     }
 
-    return user
+    const startedAt = Date.now()
+    const raced = await Promise.race([
+      userPromise.then(user => ({ ready: true as const, user })),
+      waitMs(BOOT_PENDING_MS).then(() => ({ ready: false as const })),
+    ])
+
+    if (raced.ready) {
+      return { user: raced.user }
+    }
+
+    return {
+      user: defer(
+        userPromise.then(async user => {
+          const bootVisibleFor = Date.now() - startedAt - BOOT_PENDING_MS
+          const remaining = BOOT_PENDING_MIN_MS - bootVisibleFor
+          if (remaining > 0) {
+            await waitMs(remaining)
+          }
+          return user
+        }),
+      ),
+    }
   },
-  component: DashboardPage,
+  component: DashboardRoute,
 })
 
-function DashboardPage() {
+function DashboardRoute() {
+  const { user } = Route.useLoaderData()
+  const cachedUser = resolvedCachedUser(user)
+
+  if (cachedUser) {
+    return <DashboardPage user={cachedUser} />
+  }
+
+  if (isDeferredUser(user)) {
+    return (
+      <Await promise={user} fallback={<ConnectBootScreen />}>
+        {resolved => <DashboardPage user={resolved} />}
+      </Await>
+    )
+  }
+
+  return <DashboardPage user={user} />
+}
+
+function DashboardPage({ user: loaderUser }: { user: CurrentUser }) {
   const navigate = useNavigate()
   const search = Route.useSearch()
-  const loaderUser = Route.useLoaderData()
   const [user, setUser] = useState<CurrentUser>(loaderUser)
   const [showExplainer, setShowExplainer] = useState(() =>
     shouldAutoShowSetupExplainer({
@@ -67,7 +160,7 @@ function DashboardPage() {
   const introConsumed = useRef(false)
 
   useEffect(() => {
-    setUser(loaderUser)
+    setUser(prev => (currentUserEquals(prev, loaderUser) ? prev : loaderUser))
   }, [loaderUser])
 
   useEffect(() => {
@@ -105,14 +198,14 @@ function DashboardPage() {
   }, [startExplainerExit])
 
   const refreshUser = useCallback(async () => {
-    const next = await getCurrentUserFn()
+    const next = await refreshCurrentUserFn()
 
     if (!next) {
       await navigate({ to: ROUTES.LOGIN, search: { error: undefined } })
       return null
     }
 
-    setUser(next)
+    setUser(prev => (currentUserEquals(prev, next) ? prev : next))
     return next
   }, [navigate])
 

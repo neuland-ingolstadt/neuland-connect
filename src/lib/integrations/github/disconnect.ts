@@ -26,4 +26,8 @@ export async function disconnectGitHubConnection(): Promise<void> {
   }
 
   await clearGitHubUserAttributes(authentikUserId)
+  const { invalidateCurrentUserCache } = await import(
+    '#/server/get-current-user'
+  )
+  invalidateCurrentUserCache(authentikUserId)
 }

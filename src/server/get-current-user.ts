@@ -29,6 +29,31 @@ export type CurrentUser = {
   nextSession: NeulandNextMemberSession
 }
 
+const USER_CACHE_FRESH_MS = 15_000
+
+type UserCacheEntry = {
+  user: CurrentUser
+  fetchedAt: number
+}
+
+const userCache = new Map<string, UserCacheEntry>()
+const userInflight = new Map<string, Promise<CurrentUser | null>>()
+
+export function invalidateCurrentUserCache(
+  authentikUserId?: string | number,
+): void {
+  if (authentikUserId === undefined) {
+    userCache.clear()
+    return
+  }
+
+  userCache.delete(String(authentikUserId))
+}
+
+export function currentUserEquals(a: CurrentUser, b: CurrentUser): boolean {
+  return JSON.stringify(a) === JSON.stringify(b)
+}
+
 /** Cookie session only - used by / and /login so those routes skip Authentik. */
 export const hasActiveSessionFn = createServerFn({ method: 'GET' }).handler(
   async (): Promise<boolean> => {
@@ -38,30 +63,36 @@ export const hasActiveSessionFn = createServerFn({ method: 'GET' }).handler(
   },
 )
 
-export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<CurrentUser | null> => {
-    const { requireSessionUser } = await import('#/lib/session.server')
-    const { serverConfig } = await import('#/lib/config')
-    const {
-      getAuthentikUser,
-      getAuthentikUserGroups,
-      getManagedIntegrationMaps,
-    } = await import('#/lib/authentik/client')
-    const { getNeulandNextMemberSession } = await import(
-      '#/lib/integrations/neuland-next/session'
-    )
-    const { resolveSessionAuthentikUserId } = await import(
-      '#/lib/authentik/session-user'
-    )
+async function fetchCurrentUserFromAuthentik(): Promise<CurrentUser | null> {
+  const { requireSessionUser } = await import('#/lib/session.server')
+  const { serverConfig } = await import('#/lib/config')
+  const {
+    getAuthentikUser,
+    getAuthentikUserGroups,
+    getManagedIntegrationMaps,
+  } = await import('#/lib/authentik/client')
+  const { getNeulandNextMemberSession } = await import(
+    '#/lib/integrations/neuland-next/session'
+  )
+  const { resolveSessionAuthentikUserId } = await import(
+    '#/lib/authentik/session-user'
+  )
 
-    const sessionData = await requireSessionUser()
-    if (!sessionData) {
-      return null
-    }
+  const sessionData = await requireSessionUser()
+  if (!sessionData) {
+    return null
+  }
 
-    const { user, session } = sessionData
-    const authentikUserId = await resolveSessionAuthentikUserId(user)
+  const { user, session } = sessionData
+  const authentikUserId = await resolveSessionAuthentikUserId(user)
+  const cacheKey = String(authentikUserId)
 
+  const inflight = userInflight.get(cacheKey)
+  if (inflight) {
+    return inflight
+  }
+
+  const request = (async () => {
     if (!user.authentikUserId) {
       await session.update({
         ...session.data,
@@ -142,7 +173,7 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
         ? groups.filter(group => !hiddenGroups.has(group))
         : groups
 
-    return {
+    const currentUser: CurrentUser = {
       sub: user.sub,
       email: user.email || authentikUser.email,
       name: authentikUser.name.trim() || user.name,
@@ -160,5 +191,53 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       discordRoles,
       nextSession,
     }
+
+    userCache.set(cacheKey, { user: currentUser, fetchedAt: Date.now() })
+    return currentUser
+  })()
+
+  userInflight.set(cacheKey, request)
+  return request.finally(() => {
+    userInflight.delete(cacheKey)
+  })
+}
+
+async function resolveCurrentUser(options: {
+  allowCache: boolean
+}): Promise<CurrentUser | null> {
+  if (options.allowCache) {
+    const { requireSessionUser } = await import('#/lib/session.server')
+    const { resolveSessionAuthentikUserId } = await import(
+      '#/lib/authentik/session-user'
+    )
+
+    const sessionData = await requireSessionUser()
+    if (!sessionData) {
+      return null
+    }
+
+    const authentikUserId = await resolveSessionAuthentikUserId(
+      sessionData.user,
+    )
+    const cached = userCache.get(String(authentikUserId))
+    if (cached && Date.now() - cached.fetchedAt < USER_CACHE_FRESH_MS) {
+      return cached.user
+    }
+  }
+
+  return fetchCurrentUserFromAuthentik()
+}
+
+/** Cached Authentik profile for navigation / SSR. */
+export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
+  async (): Promise<CurrentUser | null> => {
+    return resolveCurrentUser({ allowCache: true })
+  },
+)
+
+/** Bypass cache after connect/disconnect or while polling org/guild status. */
+export const refreshCurrentUserFn = createServerFn({ method: 'POST' }).handler(
+  async (): Promise<CurrentUser | null> => {
+    return resolveCurrentUser({ allowCache: false })
   },
 )

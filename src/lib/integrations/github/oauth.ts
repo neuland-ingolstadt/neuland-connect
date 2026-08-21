@@ -170,6 +170,11 @@ export async function handleGitHubCallback(
       ],
     })
 
+    const { invalidateCurrentUserCache } = await import(
+      '#/server/get-current-user'
+    )
+    invalidateCurrentUserCache(authentikUserId)
+
     enqueueOrgInvite(authentikUserId, githubUser.login, newGitHubId)
 
     await session.update({

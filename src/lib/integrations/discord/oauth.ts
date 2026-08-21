@@ -196,6 +196,11 @@ export async function handleDiscordCallback(
       ],
     })
 
+    const { invalidateCurrentUserCache } = await import(
+      '#/server/get-current-user'
+    )
+    invalidateCurrentUserCache(authentikUserId)
+
     if (serverConfig.discord.isRoleSyncConfigured) {
       void postConnectDiscordSync(
         authentikUserId,
