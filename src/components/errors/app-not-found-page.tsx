@@ -40,7 +40,12 @@ export function AppNotFoundPage() {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <Button className="w-full sm:w-auto" size="lg" asChild>
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto"
+                size="lg"
+                asChild
+              >
                 <Link to={ROUTES.HOME}>
                   <ArrowLeft />
                   Zur Startseite

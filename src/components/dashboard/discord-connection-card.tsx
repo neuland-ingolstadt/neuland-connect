@@ -271,11 +271,7 @@ export function DiscordConnectionCard({
                   {isSyncingRoles ? 'Synchronisiere…' : 'Synchronisieren'}
                 </Button>
               ) : null}
-              <Button
-                variant={inGuild ? 'outline' : 'default'}
-                size="sm"
-                asChild
-              >
+              <Button variant="outline" size="sm" asChild>
                 <a href={ROUTES.DISCORD_CONNECT}>
                   <DiscordIcon className="text-inherit" />
                   {inGuild ? 'Neu verbinden' : 'Erneut beitreten'}
@@ -328,7 +324,7 @@ export function DiscordConnectionCard({
           </div>
         ) : (
           <div>
-            <Button asChild>
+            <Button variant="outline" asChild>
               <a href={ROUTES.DISCORD_CONNECT}>Mit Discord verbinden</a>
             </Button>
           </div>

@@ -1,12 +1,18 @@
-import { ArrowRight } from 'lucide-react'
+import { Check } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { NeulandPalm } from '#/components/brand/neuland-palm'
+import { DiscordIcon } from '#/components/icons/discord-icon'
+import { GitHubIcon } from '#/components/icons/github-icon'
 import {
   type DiscordGuildStatus,
+  EXTERNAL_LINKS,
   GITHUB_ORG_STATUSES,
   type GitHubOrgStatus,
   ROUTES,
 } from '#/lib/constants'
 import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-display'
 import { githubOrgInvitationUrl } from '#/lib/integrations/github/org-status-display'
+import { cn } from '#/lib/utils'
 
 const GITHUB_CARD_ID = 'integration-github'
 const DISCORD_CARD_ID = 'integration-discord'
@@ -22,16 +28,17 @@ type DashboardActionBannerProps = {
   nextSignedIn: boolean
 }
 
-type ActionItem = {
+type SetupTask = {
   id: string
-  message: string
+  label: string
+  icon: ReactNode
+  complete: boolean
   actionLabel: string
   href: string
   external?: boolean
-  footnote?: string
 }
 
-function buildActionItems({
+function buildSetupTasks({
   githubConnected,
   githubOrgStatus,
   githubOrg,
@@ -39,98 +46,121 @@ function buildActionItems({
   discordConnected,
   discordGuildStatus,
   nextSignedIn,
-}: DashboardActionBannerProps): ActionItem[] {
-  const items: ActionItem[] = []
-
-  if (!githubConnected) {
-    items.push({
-      id: 'github-connect',
-      message: 'GitHub ist noch nicht verbunden.',
-      actionLabel: 'GitHub verbinden',
-      href: `#${GITHUB_CARD_ID}`,
-    })
-  } else if (
+}: DashboardActionBannerProps): SetupTask[] {
+  const githubInvitePending =
+    githubConnected &&
     githubOrgStatus === GITHUB_ORG_STATUSES.INVITED &&
     githubOrg !== null
-  ) {
-    items.push({
-      id: 'github-invite',
-      message: 'GitHub-Org-Einladung wartet auf Annahme.',
-      actionLabel: 'Einladung annehmen',
-      href: githubOrgInvitationUrl(githubOrg),
-      external: true,
-      footnote:
-        'Statusaktualisierung automatisch, kann bis zu 20 Minuten dauern.',
-    })
-  }
+
+  const tasks: SetupTask[] = [
+    {
+      id: 'github',
+      label: 'GitHub',
+      icon: <GitHubIcon className="size-4" />,
+      complete: githubConnected && !githubInvitePending,
+      actionLabel: githubInvitePending ? 'Einladung' : 'Verbinden',
+      href: githubInvitePending
+        ? githubOrgInvitationUrl(githubOrg)
+        : ROUTES.GITHUB_CONNECT,
+      external: githubInvitePending,
+    },
+  ]
 
   if (discordOAuthEnabled) {
-    if (!discordConnected) {
-      items.push({
-        id: 'discord-connect',
-        message: 'Discord ist noch nicht verbunden.',
-        actionLabel: 'Discord verbinden',
-        href: `#${DISCORD_CARD_ID}`,
-      })
-    } else if (!isDiscordInGuild(discordGuildStatus)) {
-      items.push({
-        id: 'discord-guild',
-        message: 'Du bist noch nicht im Neuland-Discord-Server.',
-        actionLabel: 'Erneut beitreten',
-        href: ROUTES.DISCORD_CONNECT,
-      })
-    }
-  }
-
-  if (!nextSignedIn) {
-    items.push({
-      id: 'next-member',
-      message: 'Neuland Next ist noch nicht verbunden.',
-      actionLabel: 'Neuland Next verbinden',
-      href: `#${MEMBERSHIP_CARD_ID}`,
+    const inGuild = discordConnected && isDiscordInGuild(discordGuildStatus)
+    tasks.push({
+      id: 'discord',
+      label: 'Discord',
+      icon: <DiscordIcon className="size-4" />,
+      complete: inGuild,
+      actionLabel: discordConnected ? 'Beitreten' : 'Verbinden',
+      href: ROUTES.DISCORD_CONNECT,
     })
   }
 
-  return items
+  tasks.push({
+    id: 'next',
+    label: 'Next',
+    icon: <NeulandPalm className="size-4 text-terminal-text" />,
+    complete: nextSignedIn,
+    actionLabel: 'App holen',
+    href: EXTERNAL_LINKS.NEULAND_NEXT_GET,
+    external: true,
+  })
+
+  return tasks
 }
 
 export function DashboardActionBanner(props: DashboardActionBannerProps) {
-  const items = buildActionItems(props)
+  const tasks = buildSetupTasks(props)
+  const done = tasks.filter(task => task.complete).length
 
-  if (items.length === 0) {
+  if (done === tasks.length) {
     return null
   }
 
   return (
-    <div className="border-l-2 border-terminal-cyan/50 bg-terminal-card/30 px-3 py-1.5">
-      <ul className="divide-y divide-terminal-window-border/50">
-        {items.map(item => (
-          <li
-            key={item.id}
-            className="flex flex-col gap-1 py-1 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
-          >
-            <div className="min-w-0">
-              <p className="font-mono text-[11px] text-terminal-text/75">
-                {item.message}
-              </p>
-              {item.footnote ? (
-                <p className="mt-0.5 font-mono text-[10px] leading-snug text-terminal-text/35">
-                  {item.footnote}
-                </p>
-              ) : null}
-            </div>
-            <a
-              href={item.href}
-              target={item.external ? '_blank' : undefined}
-              rel={item.external ? 'noopener noreferrer' : undefined}
-              className="inline-flex shrink-0 items-center gap-1 font-mono text-[11px] text-terminal-cyan transition-colors hover:text-terminal-lightGreen"
-            >
-              {item.actionLabel}
-              <ArrowRight className="size-3" />
-            </a>
-          </li>
+    <div className="overflow-hidden border border-terminal-window-border bg-terminal-window">
+      <div className="flex h-0.5">
+        {tasks.map(task => (
+          <div
+            key={task.id}
+            className={cn(
+              'h-full flex-1 transition-colors',
+              task.complete ? 'bg-terminal-cyan' : 'bg-terminal-cyan/15',
+            )}
+          />
         ))}
-      </ul>
+      </div>
+
+      <div
+        className={cn(
+          'grid divide-y divide-terminal-window-border sm:divide-x sm:divide-y-0',
+          tasks.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3',
+        )}
+      >
+        {tasks.map(task =>
+          task.complete ? (
+            <div
+              key={task.id}
+              className="flex items-center gap-3 px-4 py-3.5 text-terminal-text/45"
+            >
+              <span className="flex size-8 shrink-0 items-center justify-center border border-terminal-window-border/60 bg-terminal-card/40">
+                {task.icon}
+              </span>
+              <div className="min-w-0">
+                <p className="font-mono text-xs font-semibold tracking-wide">
+                  {task.label}
+                </p>
+                <p className="mt-0.5 flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.16em] text-terminal-cyan/70">
+                  <Check className="size-3" strokeWidth={2.5} aria-hidden />
+                  Fertig
+                </p>
+              </div>
+            </div>
+          ) : (
+            <a
+              key={task.id}
+              href={task.href}
+              target={task.external ? '_blank' : undefined}
+              rel={task.external ? 'noopener noreferrer' : undefined}
+              className="group flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-terminal-cyan/[0.06]"
+            >
+              <span className="flex size-8 shrink-0 items-center justify-center border border-terminal-cyan/35 bg-terminal-card text-terminal-text transition-colors group-hover:border-terminal-cyan/70">
+                {task.icon}
+              </span>
+              <div className="min-w-0">
+                <p className="font-mono text-xs font-semibold tracking-wide text-terminal-lightGreen">
+                  {task.label}
+                </p>
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.16em] text-terminal-cyan transition-colors group-hover:text-terminal-lightGreen">
+                  {task.actionLabel} →
+                </p>
+              </div>
+            </a>
+          ),
+        )}
+      </div>
     </div>
   )
 }

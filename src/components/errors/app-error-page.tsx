@@ -51,6 +51,7 @@ export function AppErrorPage({ error, reset }: ErrorComponentProps) {
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
               {details.isRetryable ? (
                 <Button
+                  variant="outline"
                   className="w-full sm:w-auto"
                   size="lg"
                   onClick={handleRetry}

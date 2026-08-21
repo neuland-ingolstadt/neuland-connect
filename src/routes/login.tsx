@@ -60,7 +60,7 @@ function LoginPage() {
               </div>
             ) : null}
 
-            <Button className="w-full" size="lg" asChild>
+            <Button variant="outline" className="w-full" size="lg" asChild>
               <a href={ROUTES.AUTH_LOGIN}>
                 <LogIn />
                 Mit Authentik anmelden

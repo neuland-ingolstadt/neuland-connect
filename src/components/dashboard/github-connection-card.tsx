@@ -325,7 +325,7 @@ export function GitHubConnectionCard({
           </div>
         ) : (
           <div>
-            <Button asChild>
+            <Button variant="outline" asChild>
               <a href={ROUTES.GITHUB_CONNECT}>Mit GitHub verbinden</a>
             </Button>
           </div>

@@ -52,7 +52,7 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
               </p>
               <p className="mt-0.5 text-xs leading-snug text-terminal-text/50">
                 {signedIn
-                  ? 'Angemeldet. Mitgliedsfeatures in Next sind freigeschaltet.'
+                  ? 'Angemeldet. Mitgliedsfeatures in Neuland Next sind freigeschaltet.'
                   : 'In Neuland Next verfügbar.'}
               </p>
             </div>
@@ -88,7 +88,7 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
               ))}
             </ol>
             <div>
-              <Button asChild>
+              <Button variant="outline" asChild>
                 <a
                   href={EXTERNAL_LINKS.NEULAND_NEXT_GET}
                   target="_blank"
