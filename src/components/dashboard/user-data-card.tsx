@@ -33,9 +33,7 @@ export function UserDataCard({
     [groups],
   )
   const hasProfileGroups =
-    honorGroups.length > 0 ||
-    ressortGroups.length > 0 ||
-    otherGroups.length > 0
+    honorGroups.length > 0 || ressortGroups.length > 0 || otherGroups.length > 0
   const hasMoreOtherGroups = otherGroups.length > VISIBLE_GROUP_LIMIT
   const visibleOtherGroups =
     groupsExpanded || !hasMoreOtherGroups
