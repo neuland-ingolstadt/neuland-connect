@@ -2,6 +2,10 @@
 export const PROFILE_RESSORT_GROUPS = {
   organisation: 'organisation',
   engineering: 'engineering',
+  designPr: 'design-pr',
+  management: 'management',
+  hr: 'hr',
+  events: 'events',
 } as const
 
 export type ProfileRessortGroup =
@@ -10,11 +14,19 @@ export type ProfileRessortGroup =
 const RESSORT_GROUP_ORDER: ProfileRessortGroup[] = [
   PROFILE_RESSORT_GROUPS.organisation,
   PROFILE_RESSORT_GROUPS.engineering,
+  PROFILE_RESSORT_GROUPS.designPr,
+  PROFILE_RESSORT_GROUPS.management,
+  PROFILE_RESSORT_GROUPS.hr,
+  PROFILE_RESSORT_GROUPS.events,
 ]
 
 const RESSORT_DISPLAY_LABELS: Record<ProfileRessortGroup, string> = {
   [PROFILE_RESSORT_GROUPS.organisation]: 'Ressort Organisation',
   [PROFILE_RESSORT_GROUPS.engineering]: 'Ressort Engineering',
+  [PROFILE_RESSORT_GROUPS.designPr]: 'Ressort Design & PR',
+  [PROFILE_RESSORT_GROUPS.management]: 'Ressort Management',
+  [PROFILE_RESSORT_GROUPS.hr]: 'Ressort HR',
+  [PROFILE_RESSORT_GROUPS.events]: 'Ressort Events',
 }
 
 const HONOR_GROUP_PATTERN = /ehrenmitglied/i

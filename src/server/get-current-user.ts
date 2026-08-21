@@ -4,6 +4,7 @@ import {
   isGitHubConnected,
   parseUserAttributes,
 } from '#/lib/authentik/types'
+import { isSpecialProfileGroup } from '#/lib/profile-groups'
 
 export type CurrentUser = {
   sub: string
@@ -11,7 +12,10 @@ export type CurrentUser = {
   name: string
   username: string
   groups: string[]
-  /** Sync-mapped groups are listed under GitHub/Discord cards instead of the profile. */
+  /**
+   * Secondary GitHub/Discord-synced groups are listed under the integration
+   * cards instead of the profile. Honor, Vorstand, and Ressort groups stay.
+   */
   integrationGroupsShownSeparately: boolean
   accountCreatedAt: string | null
   attributes: ReturnType<typeof parseUserAttributes>
@@ -92,7 +96,9 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
     if (teamSyncEnabled) {
       if (githubConnected) {
         for (const groupName of maps.githubTeams.keys()) {
-          hiddenGroups.add(groupName)
+          if (!isSpecialProfileGroup(groupName)) {
+            hiddenGroups.add(groupName)
+          }
         }
       }
       githubTeams = [
@@ -108,7 +114,9 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
     if (roleSyncEnabled) {
       if (discordConnected) {
         for (const groupName of maps.discordRoles.keys()) {
-          hiddenGroups.add(groupName)
+          if (!isSpecialProfileGroup(groupName)) {
+            hiddenGroups.add(groupName)
+          }
         }
       }
       discordRoles = [
