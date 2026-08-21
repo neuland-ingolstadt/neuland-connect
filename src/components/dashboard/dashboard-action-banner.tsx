@@ -1,7 +1,6 @@
 import { ArrowRight } from 'lucide-react'
 import {
   type DiscordGuildStatus,
-  EXTERNAL_LINKS,
   GITHUB_ORG_STATUSES,
   type GitHubOrgStatus,
   ROUTES,
@@ -86,11 +85,9 @@ function buildActionItems({
   if (!nextSignedIn) {
     items.push({
       id: 'next-member',
-      message: 'Mitgliedsausweis in Neuland Next ist noch nicht aktiv.',
-      actionLabel: 'Zu Next',
-      href: EXTERNAL_LINKS.NEULAND_NEXT_GET,
-      external: true,
-      footnote: 'Nach der Anmeldung in Next erscheint der Status hier.',
+      message: 'Neuland Next ist noch nicht verbunden.',
+      actionLabel: 'Neuland Next verbinden',
+      href: `#${MEMBERSHIP_CARD_ID}`,
     })
   }
 
