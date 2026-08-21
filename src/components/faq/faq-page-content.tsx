@@ -145,9 +145,10 @@ const FAQ_ITEMS: FaqItem[] = [
         <p>
           Fehlt die Rolle oder das Team danach weiterhin, liegt die Ursache in
           der Regel an der Gruppenzugehörigkeit in Authentik. Wende dich in
-          diesem Fall an den Vorstand. Manuell gesetzte Discord-Rollen, die
-          keiner Gruppe zugeordnet sind, werden beim nächsten Abgleich wieder
-          entfernt.
+          diesem Fall an den Vorstand. Discord-Rollen ohne Gruppenzuordnung in
+          Authentik bleiben beim Abgleich unberührt. Rollen, die Connect über
+          Gruppen verwaltet, werden an den Gruppenstand angeglichen – auch wenn
+          sie manuell gesetzt wurden.
         </p>
       </>
     ),
