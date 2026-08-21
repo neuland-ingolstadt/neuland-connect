@@ -1,6 +1,5 @@
-import { Link } from '@tanstack/react-router'
 import { BUILD_COMMIT } from '#/lib/build-info'
-import { EXTERNAL_LINKS, ROUTES } from '#/lib/constants'
+import { EXTERNAL_LINKS } from '#/lib/constants'
 import { cn } from '#/lib/utils'
 
 type LegalFooterProps = {
@@ -17,12 +16,6 @@ export function LegalFooter({ className, onShowIntro }: LegalFooterProps) {
       )}
     >
       <nav className="flex flex-wrap items-center justify-center gap-4">
-        <Link
-          to={ROUTES.FAQ}
-          className="transition-colors hover:text-terminal-cyan"
-        >
-          FAQ
-        </Link>
         <span aria-hidden="true" className="text-terminal-window-border">
           |
         </span>

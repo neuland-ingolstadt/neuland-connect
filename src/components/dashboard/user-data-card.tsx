@@ -57,8 +57,8 @@ export function UserDataCard({
         </dl>
 
         {hasProfileGroups ? (
-          <div className="space-y-3">
-            <ProfileGroupSection title="Besonderes" groups={honorGroups} />
+          <div className="space-y-2.5">
+            <ProfileGroupSection title="Exklusiv" groups={honorGroups} />
             <ProfileGroupSection title="Ressorts" groups={ressortGroups} />
             <ProfileGroupSection
               title="Gruppen"
@@ -78,10 +78,6 @@ export function UserDataCard({
             />
           </div>
         ) : null}
-
-        <p className="text-xs leading-relaxed text-terminal-text/50">
-          Änderungen beim Vorstand melden.
-        </p>
       </div>
     </TerminalPanel>
   )
@@ -108,7 +104,7 @@ function ProfileGroupSection({
         {title}
       </p>
       {groups.length > 0 ? (
-        <ul className="mt-2 flex flex-wrap gap-1.5 overflow-visible">
+        <ul className="mt-1 flex flex-wrap gap-1.5 overflow-visible">
           {groups.map(group => (
             <li key={group} className="min-w-0 max-w-full">
               <ProfileGroupBadge group={group} />
