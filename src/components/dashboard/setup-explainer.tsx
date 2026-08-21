@@ -8,6 +8,7 @@ import { cn } from '#/lib/utils'
 type SetupExplainerProps = {
   firstName: string
   onFinished: () => void
+  onExitStart?: () => void
 }
 
 export type LinkedAccountState = {
@@ -42,7 +43,11 @@ type ExplainerSlide = {
 
 const SLIDE_MS = 3900
 
-export function SetupExplainer({ firstName, onFinished }: SetupExplainerProps) {
+export function SetupExplainer({
+  firstName,
+  onFinished,
+  onExitStart,
+}: SetupExplainerProps) {
   const titleId = useId()
   const slides = useMemo<ExplainerSlide[]>(() => {
     const items: ExplainerSlide[] = [
@@ -104,12 +109,14 @@ export function SetupExplainer({ firstName, onFinished }: SetupExplainerProps) {
     ).matches
 
     if (reducedMotion) {
+      onExitStart?.()
       complete()
       return
     }
 
+    onExitStart?.()
     setExiting(true)
-  }, [complete, exiting])
+  }, [complete, exiting, onExitStart])
 
   useEffect(() => {
     const previous = document.body.style.overflow

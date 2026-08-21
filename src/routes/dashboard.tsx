@@ -64,7 +64,6 @@ function DashboardPage() {
       unconnected: hasNoLinkedAccounts(loaderUser),
     }),
   )
-  const [revealDashboard, setRevealDashboard] = useState(false)
   const introConsumed = useRef(false)
 
   useEffect(() => {
@@ -80,15 +79,30 @@ function DashboardPage() {
     window.history.replaceState({}, '', ROUTES.DASHBOARD)
   }, [search.intro])
 
-  const openExplainer = useCallback(() => {
-    setShowExplainer(true)
+  const scrollDashboardToTop = useCallback((behavior: ScrollBehavior) => {
+    window.scrollTo({ top: 0, left: 0, behavior })
+    document.documentElement.scrollTo({ top: 0, left: 0, behavior })
   }, [])
+
+  const openExplainer = useCallback(() => {
+    scrollDashboardToTop('auto')
+    setShowExplainer(true)
+  }, [scrollDashboardToTop])
+
+  const startExplainerExit = useCallback(() => {
+    const reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+    scrollDashboardToTop(reducedMotion ? 'auto' : 'smooth')
+  }, [scrollDashboardToTop])
 
   const closeExplainer = useCallback(() => {
     setShowExplainer(false)
-    setRevealDashboard(true)
     window.history.replaceState({}, '', ROUTES.DASHBOARD)
-  }, [])
+    requestAnimationFrame(() => {
+      startExplainerExit()
+    })
+  }, [startExplainerExit])
 
   const refreshUser = useCallback(async () => {
     const next = await getCurrentUserFn()
@@ -230,11 +244,7 @@ function DashboardPage() {
             </div>
           </header>
 
-          <div
-            className={
-              revealDashboard ? 'dashboard-reveal space-y-5' : 'space-y-5'
-            }
-          >
+          <div className="space-y-5">
             <DashboardActionBanner
               githubConnected={user.githubConnected}
               githubOrgStatus={user.attributes.githubOrgStatus}
@@ -280,7 +290,11 @@ function DashboardPage() {
       </div>
 
       {showExplainer ? (
-        <SetupExplainer firstName={firstName} onFinished={closeExplainer} />
+        <SetupExplainer
+          firstName={firstName}
+          onFinished={closeExplainer}
+          onExitStart={startExplainerExit}
+        />
       ) : null}
     </PageShell>
   )

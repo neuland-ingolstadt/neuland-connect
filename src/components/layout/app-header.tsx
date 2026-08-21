@@ -1,8 +1,17 @@
 import { Link } from '@tanstack/react-router'
-import { LogOut } from 'lucide-react'
+import { LogOut, Menu } from 'lucide-react'
 import { NeulandPalm } from '#/components/brand/neuland-palm'
 import { ThemeToggle } from '#/components/layout/theme-toggle'
 import { Button } from '#/components/ui/button'
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '#/components/ui/sheet'
 import { ROUTES } from '#/lib/constants'
 import { cn } from '#/lib/utils'
 
@@ -54,7 +63,7 @@ export function AppHeader({
 
           <nav
             aria-label="Hauptnavigation"
-            className="flex items-center gap-1 sm:gap-2"
+            className="hidden items-center gap-2 md:flex"
           >
             {showDashboardLink ? (
               <HeaderNavLink
@@ -73,13 +82,64 @@ export function AppHeader({
           <ThemeToggle />
 
           {isSignedIn ? (
-            <Button variant="outline" size="sm" asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden md:inline-flex"
+              asChild
+            >
               <a href={ROUTES.AUTH_LOGOUT}>
                 <LogOut />
                 Abmelden
               </a>
             </Button>
           ) : null}
+
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon-sm"
+                className="md:hidden"
+                aria-label="Menü öffnen"
+              >
+                <Menu />
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="bottom"
+              className="gap-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+            >
+              <SheetHeader>
+                <SheetTitle>Menü</SheetTitle>
+                <SheetDescription className="sr-only">
+                  Hauptnavigation
+                </SheetDescription>
+              </SheetHeader>
+
+              <nav aria-label="Hauptnavigation" className="flex flex-col gap-1">
+                {showDashboardLink ? (
+                  <MobileNavLink
+                    to={ROUTES.DASHBOARD}
+                    search={dashboardSearch}
+                    activeOptions={{ exact: true }}
+                  >
+                    Dashboard
+                  </MobileNavLink>
+                ) : null}
+                <MobileNavLink to={ROUTES.FAQ}>FAQ</MobileNavLink>
+              </nav>
+
+              {isSignedIn ? (
+                <Button variant="outline" className="w-full" asChild>
+                  <a href={ROUTES.AUTH_LOGOUT}>
+                    <LogOut />
+                    Abmelden
+                  </a>
+                </Button>
+              ) : null}
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
@@ -112,5 +172,36 @@ function HeaderNavLink({
     >
       {children}
     </Link>
+  )
+}
+
+function MobileNavLink({
+  to,
+  children,
+  search,
+  activeOptions,
+}: {
+  to: typeof ROUTES.DASHBOARD | typeof ROUTES.FAQ
+  children: string
+  search?: typeof dashboardSearch
+  activeOptions?: { exact: boolean }
+}) {
+  return (
+    <SheetClose asChild>
+      <Link
+        to={to}
+        search={search}
+        activeOptions={activeOptions}
+        className={cn(
+          'flex items-center px-3 py-3 font-mono text-sm uppercase tracking-[0.18em] text-terminal-text/70 no-underline transition-colors',
+          'hover:bg-terminal-card hover:text-terminal-text',
+        )}
+        activeProps={{
+          className: 'bg-terminal-card text-terminal-lightGreen',
+        }}
+      >
+        {children}
+      </Link>
+    </SheetClose>
   )
 }
