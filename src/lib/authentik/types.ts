@@ -65,6 +65,32 @@ export type AuthentikGroupListResponse = {
   results: AuthentikGroupResponse[]
 }
 
+export type AuthentikOAuth2Provider = {
+  pk: number
+  name: string
+  assigned_application_slug?: string | null
+}
+
+export type AuthentikOAuth2ProviderListResponse = {
+  pagination: {
+    count: number
+  }
+  results: AuthentikOAuth2Provider[]
+}
+
+export type AuthentikOAuth2RefreshToken = {
+  pk: number
+  expires?: string | null
+  revoked?: boolean
+}
+
+export type AuthentikOAuth2RefreshTokenListResponse = {
+  pagination: {
+    count: number
+  }
+  results: AuthentikOAuth2RefreshToken[]
+}
+
 /** Authentik group name → GitHub team slug (from group attribute `github_team`) */
 export type ManagedGitHubTeamMap = Map<string, string>
 

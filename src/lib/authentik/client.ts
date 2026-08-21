@@ -2,6 +2,10 @@ import { parseAuthentikJson } from '#/lib/authentik/json'
 import type {
   AuthentikGroupListResponse,
   AuthentikGroupResponse,
+  AuthentikOAuth2Provider,
+  AuthentikOAuth2ProviderListResponse,
+  AuthentikOAuth2RefreshToken,
+  AuthentikOAuth2RefreshTokenListResponse,
   AuthentikUserListResponse,
   AuthentikUserResponse,
   ResolveAuthentikUserInput,
@@ -531,6 +535,123 @@ export async function clearDiscordUserAttributes(
       },
     )
   })
+}
+
+const NEXT_PROVIDER_CACHE_TTL_MS = 5 * 60_000
+
+let nextProviderCache: {
+  slug: string
+  pk: number
+  expiresAt: number
+} | null = null
+let nextProviderInFlight: Promise<number | null> | null = null
+
+async function listAuthentikOAuth2Providers(): Promise<
+  AuthentikOAuth2Provider[]
+> {
+  const providers: AuthentikOAuth2Provider[] = []
+  let page = 1
+  const pageSize = 100
+
+  while (true) {
+    const params = new URLSearchParams({
+      page_size: String(pageSize),
+      page: String(page),
+    })
+    const response = await authentikFetch<AuthentikOAuth2ProviderListResponse>(
+      `/api/v3/providers/oauth2/?${params.toString()}`,
+    )
+    providers.push(...response.results)
+
+    if (response.results.length < pageSize) {
+      break
+    }
+
+    page += 1
+  }
+
+  return providers
+}
+
+async function resolveNeulandNextOAuthProviderId(): Promise<number | null> {
+  const configured = serverConfig.authentik.nextMemberOAuthProviderId
+  if (configured) {
+    return configured
+  }
+
+  const slug = serverConfig.authentik.nextMemberAppSlug
+  if (nextProviderCache && nextProviderCache.slug === slug) {
+    if (Date.now() < nextProviderCache.expiresAt) {
+      return nextProviderCache.pk
+    }
+  }
+
+  if (!nextProviderInFlight) {
+    nextProviderInFlight = listAuthentikOAuth2Providers()
+      .then(providers => {
+        const match = providers.find(
+          provider => provider.assigned_application_slug === slug,
+        )
+        if (!match) {
+          return null
+        }
+
+        nextProviderCache = {
+          slug,
+          pk: match.pk,
+          expiresAt: Date.now() + NEXT_PROVIDER_CACHE_TTL_MS,
+        }
+        return match.pk
+      })
+      .finally(() => {
+        nextProviderInFlight = null
+      })
+  }
+
+  return nextProviderInFlight
+}
+
+export async function listNeulandNextRefreshTokensForUser(
+  userId: string | number,
+): Promise<AuthentikOAuth2RefreshToken[]> {
+  const providerId = await resolveNeulandNextOAuthProviderId()
+  if (providerId === null) {
+    return []
+  }
+
+  const tokens: AuthentikOAuth2RefreshToken[] = []
+  let page = 1
+  const pageSize = 100
+
+  while (true) {
+    const params = new URLSearchParams({
+      user: String(userId),
+      provider: String(providerId),
+      page_size: String(pageSize),
+      page: String(page),
+    })
+    const response =
+      await authentikFetch<AuthentikOAuth2RefreshTokenListResponse>(
+        `/api/v3/oauth2/refresh_tokens/?${params.toString()}`,
+      )
+    // Authentik includes the refresh token secret in this payload — keep
+    // only status fields so it never sits in memory or logs.
+    tokens.push(
+      ...response.results.map(token => ({
+        pk: token.pk,
+        expires: token.expires,
+        revoked: token.revoked,
+      })),
+    )
+
+    if (response.results.length < pageSize) {
+      break
+    }
+
+    page += 1
+  }
+
+  return tokens
 }
 
 export { AuthentikApiError }

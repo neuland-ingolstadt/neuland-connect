@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react'
 import {
   type DiscordGuildStatus,
+  EXTERNAL_LINKS,
   GITHUB_ORG_STATUSES,
   type GitHubOrgStatus,
   ROUTES,
@@ -10,6 +11,7 @@ import { githubOrgInvitationUrl } from '#/lib/integrations/github/org-status-dis
 
 const GITHUB_CARD_ID = 'integration-github'
 const DISCORD_CARD_ID = 'integration-discord'
+const MEMBERSHIP_CARD_ID = 'integration-membership'
 
 type DashboardActionBannerProps = {
   githubConnected: boolean
@@ -18,6 +20,7 @@ type DashboardActionBannerProps = {
   discordOAuthEnabled: boolean
   discordConnected: boolean
   discordGuildStatus: DiscordGuildStatus | null
+  nextSignedIn: boolean
 }
 
 type ActionItem = {
@@ -36,6 +39,7 @@ function buildActionItems({
   discordOAuthEnabled,
   discordConnected,
   discordGuildStatus,
+  nextSignedIn,
 }: DashboardActionBannerProps): ActionItem[] {
   const items: ActionItem[] = []
 
@@ -77,6 +81,17 @@ function buildActionItems({
         href: ROUTES.DISCORD_CONNECT,
       })
     }
+  }
+
+  if (!nextSignedIn) {
+    items.push({
+      id: 'next-member',
+      message: 'Mitgliedsausweis in Neuland Next ist noch nicht aktiv.',
+      actionLabel: 'Zu Next',
+      href: EXTERNAL_LINKS.NEULAND_NEXT_GET,
+      external: true,
+      footnote: 'Nach der Anmeldung in Next erscheint der Status hier.',
+    })
   }
 
   return items
@@ -126,4 +141,5 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
 export const INTEGRATION_CARD_IDS = {
   github: GITHUB_CARD_ID,
   discord: DISCORD_CARD_ID,
+  membership: MEMBERSHIP_CARD_ID,
 } as const

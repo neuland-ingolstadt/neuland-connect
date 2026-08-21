@@ -9,6 +9,9 @@ export const EXTERNAL_LINKS = {
   NEULAND_NEXT_GET: 'https://neuland.app/get',
 } as const
 
+/** Authentik application slug for the Next Mitgliedsausweis OIDC client */
+export const NEULAND_NEXT_APP_SLUG = 'next' as const
+
 export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',

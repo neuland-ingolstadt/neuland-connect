@@ -127,7 +127,9 @@ Copy [`.env.example`](./.env.example) to `.env` (or `.env.local` for Vite).
 | `AUTHENTIK_CLIENT_ID` | Yes | OIDC client ID |
 | `AUTHENTIK_CLIENT_SECRET` | Yes | OIDC client secret |
 | `AUTHENTIK_API_URL` | Yes | Authentik base URL |
-| `AUTHENTIK_API_TOKEN` | Yes | API token with user read/write permissions |
+| `AUTHENTIK_API_TOKEN` | Yes | API token with user read/write permissions (also needs OAuth2 token + provider read for Next session) |
+| `AUTHENTIK_NEXT_APP_SLUG` | No | Authentik application slug for Next Member ID (default `next`) |
+| `AUTHENTIK_NEXT_OAUTH_PROVIDER_ID` | No | OAuth2 provider PK; looked up from the slug when omitted |
 | `GITHUB_CLIENT_ID` | Yes | GitHub OAuth App client ID |
 | `GITHUB_CLIENT_SECRET` | Yes | GitHub OAuth App client secret |
 | `GITHUB_APP_ID` | Org sync | GitHub App ID for org invitations |

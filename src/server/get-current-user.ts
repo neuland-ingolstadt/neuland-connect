@@ -4,6 +4,7 @@ import {
   isGitHubConnected,
   parseUserAttributes,
 } from '#/lib/authentik/types'
+import type { NeulandNextMemberSession } from '#/lib/integrations/neuland-next/session'
 import { isSpecialProfileGroup } from '#/lib/profile-groups'
 
 export type CurrentUser = {
@@ -29,6 +30,8 @@ export type CurrentUser = {
   roleSyncEnabled: boolean
   /** Authentik group names that map to Discord roles */
   discordRoles: string[]
+  /** Active Neuland Next Mitgliedsausweis OIDC session (refresh token). */
+  nextSession: NeulandNextMemberSession
 }
 
 /** Cookie session only — used by / and /login so those routes skip Authentik. */
@@ -49,6 +52,9 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       getAuthentikUserGroups,
       getManagedIntegrationMaps,
     } = await import('#/lib/authentik/client')
+    const { getNeulandNextMemberSession } = await import(
+      '#/lib/integrations/neuland-next/session'
+    )
     const { resolveSessionAuthentikUserId } = await import(
       '#/lib/authentik/session-user'
     )
@@ -78,12 +84,20 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       discordRoles: new Map<string, string>(),
     }
 
-    const [authentikUser, groups, maps] = await Promise.all([
+    const inactiveNextSession: NeulandNextMemberSession = {
+      signedIn: false,
+      expiresAt: null,
+    }
+
+    const [authentikUser, groups, maps, nextSession] = await Promise.all([
       getAuthentikUser(authentikUserId),
       getAuthentikUserGroups(authentikUserId).catch(() => [] as string[]),
       teamSyncEnabled || roleSyncEnabled
         ? getManagedIntegrationMaps().catch(() => emptyMaps)
         : Promise.resolve(emptyMaps),
+      getNeulandNextMemberSession(authentikUserId).catch(
+        () => inactiveNextSession,
+      ),
     ])
     const attributes = parseUserAttributes(authentikUser.attributes)
     const githubConnected = isGitHubConnected(attributes)
@@ -150,6 +164,7 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       discordOAuthEnabled: serverConfig.discord.isOAuthConfigured,
       roleSyncEnabled,
       discordRoles,
+      nextSession,
     }
   },
 )

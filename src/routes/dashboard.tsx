@@ -201,6 +201,7 @@ function DashboardPage() {
             discordOAuthEnabled={user.discordOAuthEnabled}
             discordConnected={user.discordConnected}
             discordGuildStatus={user.attributes.discordGuildStatus}
+            nextSignedIn={user.nextSession.signedIn}
           />
 
           <div className="grid gap-5 lg:grid-cols-3">
@@ -220,7 +221,7 @@ function DashboardPage() {
                   discordRoles={user.discordRoles}
                 />
               ) : null}
-              <MembershipCard />
+              <MembershipCard nextSession={user.nextSession} />
             </div>
 
             <UserDataCard

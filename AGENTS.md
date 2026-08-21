@@ -76,10 +76,11 @@ Parse via `parseUserAttributes()` in `src/lib/authentik/types.ts`.
 
 ## Dashboard setup UX
 
-- **Action banner** (`DashboardActionBanner`) – appears only when something needs attention (GitHub/Discord connect, org invite, guild join); hidden when complete
+- **Action banner** (`DashboardActionBanner`) – appears only when something needs attention (GitHub/Discord connect, org invite, guild join, Next Member ID); hidden when complete
 - **Per-integration progress** – dot indicator + fraction in panel title row (`IntegrationProgressInline`); hint in card subtitle when incomplete
 - GitHub steps: Verbunden → Eingeladen → Org-Zugang
 - Discord steps: Verbunden → Server → Rollen (Rollen step only when role sync enabled)
+- Mitgliedsausweis: signed-in badge when Authentik has a Next refresh token (`provider` for app slug `next`); setup steps otherwise
 
 ## GitHub integration (current)
 

@@ -1,4 +1,4 @@
-import { APP_NAME } from '#/lib/constants'
+import { APP_NAME, NEULAND_NEXT_APP_SLUG } from '#/lib/constants'
 
 function requireEnv(name: string): string {
   const value = process.env[name]
@@ -38,6 +38,22 @@ export const serverConfig = {
     },
     get apiToken() {
       return requireEnv('AUTHENTIK_API_TOKEN')
+    },
+    /**
+     * OAuth2 provider PK for Neuland Next (Member ID). Optional — Connect
+     * resolves it from the Authentik app slug when unset.
+     */
+    get nextMemberOAuthProviderId() {
+      const raw = optionalEnv('AUTHENTIK_NEXT_OAUTH_PROVIDER_ID')
+      if (!raw) {
+        return undefined
+      }
+
+      const parsed = Number(raw)
+      return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+    },
+    get nextMemberAppSlug() {
+      return optionalEnv('AUTHENTIK_NEXT_APP_SLUG') ?? NEULAND_NEXT_APP_SLUG
     },
   },
   github: {
