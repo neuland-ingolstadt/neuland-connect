@@ -175,7 +175,7 @@ export function DiscordConnectionCard({
           <div className="space-y-4">
             {attributes.discordGuildLastError ? (
               <div className="border border-destructive/30 bg-destructive/5 px-3 py-2.5">
-                <p className="font-mono text-[10px] uppercase tracking-wider text-destructive-foreground/70">
+                <p className="font-mono text-[10px] uppercase tracking-wider text-destructive">
                   Sync-Fehler
                 </p>
                 <p className="mt-1 font-mono text-xs leading-relaxed text-terminal-text/80">
@@ -268,9 +268,7 @@ export function DiscordConnectionCard({
                   <RefreshCw
                     className={isSyncingRoles ? 'animate-spin' : undefined}
                   />
-                  {isSyncingRoles
-                    ? 'Synchronisiere…'
-                    : 'Rollen synchronisieren'}
+                  {isSyncingRoles ? 'Synchronisiere…' : 'Synchronisieren'}
                 </Button>
               ) : null}
               <Button
@@ -290,8 +288,9 @@ export function DiscordConnectionCard({
                 <AlertDialogTrigger asChild>
                   <Button
                     type="button"
-                    variant="destructive"
+                    variant="outline"
                     size="sm"
+                    className="text-destructive hover:border-destructive/40 hover:text-destructive"
                     disabled={isDisconnecting}
                   >
                     <Link2Off />

@@ -172,7 +172,7 @@ export function GitHubConnectionCard({
           <div className="space-y-4">
             {attributes.githubOrgLastError ? (
               <div className="border border-destructive/30 bg-destructive/5 px-3 py-2.5">
-                <p className="font-mono text-[10px] uppercase tracking-wider text-destructive-foreground/70">
+                <p className="font-mono text-[10px] uppercase tracking-wider text-destructive">
                   Sync-Fehler
                 </p>
                 <p className="mt-1 font-mono text-xs leading-relaxed text-terminal-text/80">
@@ -258,7 +258,7 @@ export function GitHubConnectionCard({
                   <RefreshCw
                     className={isSyncingTeams ? 'animate-spin' : undefined}
                   />
-                  {isSyncingTeams ? 'Synchronisiere…' : 'Teams synchronisieren'}
+                  {isSyncingTeams ? 'Synchronisiere…' : 'Synchronisieren'}
                 </Button>
               ) : null}
               {showInvitationLink ? (
@@ -285,8 +285,9 @@ export function GitHubConnectionCard({
                 <AlertDialogTrigger asChild>
                   <Button
                     type="button"
-                    variant="destructive"
+                    variant="outline"
                     size="sm"
+                    className="text-destructive hover:border-destructive/40 hover:text-destructive"
                     disabled={isDisconnecting}
                   >
                     <Link2Off />
@@ -299,7 +300,8 @@ export function GitHubConnectionCard({
                       GitHub-Verbindung trennen?
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                      Der Org-Zugang kann dabei entfallen.
+                      Du bleibst in der GitHub-Organisation, verlierst aber alle
+                      Teams. Connect vergisst die Verknüpfung.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
