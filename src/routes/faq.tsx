@@ -25,7 +25,7 @@ function FaqPage() {
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
         <header className="mb-6">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-lightGreen">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
             Hilfe
           </p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
