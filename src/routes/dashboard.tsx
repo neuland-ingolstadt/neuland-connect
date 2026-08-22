@@ -4,6 +4,7 @@ import { ConnectStatusPanel } from '#/components/dashboard/connect-status-panel'
 import { DashboardProfilePanel } from '#/components/dashboard/dashboard-profile-panel'
 import { EventsPanel } from '#/components/dashboard/events-panel'
 import { hasNoLinkedAccounts } from '#/components/dashboard/setup-explainer'
+import { DeferredValue } from '#/components/deferred-value'
 import { AppHeader } from '#/components/layout/app-header'
 import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageShell } from '#/components/layout/page-shell'
@@ -16,11 +17,7 @@ import {
   isDashboardIntroFlag,
   ROUTES,
 } from '#/lib/constants'
-import {
-  LOADER_STALE_MS,
-  resolvedDeferred,
-} from '#/lib/deferred-loader'
-import { DeferredValue } from '#/components/deferred-value'
+import { LOADER_STALE_MS, resolvedDeferred } from '#/lib/deferred-loader'
 import {
   type CurrentUser,
   hasActiveSessionFn,

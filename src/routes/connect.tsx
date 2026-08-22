@@ -1,4 +1,9 @@
-import { createFileRoute, defer, redirect, useNavigate } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  defer,
+  redirect,
+  useNavigate,
+} from '@tanstack/react-router'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { DashboardActionBanner } from '#/components/dashboard/dashboard-action-banner'
@@ -11,6 +16,7 @@ import {
   shouldAutoShowSetupExplainer,
 } from '#/components/dashboard/setup-explainer'
 import { UserDataCard } from '#/components/dashboard/user-data-card'
+import { DeferredValue } from '#/components/deferred-value'
 import { AppHeader } from '#/components/layout/app-header'
 import { ConnectLoadingShell } from '#/components/layout/connect-loading-shell'
 import { LegalFooter } from '#/components/layout/legal-footer'
@@ -22,7 +28,6 @@ import {
   ROUTES,
 } from '#/lib/constants'
 import { LOADER_STALE_MS } from '#/lib/deferred-loader'
-import { DeferredValue } from '#/components/deferred-value'
 import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-display'
 import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
 import {
