@@ -37,7 +37,8 @@ src/
     api/auth/                # OIDC login, callback, logout
     api/integrations/github/ # GitHub OAuth connect + callback
     api/integrations/discord/ # Discord OAuth connect + callback
-    dashboard.tsx            # Main member dashboard (auth required)
+    dashboard.tsx            # Member home (events + Connect status)
+    connect.tsx              # GitHub / Discord / Next account linking
     login.tsx
   server/                    # createServerFn handlers (getCurrentUser, disconnectGitHub)
   lib/
@@ -45,9 +46,10 @@ src/
     authentik/               # API client, attribute parsing, user resolution
     integrations/github/     # OAuth + integration progress logic
     integrations/discord/    # OAuth + guild role sync
+    campus-life/             # Campus Life Events API client (calendar)
     session.server.ts        # Encrypted session (server-only)
   components/
-    dashboard/               # GitHub/Discord cards, action banner, progress bars
+    dashboard/               # Events, Connect status, GitHub/Discord cards
     layout/                  # AppHeader, PageShell, theme toggle
     ui/                      # Button, Badge, TerminalPanel, etc.
 ```
@@ -74,8 +76,10 @@ Parse via `parseUserAttributes()` in `src/lib/authentik/types.ts`.
 
 **User resolution:** OIDC `sub` may not equal Authentik API user PK. `resolveAuthentikUser()` falls back by email/username; `authentikUserId` is cached in session at login.
 
-## Dashboard setup UX
+## Dashboard and Connect UX
 
+- **Dashboard** (`/dashboard`) – events from Campus Life (public + internal) and Connect status/links
+- **Connect** (`/connect`) – GitHub / Discord / Next linking; OAuth callbacks land here
 - **Action banner** (`DashboardActionBanner`) – one strip with GitHub / Discord / Next as direct CTAs; hidden when all complete
 - **Per-integration progress** – dot indicator + fraction in panel title row (`IntegrationProgressInline`); hint in card subtitle when incomplete
 - GitHub steps: Verbunden → Eingeladen → Org-Zugang
@@ -159,7 +163,7 @@ Keep existing `GITHUB_CLIENT_ID/SECRET` for member OAuth linking.
 - **Idempotent:** always check membership before inviting
 - **Never store** GitHub App installation tokens long-term - generate per request
 - **Do not block** the OAuth callback on invite failure - update status async
-- **Dashboard** already reads `github_org_status` - wire up writes when backend lands
+- **Connect page** already reads `github_org_status` - wire up writes when backend lands
 - **Disconnect policy:** decide explicitly whether disconnect removes org membership (default: don't auto-remove unless requested)
 
 ### GitHub API endpoints
@@ -202,7 +206,7 @@ bun run start    # production
 1. Create `src/lib/integrations/<name>/` with oauth/api modules
 2. Add API routes under `src/routes/api/integrations/<name>/`
 3. Add Authentik attribute keys to `AUTHENTIK_ATTRIBUTES` in constants
-4. Extend `parseUserAttributes()` and dashboard UI as needed
+4. Extend `parseUserAttributes()` and Connect page UI as needed
 5. Document new env vars in `.env.example` and README
 
 ---

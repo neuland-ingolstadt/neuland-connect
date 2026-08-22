@@ -137,6 +137,19 @@ export const serverConfig = {
   get cronSecret() {
     return optionalEnv('CRON_SECRET')
   },
+  campusLife: {
+    get apiUrl() {
+      return (
+        optionalEnv('CL_API_URL') ?? 'https://cl.neuland-ingolstadt.de/api'
+      ).replace(/\/$/, '')
+    },
+    get apiKey() {
+      return optionalEnv('CL_API_KEY')
+    },
+    get isConfigured() {
+      return Boolean(serverConfig.campusLife.apiKey)
+    },
+  },
 } as const
 
 export const clientConfig = {

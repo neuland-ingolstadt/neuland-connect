@@ -12,7 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '#/components/ui/sheet'
-import { ROUTES } from '#/lib/constants'
+import { CONNECT_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
 import { cn } from '#/lib/utils'
 
 type AppHeaderProps = {
@@ -20,12 +20,13 @@ type AppHeaderProps = {
   showDashboardLink?: boolean
 }
 
-const dashboardSearch = {
-  integration: undefined,
-  status: undefined,
-  message: undefined,
-  intro: undefined,
-} as const
+type AppNavTo =
+  | typeof ROUTES.DASHBOARD
+  | typeof ROUTES.CONNECT
+  | typeof ROUTES.RESSOURCEN
+  | typeof ROUTES.FAQ
+
+const dashboardSearch = CONNECT_SEARCH_DEFAULTS
 
 export function AppHeader({
   isSignedIn = false,
@@ -66,13 +67,21 @@ export function AppHeader({
             className="hidden items-center gap-2 md:flex"
           >
             {showDashboardLink ? (
-              <HeaderNavLink
-                to={ROUTES.DASHBOARD}
-                search={dashboardSearch}
-                activeOptions={{ exact: true }}
-              >
-                Dashboard
-              </HeaderNavLink>
+              <>
+                <HeaderNavLink
+                  to={ROUTES.DASHBOARD}
+                  search={dashboardSearch}
+                  activeOptions={{ exact: true }}
+                >
+                  Dashboard
+                </HeaderNavLink>
+                <HeaderNavLink
+                  to={ROUTES.CONNECT}
+                  search={CONNECT_SEARCH_DEFAULTS}
+                >
+                  Connect
+                </HeaderNavLink>
+              </>
             ) : null}
             <HeaderNavLink to={ROUTES.RESSOURCEN}>Ressourcen</HeaderNavLink>
             <HeaderNavLink to={ROUTES.FAQ}>FAQ</HeaderNavLink>
@@ -120,13 +129,21 @@ export function AppHeader({
 
               <nav aria-label="Hauptnavigation" className="flex flex-col gap-1">
                 {showDashboardLink ? (
-                  <MobileNavLink
-                    to={ROUTES.DASHBOARD}
-                    search={dashboardSearch}
-                    activeOptions={{ exact: true }}
-                  >
-                    Dashboard
-                  </MobileNavLink>
+                  <>
+                    <MobileNavLink
+                      to={ROUTES.DASHBOARD}
+                      search={dashboardSearch}
+                      activeOptions={{ exact: true }}
+                    >
+                      Dashboard
+                    </MobileNavLink>
+                    <MobileNavLink
+                      to={ROUTES.CONNECT}
+                      search={CONNECT_SEARCH_DEFAULTS}
+                    >
+                      Connect
+                    </MobileNavLink>
+                  </>
                 ) : null}
                 <MobileNavLink to={ROUTES.RESSOURCEN}>Ressourcen</MobileNavLink>
                 <MobileNavLink to={ROUTES.FAQ}>FAQ</MobileNavLink>
@@ -154,9 +171,9 @@ function HeaderNavLink({
   search,
   activeOptions,
 }: {
-  to: typeof ROUTES.DASHBOARD | typeof ROUTES.RESSOURCEN | typeof ROUTES.FAQ
+  to: AppNavTo
   children: string
-  search?: typeof dashboardSearch
+  search?: typeof CONNECT_SEARCH_DEFAULTS
   activeOptions?: { exact: boolean }
 }) {
   return (
@@ -183,9 +200,9 @@ function MobileNavLink({
   search,
   activeOptions,
 }: {
-  to: typeof ROUTES.DASHBOARD | typeof ROUTES.RESSOURCEN | typeof ROUTES.FAQ
+  to: AppNavTo
   children: string
-  search?: typeof dashboardSearch
+  search?: typeof CONNECT_SEARCH_DEFAULTS
   activeOptions?: { exact: boolean }
 }) {
   return (

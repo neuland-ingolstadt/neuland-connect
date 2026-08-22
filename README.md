@@ -36,7 +36,8 @@ Member portal for **[Neuland Ingolstadt](https://neuland-ingolstadt.de)**. Membe
 ## Features
 
 - **Authentik OIDC** - PKCE login; only Vereinsmitglieder can authenticate
-- **Member dashboard** - profile overview, GitHub connection card, four-step onboarding progress
+- **Member dashboard** - upcoming Neuland events (public + internal) and Connect status
+- **Connect page** - GitHub, Discord, and Neuland Next linking with setup progress
 - **GitHub account linking** - OAuth App with `read:user` scope; connect, reconnect, and disconnect
 - **GitHub org onboarding** - optional GitHub App for org invites and membership sync
 - **Discord account linking** - OAuth with guild join and role sync (tokens discarded)
@@ -53,6 +54,7 @@ Member browser
       │
       ├── Authentik OIDC ──► session cookie (encrypted)
       ├── Authentik API  ──► read/write user attributes
+      ├── Campus Life    ──► Neuland events (public + internal)
       └── GitHub OAuth   ──► link identity (token discarded after use)
 
 Optional: GitHub App ──► org invites + membership reconciliation
@@ -141,6 +143,8 @@ Copy [`.env.example`](./.env.example) to `.env` (or `.env.local` for Vite).
 | `DISCORD_CLIENT_SECRET` | Discord | Discord OAuth App client secret |
 | `DISCORD_BOT_TOKEN` | Discord | Bot token (guild join, role sync) |
 | `DISCORD_GUILD_ID` | Discord | Neuland guild snowflake |
+| `DISCORD_PUBLIC_KEY` | Discord | Application public key for slash-command interactions |
+| `CL_API_KEY` | Events | Campus Life API token (same as the website) for Neuland events including internal ones |
 
 ## Authentik setup
 
@@ -227,7 +231,7 @@ Stateless full reconcile of GitHub teams from Authentik:
 { "github_team": "kubernetes" }
 ```
 
-2. Put users in those groups. Cron or dashboard „Teams synchronisieren“ adds/removes only groups that have `github_team` set.
+2. Put users in those groups. Cron or Connect-page „Teams synchronisieren“ adds/removes only groups that have `github_team` set.
 
 ## Discord integration
 
@@ -265,10 +269,11 @@ The image is built with `BUN_VERSION` from `.bun-version`. Production images are
 
 ```
 src/
-  components/       # UI (dashboard, layout, shadcn-style primitives)
+  components/       # UI (dashboard, connect, layout, shadcn-style primitives)
   lib/
     authentik/      # API client, attribute parsing
     auth/           # OIDC flow, PKCE
+    campus-life/    # Campus Life Events API (calendar)
     integrations/   # GitHub OAuth, org sync, onboarding status
   routes/           # Pages and API routes (file-based)
   server/           # createServerFn handlers

@@ -1,6 +1,6 @@
 import { generateRandomString } from '#/lib/auth/crypto'
 import { serverConfig } from '#/lib/config'
-import { DISCORD_OAUTH_SCOPE } from '#/lib/constants'
+import { connectStatusPath, DISCORD_OAUTH_SCOPE } from '#/lib/constants'
 import { useAppSession } from '#/lib/session.server'
 
 const DISCORD_AUTHORIZE_URL = 'https://discord.com/api/oauth2/authorize'
@@ -22,7 +22,11 @@ function redirectResponse(location: string): Response {
 async function startDiscordOAuth(): Promise<Response> {
   if (!serverConfig.discord.isOAuthConfigured) {
     return redirectResponse(
-      '/dashboard?integration=discord&status=error&message=not_configured',
+      connectStatusPath({
+        integration: 'discord',
+        status: 'error',
+        message: 'not_configured',
+      }),
     )
   }
 
@@ -125,7 +129,11 @@ export async function handleDiscordCallback(
 
   if (error) {
     return redirectResponse(
-      `/dashboard?integration=discord&status=error&message=${encodeURIComponent(error)}`,
+      connectStatusPath({
+        integration: 'discord',
+        status: 'error',
+        message: error,
+      }),
     )
   }
 
@@ -135,7 +143,11 @@ export async function handleDiscordCallback(
 
   if (!code || !state || !expectedState || state !== expectedState) {
     return redirectResponse(
-      '/dashboard?integration=discord&status=error&message=invalid_state',
+      connectStatusPath({
+        integration: 'discord',
+        status: 'error',
+        message: 'invalid_state',
+      }),
     )
   }
 
@@ -225,10 +237,16 @@ export async function handleDiscordCallback(
           },
     })
 
-    return redirectResponse('/dashboard?integration=discord&status=success')
+    return redirectResponse(
+      connectStatusPath({ integration: 'discord', status: 'success' }),
+    )
   } catch {
     return redirectResponse(
-      '/dashboard?integration=discord&status=error&message=connection_failed',
+      connectStatusPath({
+        integration: 'discord',
+        status: 'error',
+        message: 'connection_failed',
+      }),
     )
   }
 }

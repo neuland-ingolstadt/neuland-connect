@@ -18,6 +18,7 @@ export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
   DASHBOARD: '/dashboard',
+  CONNECT: '/connect',
   RESSOURCEN: '/ressourcen',
   FAQ: '/faq',
   IMPRESSUM: '/impressum',
@@ -73,8 +74,15 @@ export const DISCORD_OAUTH_SCOPE = 'identify guilds.join' as const
 
 export const SESSION_COOKIE_NAME = 'neuland-connect-session' as const
 
-/** Query flag set by the OIDC callback so the dashboard can run first-run UX */
+/** Query flag set by the OIDC callback so first-run UX can run */
 export const DASHBOARD_INTRO_SEARCH = 'neu' as const
+
+export const CONNECT_SEARCH_DEFAULTS = {
+  integration: undefined,
+  status: undefined,
+  message: undefined,
+  intro: undefined,
+} as const
 
 export function isDashboardIntroFlag(value: unknown): boolean {
   return (
@@ -84,3 +92,23 @@ export function isDashboardIntroFlag(value: unknown): boolean {
     value === '1'
   )
 }
+
+export function connectStatusPath(options: {
+  integration: 'github' | 'discord'
+  status: 'success' | 'error' | 'disconnected'
+  message?: string
+}): string {
+  const params = new URLSearchParams({
+    integration: options.integration,
+    status: options.status,
+  })
+
+  if (options.message) {
+    params.set('message', options.message)
+  }
+
+  return `${ROUTES.CONNECT}?${params.toString()}`
+}
+
+/** Campus Life organizer id for Neuland Ingolstadt e.V. */
+export const NEULAND_CAMPUS_LIFE_ORGANIZER_ID = 4 as const

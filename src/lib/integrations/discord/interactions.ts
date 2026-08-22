@@ -40,7 +40,7 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 function connectDashboardUrl(): string {
-  return `${serverConfig.appUrl}${ROUTES.DASHBOARD}`
+  return `${serverConfig.appUrl}${ROUTES.CONNECT}`
 }
 
 function buildConnectCommandResponse(): Response {

@@ -11,6 +11,7 @@ type SetupExplainerProps = {
   firstName: string
   onFinished: () => void
   onExitStart?: () => void
+  finishLabel?: string
 }
 
 export type LinkedAccountState = {
@@ -49,6 +50,7 @@ export function SetupExplainer({
   firstName,
   onFinished,
   onExitStart,
+  finishLabel = 'Fertig',
 }: SetupExplainerProps) {
   const titleId = useId()
   const slides = useMemo<ExplainerSlide[]>(() => {
@@ -291,7 +293,7 @@ export function SetupExplainer({
 
             <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
               <Button size="lg" onClick={advance} autoFocus>
-                {isLast ? 'Zum Dashboard' : 'Weiter'}
+                {isLast ? finishLabel : 'Weiter'}
               </Button>
               {isLast ? null : (
                 <Button variant="ghost" size="lg" onClick={finish}>

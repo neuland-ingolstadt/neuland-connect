@@ -1,9 +1,11 @@
+import { redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import {
   isDiscordConnected,
   isGitHubConnected,
   parseUserAttributes,
 } from '#/lib/authentik/types'
+import { ROUTES } from '#/lib/constants'
 import type { NeulandNextMemberSession } from '#/lib/integrations/neuland-next/session'
 import { isSpecialProfileGroup } from '#/lib/profile-groups'
 
@@ -238,6 +240,16 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
     return resolveCurrentUser({ allowCache: true })
   },
 )
+
+export async function requireSignedInUser(): Promise<CurrentUser> {
+  const user = await getCurrentUserFn()
+
+  if (!user) {
+    throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
+  }
+
+  return user
+}
 
 /** Bypass cache after connect/disconnect or while polling org/guild status. */
 export const refreshCurrentUserFn = createServerFn({ method: 'POST' }).handler(

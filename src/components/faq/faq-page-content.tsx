@@ -31,7 +31,7 @@ const FAQ_ITEMS: FaqItem[] = [
     question: 'Wie funktioniert die Verknüpfung?',
     answer: (
       <>
-        <p>Der Ablauf auf dem Dashboard ist wie folgt:</p>
+        <p>Der Ablauf auf der Connect-Seite ist wie folgt:</p>
         <ol className="list-decimal space-y-1 pl-5">
           <li>
             <strong>GitHub:</strong> Konto verbinden, Einladung in die
@@ -130,7 +130,7 @@ const FAQ_ITEMS: FaqItem[] = [
         </p>
         <ol className="list-decimal space-y-1 pl-5">
           <li>
-            Auf dem Dashboard bei Discord bzw. GitHub „Synchronisieren“
+            Auf der Connect-Seite bei Discord bzw. GitHub „Synchronisieren“
             ausführen.
           </li>
           <li>
@@ -165,7 +165,7 @@ const FAQ_ITEMS: FaqItem[] = [
           sichtbar ist.
         </p>
         <p>
-          Für eine unmittelbare Aktualisierung steht auf dem Dashboard bei
+          Für eine unmittelbare Aktualisierung steht auf der Connect-Seite bei
           Discord und GitHub der Button „Synchronisieren“ zur Verfügung.
           Entfällt eine Gruppe, wird die zugehörige Rolle bzw. das Team beim
           nächsten Abgleich entfernt – entweder über den Button oder spätestens
@@ -181,10 +181,10 @@ const FAQ_ITEMS: FaqItem[] = [
       <p>
         Nach der Verknüpfung wird die Einladung automatisch im Hintergrund
         ausgelöst. Prüfe in GitHub die Benachrichtigungen und offenen
-        Einladungen. Zeigt das Dashboard den Status „Eingeladen“, muss die
-        Einladung in GitHub angenommen werden. Bleibt der Status leer, lade die
-        Seite erneut oder warte kurz. Besteht das Problem weiterhin, wende dich
-        an den Vorstand.
+        Einladungen. Zeigt Connect den Status „Eingeladen“, muss die Einladung
+        in GitHub angenommen werden. Bleibt der Status leer, lade die Seite
+        erneut oder warte kurz. Besteht das Problem weiterhin, wende dich an den
+        Vorstand.
       </p>
     ),
   },
@@ -208,7 +208,7 @@ const FAQ_ITEMS: FaqItem[] = [
       <p>
         Die Abmeldung beendet ausschließlich deine Connect-Sitzung (Cookie) und
         die Anmeldung bei Authentik. Verknüpfte GitHub- und Discord-Konten
-        bleiben bestehen, bis du die Verbindung auf dem Dashboard löst.
+        bleiben bestehen, bis du die Verbindung auf der Connect-Seite löst.
       </p>
     ),
   },

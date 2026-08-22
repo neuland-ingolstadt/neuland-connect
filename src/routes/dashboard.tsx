@@ -1,45 +1,40 @@
-import {
-  Await,
-  createFileRoute,
-  defer,
-  redirect,
-  useNavigate,
-} from '@tanstack/react-router'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { toast } from 'sonner'
-import { DashboardActionBanner } from '#/components/dashboard/dashboard-action-banner'
-import { DiscordConnectionCard } from '#/components/dashboard/discord-connection-card'
-import { GitHubConnectionCard } from '#/components/dashboard/github-connection-card'
-import { MembershipCard } from '#/components/dashboard/membership-card'
-import {
-  hasNoLinkedAccounts,
-  SetupExplainer,
-  shouldAutoShowSetupExplainer,
-} from '#/components/dashboard/setup-explainer'
-import { UserDataCard } from '#/components/dashboard/user-data-card'
+import { Await, createFileRoute, defer, redirect } from '@tanstack/react-router'
+import { ConnectSetupBanner } from '#/components/dashboard/connect-setup-banner'
+import { ConnectStatusPanel } from '#/components/dashboard/connect-status-panel'
+import { DashboardProfilePanel } from '#/components/dashboard/dashboard-profile-panel'
+import { EventsPanel } from '#/components/dashboard/events-panel'
+import { hasNoLinkedAccounts } from '#/components/dashboard/setup-explainer'
 import { AppHeader } from '#/components/layout/app-header'
 import { ConnectBootScreen } from '#/components/layout/connect-boot-screen'
 import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageShell } from '#/components/layout/page-shell'
-import { isDashboardIntroFlag, ROUTES } from '#/lib/constants'
-import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-display'
-import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
+import type { CampusLifeEventsResult } from '#/lib/campus-life/types'
+import {
+  APP_NAME,
+  CONNECT_SEARCH_DEFAULTS,
+  isDashboardIntroFlag,
+  ROUTES,
+} from '#/lib/constants'
 import {
   type CurrentUser,
-  currentUserEquals,
-  getCurrentUserFn,
-  refreshCurrentUserFn,
+  requireSignedInUser,
 } from '#/server/get-current-user'
+import { getNeulandEventsFn } from '#/server/get-events'
 
 /**
  * First SSR document: Authentik still runs on the server. Router pending UI
  * is client-only, so we race and defer to stream ConnectBootScreen if slow.
  *
- * Client navigations (FAQ → dashboard): never defer. Router SWR shows the
- * cached dashboard immediately and revalidates in the background.
+ * Client navigations never defer. Router SWR shows the cached dashboard
+ * immediately and revalidates in the background.
  */
 const BOOT_PENDING_MS = 150
 const BOOT_PENDING_MIN_MS = 350
+
+type DashboardData = {
+  user: CurrentUser
+  events: CampusLifeEventsResult
+}
 
 function waitMs(ms: number) {
   return new Promise<void>(resolve => {
@@ -47,22 +42,22 @@ function waitMs(ms: number) {
   })
 }
 
-function isDeferredUser(
-  user: CurrentUser | Promise<CurrentUser>,
-): user is Promise<CurrentUser> {
-  return typeof (user as Promise<CurrentUser>).then === 'function'
+function isDeferredData(
+  data: DashboardData | Promise<DashboardData>,
+): data is Promise<DashboardData> {
+  return typeof (data as Promise<DashboardData>).then === 'function'
 }
 
-function resolvedCachedUser(
-  user: CurrentUser | Promise<CurrentUser>,
-): CurrentUser | null {
-  if (!isDeferredUser(user)) {
-    return user
+function resolvedCachedData(
+  data: DashboardData | Promise<DashboardData>,
+): DashboardData | null {
+  if (!isDeferredData(data)) {
+    return data
   }
 
   const deferredState = (
-    user as Promise<CurrentUser> & {
-      [key: symbol]: { status?: string; data?: CurrentUser }
+    data as Promise<DashboardData> & {
+      [key: symbol]: { status?: string; data?: DashboardData }
     }
   )[Symbol.for('TSR_DEFERRED_PROMISE')]
 
@@ -73,17 +68,19 @@ function resolvedCachedUser(
   return null
 }
 
-async function requireDashboardUser(): Promise<CurrentUser> {
-  const user = await getCurrentUserFn()
+async function loadDashboardData(): Promise<DashboardData> {
+  const [user, events] = await Promise.all([
+    requireSignedInUser(),
+    getNeulandEventsFn(),
+  ])
 
-  if (!user) {
-    throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
-  }
-
-  return user
+  return { user, events }
 }
 
 export const Route = createFileRoute('/dashboard')({
+  head: () => ({
+    meta: [{ title: `Dashboard · ${APP_NAME}` }],
+  }),
   staleTime: 0,
   gcTime: 5 * 60_000,
   pendingMs: Number.POSITIVE_INFINITY,
@@ -95,32 +92,59 @@ export const Route = createFileRoute('/dashboard')({
     message: typeof search.message === 'string' ? search.message : undefined,
     intro: isDashboardIntroFlag(search.intro) ? true : undefined,
   }),
-  loader: async () => {
-    const userPromise = requireDashboardUser()
+  loaderDeps: ({ search }) => search,
+  loader: async ({ deps: search }) => {
+    const dataPromise = loadDashboardData()
+
+    const redirectIfNeeded = async (data: DashboardData) => {
+      if (search.integration) {
+        throw redirect({
+          to: ROUTES.CONNECT,
+          search: {
+            integration: search.integration,
+            status: search.status,
+            message: search.message,
+            intro: search.intro,
+          },
+        })
+      }
+
+      if (search.intro && hasNoLinkedAccounts(data.user)) {
+        throw redirect({
+          to: ROUTES.CONNECT,
+          search: {
+            ...CONNECT_SEARCH_DEFAULTS,
+            intro: true,
+          },
+        })
+      }
+
+      return data
+    }
 
     if (!import.meta.env.SSR) {
-      return { user: await userPromise }
+      return { data: await redirectIfNeeded(await dataPromise) }
     }
 
     const startedAt = Date.now()
     const raced = await Promise.race([
-      userPromise.then(user => ({ ready: true as const, user })),
+      dataPromise.then(data => ({ ready: true as const, data })),
       waitMs(BOOT_PENDING_MS).then(() => ({ ready: false as const })),
     ])
 
     if (raced.ready) {
-      return { user: raced.user }
+      return { data: await redirectIfNeeded(raced.data) }
     }
 
     return {
-      user: defer(
-        userPromise.then(async user => {
+      data: defer(
+        dataPromise.then(async data => {
           const bootVisibleFor = Date.now() - startedAt - BOOT_PENDING_MS
           const remaining = BOOT_PENDING_MIN_MS - bootVisibleFor
           if (remaining > 0) {
             await waitMs(remaining)
           }
-          return user
+          return redirectIfNeeded(data)
         }),
       ),
     }
@@ -129,266 +153,61 @@ export const Route = createFileRoute('/dashboard')({
 })
 
 function DashboardRoute() {
-  const { user } = Route.useLoaderData()
-  const cachedUser = resolvedCachedUser(user)
+  const { data } = Route.useLoaderData()
+  const cached = resolvedCachedData(data)
 
-  if (cachedUser) {
-    return <DashboardPage user={cachedUser} />
+  if (cached) {
+    return <DashboardPage data={cached} />
   }
 
-  if (isDeferredUser(user)) {
+  if (isDeferredData(data)) {
     return (
-      <Await promise={user} fallback={<ConnectBootScreen />}>
-        {resolved => <DashboardPage user={resolved} />}
+      <Await promise={data} fallback={<ConnectBootScreen />}>
+        {resolved => <DashboardPage data={resolved} />}
       </Await>
     )
   }
 
-  return <DashboardPage user={user} />
+  return <DashboardPage data={data} />
 }
 
-function DashboardPage({ user: loaderUser }: { user: CurrentUser }) {
-  const navigate = useNavigate()
-  const search = Route.useSearch()
-  const [user, setUser] = useState<CurrentUser>(loaderUser)
-  const [showExplainer, setShowExplainer] = useState(() =>
-    shouldAutoShowSetupExplainer({
-      intro: Boolean(search.intro),
-      unconnected: hasNoLinkedAccounts(loaderUser),
-    }),
-  )
-  const introConsumed = useRef(false)
-
-  useEffect(() => {
-    setUser(prev => (currentUserEquals(prev, loaderUser) ? prev : loaderUser))
-  }, [loaderUser])
-
-  useEffect(() => {
-    if (!search.intro || introConsumed.current) {
-      return
-    }
-
-    introConsumed.current = true
-    window.history.replaceState({}, '', ROUTES.DASHBOARD)
-  }, [search.intro])
-
-  const scrollDashboardToTop = useCallback((behavior: ScrollBehavior) => {
-    window.scrollTo({ top: 0, left: 0, behavior })
-    document.documentElement.scrollTo({ top: 0, left: 0, behavior })
-  }, [])
-
-  const openExplainer = useCallback(() => {
-    scrollDashboardToTop('auto')
-    setShowExplainer(true)
-  }, [scrollDashboardToTop])
-
-  const startExplainerExit = useCallback(() => {
-    const reducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches
-    scrollDashboardToTop(reducedMotion ? 'auto' : 'smooth')
-  }, [scrollDashboardToTop])
-
-  const closeExplainer = useCallback(() => {
-    setShowExplainer(false)
-    window.history.replaceState({}, '', ROUTES.DASHBOARD)
-    requestAnimationFrame(() => {
-      startExplainerExit()
-    })
-  }, [startExplainerExit])
-
-  const refreshUser = useCallback(async () => {
-    const next = await refreshCurrentUserFn()
-
-    if (!next) {
-      await navigate({ to: ROUTES.LOGIN, search: { error: undefined } })
-      return null
-    }
-
-    setUser(prev => (currentUserEquals(prev, next) ? prev : next))
-    return next
-  }, [navigate])
-
-  useEffect(() => {
-    if (search.integration !== 'github' || !search.status) {
-      return
-    }
-
-    if (search.status === 'success') {
-      toast.success('GitHub verbunden.')
-    } else if (search.status === 'disconnected') {
-      toast.success('GitHub-Verbindung getrennt.')
-    } else if (search.status === 'error') {
-      toast.error('GitHub-Verbindung fehlgeschlagen.')
-    }
-
-    void refreshUser()
-
-    const retryInvalidates = [500, 1500, 4000].map(delay =>
-      window.setTimeout(() => {
-        void refreshUser()
-      }, delay),
-    )
-
-    window.history.replaceState({}, '', ROUTES.DASHBOARD)
-
-    return () => {
-      for (const timeoutId of retryInvalidates) {
-        window.clearTimeout(timeoutId)
-      }
-    }
-  }, [refreshUser, search.integration, search.status])
-
-  useEffect(() => {
-    if (search.integration !== 'discord' || !search.status) {
-      return
-    }
-
-    if (search.status === 'success') {
-      toast.success('Discord verbunden.')
-    } else if (search.status === 'disconnected') {
-      toast.success('Discord-Verbindung getrennt.')
-    } else if (search.status === 'error') {
-      toast.error('Discord-Verbindung fehlgeschlagen.')
-    }
-
-    void refreshUser()
-
-    const retryInvalidates = [500, 1500, 4000].map(delay =>
-      window.setTimeout(() => {
-        void refreshUser()
-      }, delay),
-    )
-
-    window.history.replaceState({}, '', ROUTES.DASHBOARD)
-
-    return () => {
-      for (const timeoutId of retryInvalidates) {
-        window.clearTimeout(timeoutId)
-      }
-    }
-  }, [refreshUser, search.integration, search.status])
-
-  useEffect(() => {
-    if (!user.githubConnected) {
-      return
-    }
-
-    if (isGitHubInOrg(user.attributes.githubOrgStatus)) {
-      return
-    }
-
-    const intervalId = window.setInterval(() => {
-      void refreshUser()
-    }, 3000)
-
-    const stopPollingId = window.setTimeout(() => {
-      window.clearInterval(intervalId)
-    }, 30_000)
-
-    return () => {
-      window.clearInterval(intervalId)
-      window.clearTimeout(stopPollingId)
-    }
-  }, [refreshUser, user.githubConnected, user.attributes.githubOrgStatus])
-
-  useEffect(() => {
-    if (!user.discordConnected) {
-      return
-    }
-
-    if (isDiscordInGuild(user.attributes.discordGuildStatus)) {
-      return
-    }
-
-    const intervalId = window.setInterval(() => {
-      void refreshUser()
-    }, 3000)
-
-    const stopPollingId = window.setTimeout(() => {
-      window.clearInterval(intervalId)
-    }, 30_000)
-
-    return () => {
-      window.clearInterval(intervalId)
-      window.clearTimeout(stopPollingId)
-    }
-  }, [refreshUser, user.discordConnected, user.attributes.discordGuildStatus])
-
-  const firstName = user.name.split(' ')[0]
+function DashboardPage({ data }: { data: DashboardData }) {
+  const firstName = data.user.name.split(' ')[0]
 
   return (
     <PageShell>
-      <div
-        className="flex flex-1 flex-col"
-        inert={showExplainer ? true : undefined}
-      >
-        <AppHeader isSignedIn />
+      <AppHeader isSignedIn />
 
-        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
-          <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
-                Dashboard
-              </p>
-              <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
-                Hallo {firstName}
-              </h1>
-            </div>
-          </header>
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+        <header className="mb-6">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
+            Dashboard
+          </p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+            Hallo {firstName}
+          </h1>
+        </header>
 
-          <div className="space-y-5">
-            <DashboardActionBanner
-              githubConnected={user.githubConnected}
-              githubOrgStatus={user.attributes.githubOrgStatus}
-              githubOrg={user.githubOrg}
-              discordOAuthEnabled={user.discordOAuthEnabled}
-              discordConnected={user.discordConnected}
-              discordGuildStatus={user.attributes.discordGuildStatus}
-              nextSignedIn={user.nextSession.signedIn}
+        <ConnectSetupBanner user={data.user} />
+
+        <div className="grid gap-5 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <EventsPanel
+              events={data.events.events}
+              error={data.events.error}
             />
-
-            <div className="grid gap-5 lg:grid-cols-3">
-              <div className="space-y-5 lg:col-span-2">
-                <GitHubConnectionCard
-                  connected={user.githubConnected}
-                  attributes={user.attributes}
-                  githubOrg={user.githubOrg}
-                  teamSyncEnabled={user.teamSyncEnabled}
-                  githubTeams={user.githubTeams}
-                />
-                {user.discordOAuthEnabled ? (
-                  <DiscordConnectionCard
-                    connected={user.discordConnected}
-                    attributes={user.attributes}
-                    roleSyncEnabled={user.roleSyncEnabled}
-                    discordRoles={user.discordRoles}
-                  />
-                ) : null}
-                <MembershipCard nextSession={user.nextSession} />
-              </div>
-
-              <UserDataCard
-                name={user.name}
-                email={user.email}
-                username={user.username}
-                groups={user.groups}
-                accountCreatedAt={user.accountCreatedAt}
-              />
-            </div>
           </div>
-        </main>
+          <div className="space-y-5">
+            <DashboardProfilePanel
+              name={data.user.name}
+              groups={data.user.groups}
+            />
+            <ConnectStatusPanel user={data.user} />
+          </div>
+        </div>
+      </main>
 
-        <LegalFooter className="px-4" onShowIntro={openExplainer} />
-      </div>
-
-      {showExplainer ? (
-        <SetupExplainer
-          firstName={firstName}
-          onFinished={closeExplainer}
-          onExitStart={startExplainerExit}
-        />
-      ) : null}
+      <LegalFooter className="px-4" />
     </PageShell>
   )
 }

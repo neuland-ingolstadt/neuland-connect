@@ -12,6 +12,8 @@ declare global {
       readonly AUTHENTIK_API_TOKEN: string
       readonly GITHUB_CLIENT_ID: string
       readonly GITHUB_CLIENT_SECRET: string
+      readonly CL_API_KEY?: string
+      readonly CL_API_URL?: string
       readonly NODE_ENV: 'development' | 'production' | 'test'
     }
   }
