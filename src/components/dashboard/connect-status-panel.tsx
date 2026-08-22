@@ -135,11 +135,7 @@ function StatusRow({
               : 'border border-terminal-window-border/70 text-terminal-text/70',
           )}
         >
-          {complete ? (
-            <Check className="size-3.5" strokeWidth={2.5} />
-          ) : (
-            icon
-          )}
+          {complete ? <Check className="size-3.5" strokeWidth={2.5} /> : icon}
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">

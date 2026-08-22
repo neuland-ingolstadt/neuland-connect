@@ -223,8 +223,8 @@ const FAQ_ITEMS: FaqItem[] = [
     question: 'Was geschieht beim Abmelden?',
     answer: (
       <p>
-        Die Abmeldung beendet ausschließlich deine Connect-Sitzung (Cookie) und
-        die Anmeldung bei Authentik. Verknüpfte GitHub- und Discord-Konten
+        Die Abmeldung beendet deine Connect-Sitzung (Cookie) und leitet dich zur
+        Authentik-Abmeldeseite weiter. Verknüpfte GitHub- und Discord-Konten
         bleiben bestehen, bis du die Verbindung auf der Connect-Seite löst.
       </p>
     ),

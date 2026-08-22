@@ -7,6 +7,10 @@ import { handleDiscordInteractionsRequest } from '#/lib/integrations/discord/int
 
 void startDiscordBot()
 
+void import('#/lib/authentik/client').then(({ getManagedIntegrationMaps }) => {
+  void getManagedIntegrationMaps().catch(() => {})
+})
+
 if (typeof process !== 'undefined') {
   const shutdown = () => {
     stopDiscordBot()

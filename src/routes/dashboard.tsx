@@ -20,7 +20,6 @@ import {
 import { LOADER_STALE_MS, resolvedDeferred } from '#/lib/deferred-loader'
 import {
   type CurrentUser,
-  hasActiveSessionFn,
   requireSignedInUser,
 } from '#/server/get-current-user'
 import { getNeulandEventsFn } from '#/server/get-events'
@@ -73,27 +72,30 @@ export const Route = createFileRoute('/dashboard')({
     message: typeof search.message === 'string' ? search.message : undefined,
     intro: isDashboardIntroFlag(search.intro) ? true : undefined,
   }),
-  loaderDeps: ({ search }) => search,
-  loader: async ({ deps: search }) => {
-    if (search.integration) {
+  loaderDeps: ({ search }) => ({
+    integration: search.integration,
+    intro: search.intro,
+  }),
+  loader: async ({ deps, location }) => {
+    if (deps.integration) {
+      const callbackSearch = location.search as {
+        status?: string
+        message?: string
+      }
+
       throw redirect({
         to: ROUTES.CONNECT,
         search: {
-          integration: search.integration,
-          status: search.status,
-          message: search.message,
-          intro: search.intro,
+          integration: deps.integration,
+          status: callbackSearch.status,
+          message: callbackSearch.message,
+          intro: deps.intro,
         },
       })
     }
 
-    const hasSession = await hasActiveSessionFn()
-    if (!hasSession) {
-      throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
-    }
-
     const userPromise = requireSignedInUser().then(user => {
-      if (search.intro && hasNoLinkedAccounts(user)) {
+      if (deps.intro && hasNoLinkedAccounts(user)) {
         throw redirect({
           to: ROUTES.CONNECT,
           search: {
@@ -142,10 +144,10 @@ function DashboardRoute() {
           {resolvedUser => (
             <>
               <header className="mb-6">
-              <p className="font-mono text-xs uppercase tracking-[0.16em] text-terminal-text/50">
-                Dashboard
-              </p>
-              <h1 className="mt-1 font-sans text-2xl font-bold tracking-tight sm:text-3xl">
+                <p className="font-mono text-xs uppercase tracking-[0.16em] text-terminal-text/50">
+                  Dashboard
+                </p>
+                <h1 className="mt-1 font-sans text-2xl font-bold tracking-tight sm:text-3xl">
                   Hallo {resolvedUser.name.split(' ')[0]}
                 </h1>
               </header>

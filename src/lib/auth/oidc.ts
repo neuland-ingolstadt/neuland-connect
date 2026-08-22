@@ -172,11 +172,34 @@ export async function handleOidcCallback(request: Request): Promise<Response> {
 }
 
 /**
- * Ends the Connect session only - does not call Authentik end_session, so the
- * IdP SSO session stays. User lands on the Connect login screen.
+ * Ends the Connect session, then redirects to Authentik's OIDC
+ * `end_session_endpoint`. That starts the provider invalidation flow in the
+ * browser. `post_logout_redirect_uri` is omitted so Authentik shows the
+ * invalidation page instead of bouncing back to Connect.
  */
 export async function initiateOidcLogout(): Promise<Response> {
   const session = await useAppSession()
+  const idToken = session.data.oidc?.idToken
   await session.clear()
-  return redirectResponse(ROUTES.LOGIN)
+
+  try {
+    const discovery = await getOidcDiscovery()
+    const endSessionEndpoint = discovery.end_session_endpoint
+
+    if (!endSessionEndpoint) {
+      return redirectResponse(ROUTES.LOGIN)
+    }
+
+    const params = new URLSearchParams({
+      client_id: serverConfig.authentik.clientId,
+    })
+
+    if (idToken) {
+      params.set('id_token_hint', idToken)
+    }
+
+    return redirectResponse(`${endSessionEndpoint}?${params.toString()}`)
+  } catch {
+    return redirectResponse(ROUTES.LOGIN)
+  }
 }

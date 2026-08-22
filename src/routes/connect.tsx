@@ -1,10 +1,5 @@
-import {
-  createFileRoute,
-  defer,
-  redirect,
-  useNavigate,
-} from '@tanstack/react-router'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { createFileRoute, defer, useNavigate } from '@tanstack/react-router'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { DashboardActionBanner } from '#/components/dashboard/dashboard-action-banner'
 import { DiscordConnectionCard } from '#/components/dashboard/discord-connection-card'
@@ -12,7 +7,6 @@ import { GitHubConnectionCard } from '#/components/dashboard/github-connection-c
 import { MembershipCard } from '#/components/dashboard/membership-card'
 import {
   hasNoLinkedAccounts,
-  SetupExplainer,
   shouldAutoShowSetupExplainer,
 } from '#/components/dashboard/setup-explainer'
 import { UserDataCard } from '#/components/dashboard/user-data-card'
@@ -33,10 +27,15 @@ import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
 import {
   type CurrentUser,
   currentUserEquals,
-  hasActiveSessionFn,
   refreshCurrentUserFn,
   requireSignedInUser,
 } from '#/server/get-current-user'
+
+const SetupExplainer = lazy(() =>
+  import('#/components/dashboard/setup-explainer').then(module => ({
+    default: module.SetupExplainer,
+  })),
+)
 
 export const Route = createFileRoute('/connect')({
   head: () => ({
@@ -51,16 +50,9 @@ export const Route = createFileRoute('/connect')({
     message: typeof search.message === 'string' ? search.message : undefined,
     intro: isDashboardIntroFlag(search.intro) ? true : undefined,
   }),
-  loader: async () => {
-    const hasSession = await hasActiveSessionFn()
-    if (!hasSession) {
-      throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
-    }
-
-    return {
-      user: defer(requireSignedInUser()),
-    }
-  },
+  loader: () => ({
+    user: defer(requireSignedInUser()),
+  }),
   component: ConnectRoute,
 })
 
@@ -318,12 +310,14 @@ function ConnectPage({ user: loaderUser }: { user: CurrentUser }) {
       </div>
 
       {showExplainer ? (
-        <SetupExplainer
-          firstName={firstName}
-          onFinished={closeExplainer}
-          onExitStart={startExplainerExit}
-          finishLabel={autoIntro.current ? 'Zum Dashboard' : 'Fertig'}
-        />
+        <Suspense fallback={null}>
+          <SetupExplainer
+            firstName={firstName}
+            onFinished={closeExplainer}
+            onExitStart={startExplainerExit}
+            finishLabel={autoIntro.current ? 'Zum Dashboard' : 'Fertig'}
+          />
+        </Suspense>
       ) : null}
     </PageShell>
   )

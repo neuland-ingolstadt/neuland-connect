@@ -1,4 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, defer } from '@tanstack/react-router'
+import { DeferredValue } from '#/components/deferred-value'
 import { AppHeader } from '#/components/layout/app-header'
 import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageShell } from '#/components/layout/page-shell'
@@ -11,8 +12,7 @@ export const Route = createFileRoute('/impressum')({
   head: () => ({
     meta: [{ title: `Impressum · ${APP_NAME}` }],
   }),
-  pendingMs: Number.POSITIVE_INFINITY,
-  loader: () => hasActiveSessionFn(),
+  loader: () => defer(hasActiveSessionFn()),
   component: ImpressumPage,
 })
 
@@ -21,7 +21,12 @@ function ImpressumPage() {
 
   return (
     <PageShell>
-      <AppHeader isSignedIn={isSignedIn} />
+      <DeferredValue
+        value={isSignedIn}
+        fallback={<AppHeader isSignedIn={false} />}
+      >
+        {signedIn => <AppHeader isSignedIn={signedIn} />}
+      </DeferredValue>
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
         <header className="mb-6">

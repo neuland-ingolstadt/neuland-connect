@@ -17,6 +17,7 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ImpressumRouteImport } from './routes/impressum'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RessourcenRouteImport } from './routes/ressourcen'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAuthCallbackRouteImport } from './routes/api/auth/callback'
 import { Route as ApiAuthLoginRouteImport } from './routes/api/auth/login'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
@@ -67,6 +68,11 @@ const LoginRoute = LoginRouteImport.update({
 const RessourcenRoute = RessourcenRouteImport.update({
   id: '/ressourcen',
   path: '/ressourcen',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthCallbackRoute = ApiAuthCallbackRouteImport.update({
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/impressum': typeof ImpressumRoute
   '/login': typeof LoginRoute
   '/ressourcen': typeof RessourcenRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -163,6 +170,7 @@ export interface FileRoutesByTo {
   '/impressum': typeof ImpressumRoute
   '/login': typeof LoginRoute
   '/ressourcen': typeof RessourcenRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -185,6 +193,7 @@ export interface FileRoutesById {
   '/impressum': typeof ImpressumRoute
   '/login': typeof LoginRoute
   '/ressourcen': typeof RessourcenRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -208,6 +217,7 @@ export interface FileRouteTypes {
     | '/impressum'
     | '/login'
     | '/ressourcen'
+    | '/api/health'
     | '/api/auth/callback'
     | '/api/auth/login'
     | '/api/auth/logout'
@@ -229,6 +239,7 @@ export interface FileRouteTypes {
     | '/impressum'
     | '/login'
     | '/ressourcen'
+    | '/api/health'
     | '/api/auth/callback'
     | '/api/auth/login'
     | '/api/auth/logout'
@@ -250,6 +261,7 @@ export interface FileRouteTypes {
     | '/impressum'
     | '/login'
     | '/ressourcen'
+    | '/api/health'
     | '/api/auth/callback'
     | '/api/auth/login'
     | '/api/auth/logout'
@@ -272,6 +284,7 @@ export interface RootRouteChildren {
   ImpressumRoute: typeof ImpressumRoute
   LoginRoute: typeof LoginRoute
   RessourcenRoute: typeof RessourcenRoute
+  ApiHealthRoute: typeof ApiHealthRoute
   ApiAuthCallbackRoute: typeof ApiAuthCallbackRoute
   ApiAuthLoginRoute: typeof ApiAuthLoginRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
@@ -341,6 +354,13 @@ declare module '@tanstack/react-router' {
       path: '/ressourcen'
       fullPath: '/ressourcen'
       preLoaderRoute: typeof RessourcenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/callback': {
@@ -432,6 +452,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImpressumRoute: ImpressumRoute,
   LoginRoute: LoginRoute,
   RessourcenRoute: RessourcenRoute,
+  ApiHealthRoute: ApiHealthRoute,
   ApiAuthCallbackRoute: ApiAuthCallbackRoute,
   ApiAuthLoginRoute: ApiAuthLoginRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,

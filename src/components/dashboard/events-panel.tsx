@@ -79,9 +79,7 @@ export function EventsPanel({ events, error }: EventsPanelProps) {
   }, [events, timeFilter])
 
   return (
-    <TerminalPanel
-      title="Events"
-    >
+    <TerminalPanel title="Events">
       <div className="space-y-4 p-4 sm:p-5">
         <div className="inline-flex w-full max-w-xs border border-terminal-window-border/70 p-0.5 sm:w-auto">
           <FilterSegment

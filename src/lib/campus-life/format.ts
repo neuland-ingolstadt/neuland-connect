@@ -3,6 +3,53 @@ import type { CampusLifeEvent } from '#/lib/campus-life/types'
 const EVENT_TIMEZONE = 'Europe/Berlin'
 const LOCALE = 'de-DE'
 
+const weekdayFormatter = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: EVENT_TIMEZONE,
+  weekday: 'short',
+})
+const dateFormatter = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: EVENT_TIMEZONE,
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+})
+const timeFormatter = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: EVENT_TIMEZONE,
+  hour: '2-digit',
+  minute: '2-digit',
+})
+const monthFormatter = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: EVENT_TIMEZONE,
+  month: 'short',
+})
+const dayKeyFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: EVENT_TIMEZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+
+/** Stable de-DE date/time labels — avoids SSR/client ICU punctuation differences. */
+function formatGermanWeekday(date: Date): string {
+  return weekdayFormatter.format(date).replace(/\.$/, '')
+}
+
+function formatGermanDate(date: Date): string {
+  return dateFormatter.format(date)
+}
+
+function formatGermanTime(date: Date): string {
+  return timeFormatter.format(date)
+}
+
+function formatGermanDateTime(date: Date): string {
+  return `${formatGermanWeekday(date)}., ${formatGermanDate(date)}, ${formatGermanTime(date)}`
+}
+
+function formatDayKey(date: Date): string {
+  return dayKeyFormatter.format(date)
+}
+
 function timestampOf(iso: string): number | null {
   const value = new Date(iso).getTime()
   return Number.isNaN(value) ? null : value
@@ -42,22 +89,7 @@ export function formatEventDateRange(
   }
 
   const start = new Date(startMs)
-  const fullFormatter = new Intl.DateTimeFormat(LOCALE, {
-    timeZone: EVENT_TIMEZONE,
-    weekday: 'short',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-  const timeFormatter = new Intl.DateTimeFormat(LOCALE, {
-    timeZone: EVENT_TIMEZONE,
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-
-  const label = fullFormatter.format(start)
+  const label = formatGermanDateTime(start)
 
   if (!event.endDateTime) {
     return label
@@ -69,18 +101,12 @@ export function formatEventDateRange(
   }
 
   const end = new Date(endMs)
-  const dayFormatter = new Intl.DateTimeFormat('en-CA', {
-    timeZone: EVENT_TIMEZONE,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  })
 
-  if (dayFormatter.format(start) === dayFormatter.format(end)) {
-    return `${label} – ${timeFormatter.format(end)}`
+  if (formatDayKey(start) === formatDayKey(end)) {
+    return `${label} – ${formatGermanTime(end)}`
   }
 
-  return `${label} – ${fullFormatter.format(end)}`
+  return `${label} – ${formatGermanDateTime(end)}`
 }
 
 export function formatEventDayParts(event: CampusLifeEvent): {
@@ -94,17 +120,10 @@ export function formatEventDayParts(event: CampusLifeEvent): {
 
   const start = new Date(startMs)
   return {
-    day: new Intl.DateTimeFormat(LOCALE, {
-      timeZone: EVENT_TIMEZONE,
-      day: '2-digit',
-    }).format(start),
-    month: new Intl.DateTimeFormat(LOCALE, {
-      timeZone: EVENT_TIMEZONE,
-      month: 'short',
-    })
-      .format(start)
-      .replace(/\.$/, '')
-      .toUpperCase(),
+    day:
+      dateFormatter.formatToParts(start).find(part => part.type === 'day')
+        ?.value ?? '',
+    month: monthFormatter.format(start).replace(/\.$/, '').toUpperCase(),
   }
 }
 
