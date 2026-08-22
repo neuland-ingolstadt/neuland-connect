@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as DatenschutzRouteImport } from './routes/datenschutz'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as ImpressumRouteImport } from './routes/impressum'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ApiAuthCallbackRouteImport } from './routes/api/auth/callback'
 import { Route as ApiAuthLoginRouteImport } from './routes/api/auth/login'
@@ -35,9 +37,19 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DatenschutzRoute = DatenschutzRouteImport.update({
+  id: '/datenschutz',
+  path: '/datenschutz',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImpressumRoute = ImpressumRouteImport.update({
+  id: '/impressum',
+  path: '/impressum',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -112,7 +124,9 @@ const ApiInternalGithubTeamsSyncRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/datenschutz': typeof DatenschutzRoute
   '/faq': typeof FaqRoute
+  '/impressum': typeof ImpressumRoute
   '/login': typeof LoginRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
@@ -129,7 +143,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/datenschutz': typeof DatenschutzRoute
   '/faq': typeof FaqRoute
+  '/impressum': typeof ImpressumRoute
   '/login': typeof LoginRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
@@ -147,7 +163,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/datenschutz': typeof DatenschutzRoute
   '/faq': typeof FaqRoute
+  '/impressum': typeof ImpressumRoute
   '/login': typeof LoginRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
@@ -166,7 +184,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/datenschutz'
     | '/faq'
+    | '/impressum'
     | '/login'
     | '/api/auth/callback'
     | '/api/auth/login'
@@ -183,7 +203,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/datenschutz'
     | '/faq'
+    | '/impressum'
     | '/login'
     | '/api/auth/callback'
     | '/api/auth/login'
@@ -200,7 +222,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/datenschutz'
     | '/faq'
+    | '/impressum'
     | '/login'
     | '/api/auth/callback'
     | '/api/auth/login'
@@ -218,7 +242,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  DatenschutzRoute: typeof DatenschutzRoute
   FaqRoute: typeof FaqRoute
+  ImpressumRoute: typeof ImpressumRoute
   LoginRoute: typeof LoginRoute
   ApiAuthCallbackRoute: typeof ApiAuthCallbackRoute
   ApiAuthLoginRoute: typeof ApiAuthLoginRoute
@@ -249,11 +275,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/datenschutz': {
+      id: '/datenschutz'
+      path: '/datenschutz'
+      fullPath: '/datenschutz'
+      preLoaderRoute: typeof DatenschutzRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/faq': {
       id: '/faq'
       path: '/faq'
       fullPath: '/faq'
       preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/impressum': {
+      id: '/impressum'
+      path: '/impressum'
+      fullPath: '/impressum'
+      preLoaderRoute: typeof ImpressumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -346,7 +386,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  DatenschutzRoute: DatenschutzRoute,
   FaqRoute: FaqRoute,
+  ImpressumRoute: ImpressumRoute,
   LoginRoute: LoginRoute,
   ApiAuthCallbackRoute: ApiAuthCallbackRoute,
   ApiAuthLoginRoute: ApiAuthLoginRoute,

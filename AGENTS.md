@@ -177,7 +177,7 @@ GET  /orgs/{org}/invitations            # optional: reconcile pending invites
 - **Panels:** `TerminalPanel` with `// title` header style
 - **GitHub icon:** monochrome (`text-terminal-text`), never green/cyan
 - **Theme:** `neuland-theme` localStorage key (shared with neuland website)
-- **Legal links:** external to `neuland-ingolstadt.de` (Impressum, Datenschutz)
+- **Legal links:** Impressum and Datenschutz on Connect (`/impressum`, `/datenschutz`); Vereinswebsite for general info
 
 ## Commands
 

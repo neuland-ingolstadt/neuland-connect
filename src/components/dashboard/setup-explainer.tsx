@@ -1,8 +1,10 @@
+import { Link } from '@tanstack/react-router'
 import { Shield } from 'lucide-react'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { NeulandPalm } from '#/components/brand/neuland-palm'
 import { DiscordIcon } from '#/components/icons/discord-icon'
 import { Button } from '#/components/ui/button'
+import { ROUTES } from '#/lib/constants'
 import { cn } from '#/lib/utils'
 
 type SetupExplainerProps = {
@@ -76,8 +78,9 @@ export function SetupExplainer({
         id: 'datenschutz',
         kicker: 'über',
         title: 'Datenschutz',
-        body: 'Wir haben keinen Zugriff auf deine verknüpften Accounts oder Passwörter. Mehr Details findest du in unserem FAQ.',
+        body: 'Wir haben keinen Zugriff auf deine verknüpften Accounts oder Passwörter.',
         icon: 'privacy',
+        href: ROUTES.DATENSCHUTZ,
       },
     ]
 
@@ -249,14 +252,23 @@ export function SetupExplainer({
                   {slide.body}
                 </p>
                 {slide.href ? (
-                  <a
-                    href={slide.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 inline-block font-mono text-xs text-terminal-cyan transition-colors hover:text-terminal-highlight"
-                  >
-                    Datenschutzerklärung →
-                  </a>
+                  slide.href.startsWith('/') ? (
+                    <Link
+                      to={slide.href}
+                      className="mt-3 inline-block font-mono text-xs text-terminal-cyan transition-colors hover:text-terminal-highlight"
+                    >
+                      Datenschutzerklärung →
+                    </Link>
+                  ) : (
+                    <a
+                      href={slide.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-block font-mono text-xs text-terminal-cyan transition-colors hover:text-terminal-highlight"
+                    >
+                      Datenschutzerklärung →
+                    </a>
+                  )
                 ) : null}
               </div>
             </div>

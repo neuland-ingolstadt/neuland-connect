@@ -2,8 +2,10 @@ export const APP_NAME = 'Neuland Connect' as const
 
 export const EXTERNAL_LINKS = {
   WEBSITE: 'https://neuland-ingolstadt.de',
-  IMPRESSUM: 'https://neuland-ingolstadt.de/legal/impressum',
-  DATENSCHUTZ: 'https://neuland-ingolstadt.de/legal/datenschutz',
+  /** Main website legal pages — Connect uses ROUTES.IMPRESSUM / ROUTES.DATENSCHUTZ */
+  WEBSITE_IMPRESSUM: 'https://neuland-ingolstadt.de/legal/impressum',
+  /** Main website policy - Connect uses ROUTES.DATENSCHUTZ instead */
+  WEBSITE_DATENSCHUTZ: 'https://neuland-ingolstadt.de/legal/datenschutz',
   REPOSITORY: 'https://github.com/neuland-ingolstadt/neuland-connect',
   EGGL_DEV: 'https://eggl.dev',
   NEULAND_NEXT_GET: 'https://neuland.app/get',
@@ -17,6 +19,8 @@ export const ROUTES = {
   LOGIN: '/login',
   DASHBOARD: '/dashboard',
   FAQ: '/faq',
+  IMPRESSUM: '/impressum',
+  DATENSCHUTZ: '/datenschutz',
   AUTH_LOGIN: '/api/auth/login',
   AUTH_CALLBACK: '/api/auth/callback',
   AUTH_LOGOUT: '/api/auth/logout',

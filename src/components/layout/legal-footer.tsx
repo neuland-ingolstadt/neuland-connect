@@ -1,5 +1,6 @@
+import { Link } from '@tanstack/react-router'
 import { BUILD_COMMIT } from '#/lib/build-info'
-import { EXTERNAL_LINKS } from '#/lib/constants'
+import { EXTERNAL_LINKS, ROUTES } from '#/lib/constants'
 import { cn } from '#/lib/utils'
 
 type LegalFooterProps = {
@@ -16,25 +17,21 @@ export function LegalFooter({ className, onShowIntro }: LegalFooterProps) {
       )}
     >
       <nav className="flex flex-wrap items-center justify-center gap-4">
-        <a
-          href={EXTERNAL_LINKS.IMPRESSUM}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          to={ROUTES.IMPRESSUM}
           className="transition-colors hover:text-terminal-cyan"
         >
           Impressum
-        </a>
+        </Link>
         <span aria-hidden="true" className="text-terminal-window-border">
           |
         </span>
-        <a
-          href={EXTERNAL_LINKS.DATENSCHUTZ}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          to={ROUTES.DATENSCHUTZ}
           className="transition-colors hover:text-terminal-cyan"
         >
           Datenschutz
-        </a>
+        </Link>
         <span aria-hidden="true" className="text-terminal-window-border">
           |
         </span>

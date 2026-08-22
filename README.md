@@ -293,4 +293,4 @@ Licensing metadata is managed with [REUSE](https://reuse.software/) via [`REUSE.
 
 ---
 
-**Neuland Ingolstadt** · [Website](https://neuland-ingolstadt.de) · [Impressum](https://neuland-ingolstadt.de/legal/impressum) · [Datenschutz](https://neuland-ingolstadt.de/legal/datenschutz)
+**Neuland Ingolstadt** · [Website](https://neuland-ingolstadt.de) · [Impressum](https://connect.neuland.ing/impressum) · [Datenschutz](https://connect.neuland.ing/datenschutz)
