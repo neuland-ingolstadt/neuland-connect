@@ -18,6 +18,7 @@ export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
   DASHBOARD: '/dashboard',
+  RESSOURCEN: '/ressourcen',
   FAQ: '/faq',
   IMPRESSUM: '/impressum',
   DATENSCHUTZ: '/datenschutz',

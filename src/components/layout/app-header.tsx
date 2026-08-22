@@ -74,6 +74,7 @@ export function AppHeader({
                 Dashboard
               </HeaderNavLink>
             ) : null}
+            <HeaderNavLink to={ROUTES.RESSOURCEN}>Ressourcen</HeaderNavLink>
             <HeaderNavLink to={ROUTES.FAQ}>FAQ</HeaderNavLink>
           </nav>
         </div>
@@ -127,6 +128,7 @@ export function AppHeader({
                     Dashboard
                   </MobileNavLink>
                 ) : null}
+                <MobileNavLink to={ROUTES.RESSOURCEN}>Ressourcen</MobileNavLink>
                 <MobileNavLink to={ROUTES.FAQ}>FAQ</MobileNavLink>
               </nav>
 
@@ -152,7 +154,7 @@ function HeaderNavLink({
   search,
   activeOptions,
 }: {
-  to: typeof ROUTES.DASHBOARD | typeof ROUTES.FAQ
+  to: typeof ROUTES.DASHBOARD | typeof ROUTES.RESSOURCEN | typeof ROUTES.FAQ
   children: string
   search?: typeof dashboardSearch
   activeOptions?: { exact: boolean }
@@ -181,7 +183,7 @@ function MobileNavLink({
   search,
   activeOptions,
 }: {
-  to: typeof ROUTES.DASHBOARD | typeof ROUTES.FAQ
+  to: typeof ROUTES.DASHBOARD | typeof ROUTES.RESSOURCEN | typeof ROUTES.FAQ
   children: string
   search?: typeof dashboardSearch
   activeOptions?: { exact: boolean }

@@ -283,7 +283,7 @@ Import alias: `#/` → `src/` (see `package.json` `imports`).
 3. Do not commit `.env`, `.env.local`, or secrets.
 4. User-facing copy stays **German**; code comments and docs can be English.
 
-Dependency updates are automated via Renovate (`renovate.json`) with grouped PRs for production, dev, Docker, Actions, Biome, and Bun.
+Dependency updates are automated via Renovate using the org [`:web`](https://github.com/neuland-ingolstadt/renovate-config) preset, with a local TanStack group and lockfile maintenance.
 
 ## Licensing
 

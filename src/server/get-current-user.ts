@@ -12,7 +12,10 @@ export type CurrentUser = {
   email: string
   name: string
   username: string
+  /** Profile-visible Authentik groups (integration-mapped groups may be hidden). */
   groups: string[]
+  /** Full Authentik group membership — use for access checks. */
+  allGroups: string[]
   accountCreatedAt: string | null
   attributes: ReturnType<typeof parseUserAttributes>
   githubConnected: boolean
@@ -179,6 +182,7 @@ async function fetchCurrentUserFromAuthentik(): Promise<CurrentUser | null> {
       name: authentikUser.name.trim() || user.name,
       username: authentikUser.username,
       groups: profileGroups,
+      allGroups: groups,
       accountCreatedAt: authentikUser.date_joined ?? null,
       attributes,
       githubConnected,
