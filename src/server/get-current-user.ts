@@ -159,9 +159,7 @@ async function fetchCurrentUserFromAuthentik(): Promise<CurrentUser | null> {
     }
     discordRoles = [
       ...new Set(
-        groups.flatMap(group =>
-          maps.discordRoles.has(group) ? [group] : [],
-        ),
+        groups.flatMap(group => (maps.discordRoles.has(group) ? [group] : [])),
       ),
     ].sort((a, b) => a.localeCompare(b, 'de'))
 

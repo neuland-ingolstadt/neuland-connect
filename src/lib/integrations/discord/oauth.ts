@@ -195,10 +195,7 @@ export async function handleDiscordCallback(
       discordUser.id,
       accessToken,
     ).catch(syncError => {
-      console.error(
-        '[discord] Post-connect guild join/sync failed:',
-        syncError,
-      )
+      console.error('[discord] Post-connect guild join/sync failed:', syncError)
     })
 
     await session.update({

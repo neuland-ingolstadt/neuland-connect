@@ -23,8 +23,8 @@ const FAQ_ITEMS: FaqItem[] = [
           GitHub und Discord verknüpfst du auf der Connect-Seite. Darüber
           erhältst du Zugang zur Organisation, zu Teams, zum Discord-Server und
           zu den zugehörigen Rollen. Die Anmeldung ist auf Vereinsmitglieder
-          beschränkt. Änderungen an Name, E-Mail-Adresse oder Benutzername
-          nimmt der Vorstand vor, nicht diese Anwendung.
+          beschränkt. Änderungen an Name, E-Mail-Adresse oder Benutzername nimmt
+          der Vorstand vor, nicht diese Anwendung.
         </p>
       </>
     ),
@@ -79,8 +79,8 @@ const FAQ_ITEMS: FaqItem[] = [
     answer: (
       <>
         <p>
-          Connect führt keine eigene Nutzerdatenbank. Dein Profil (Name,
-          E-Mail, Benutzername, Gruppen) liegt in Authentik und wird im Portal
+          Connect führt keine eigene Nutzerdatenbank. Dein Profil (Name, E-Mail,
+          Benutzername, Gruppen) liegt in Authentik und wird im Portal
           angezeigt. Die Vereinstermine kommen aus dem Campus-Life-Kalender und
           werden nicht dauerhaft in Connect gespeichert. In Authentik wird
           zusätzlich festgehalten, welche Konten verknüpft sind:
