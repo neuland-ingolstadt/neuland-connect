@@ -1,7 +1,12 @@
 import { Laptop, MoonStar, SunMedium } from 'lucide-react'
+import { useEffect } from 'react'
 import { Button } from '#/components/ui/button'
 
 export function ThemeToggle() {
+  useEffect(() => {
+    document.dispatchEvent(new Event('neuland:theme-hydrate'))
+  }, [])
+
   return (
     <Button
       type="button"

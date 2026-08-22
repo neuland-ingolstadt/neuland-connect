@@ -42,15 +42,12 @@ export function ConnectStatusPanel({ user }: ConnectStatusPanelProps) {
     isComplete: user.nextSession.signedIn,
   }
 
-  const { doneCount, totalCount, allComplete } = getConnectSetupProgress(user)
+  const { allComplete } = getConnectSetupProgress(user)
 
   return (
-    <TerminalPanel
-      title="Connect"
-      subtitle={`${doneCount}/${totalCount} eingerichtet`}
-    >
+    <TerminalPanel title="Connect">
       <div className="space-y-4 p-4 sm:p-5">
-        <ul className="divide-y divide-terminal-window-border/50 border-t border-terminal-window-border/50">
+        <ul className="divide-y divide-terminal-window-border/50">
           <StatusRow
             icon={<GitHubIcon className="size-3.5" />}
             label="GitHub"

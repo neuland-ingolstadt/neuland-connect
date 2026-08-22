@@ -2,6 +2,7 @@ import { createFileRoute, defer, redirect } from '@tanstack/react-router'
 import { ConnectSetupBanner } from '#/components/dashboard/connect-setup-banner'
 import { ConnectStatusPanel } from '#/components/dashboard/connect-status-panel'
 import { DashboardProfilePanel } from '#/components/dashboard/dashboard-profile-panel'
+import { DashboardQuickLinks } from '#/components/dashboard/dashboard-quick-links'
 import { EventsPanel } from '#/components/dashboard/events-panel'
 import { hasNoLinkedAccounts } from '#/components/dashboard/setup-explainer'
 import { DeferredValue } from '#/components/deferred-value'
@@ -48,6 +49,18 @@ function ProfilePanelsSkeleton() {
           <Skeleton className="h-5 w-2/3" />
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-8 w-full" />
+        </div>
+      </TerminalPanel>
+      <TerminalPanel title="Schnellzugriff">
+        <div className="space-y-0 border-t border-terminal-window-border/50 p-0">
+          <div className="flex items-center gap-3 px-4 py-3 sm:px-5">
+            <Skeleton className="size-8 shrink-0" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+          <div className="flex items-center gap-3 px-4 py-3 sm:px-5">
+            <Skeleton className="size-8 shrink-0" />
+            <Skeleton className="h-4 w-16" />
+          </div>
         </div>
       </TerminalPanel>
       <TerminalPanel title="Connect">
@@ -178,6 +191,7 @@ function DashboardRoute() {
                     username={resolvedUser.username}
                     groups={resolvedUser.groups}
                   />
+                  <DashboardQuickLinks groups={resolvedUser.allGroups} />
                   <ConnectStatusPanel user={resolvedUser} />
                 </>
               )}
@@ -226,6 +240,7 @@ function DashboardPage({
               username={user.username}
               groups={user.groups}
             />
+            <DashboardQuickLinks groups={user.allGroups} />
             <ConnectStatusPanel user={user} />
           </div>
         </div>
