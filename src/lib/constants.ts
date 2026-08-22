@@ -74,6 +74,14 @@ export const DISCORD_OAUTH_SCOPE = 'identify guilds.join' as const
 
 export const SESSION_COOKIE_NAME = 'neuland-connect-session' as const
 
+export const LOGIN_SEARCH_DEFAULTS = {
+  error: undefined,
+  start: undefined,
+} as const
+
+/** Query flag so /login shows the loading box and starts Authentik */
+export const LOGIN_START_SEARCH = '1' as const
+
 /** Query flag set by the OIDC callback so first-run UX can run */
 export const DASHBOARD_INTRO_SEARCH = 'neu' as const
 
@@ -83,6 +91,15 @@ export const CONNECT_SEARCH_DEFAULTS = {
   message: undefined,
   intro: undefined,
 } as const
+
+export function isLoginStartFlag(value: unknown): boolean {
+  return (
+    value === LOGIN_START_SEARCH ||
+    value === true ||
+    value === 1 ||
+    value === '1'
+  )
+}
 
 export function isDashboardIntroFlag(value: unknown): boolean {
   return (

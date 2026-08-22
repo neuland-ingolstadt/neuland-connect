@@ -44,6 +44,8 @@ function ProfilePanelsSkeleton() {
         <div className="space-y-3 p-4 sm:p-5">
           <Skeleton className="h-4 w-20" />
           <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-5 w-2/3" />
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-8 w-full" />
         </div>
@@ -173,6 +175,7 @@ function DashboardRoute() {
                 <>
                   <DashboardProfilePanel
                     name={resolvedUser.name}
+                    username={resolvedUser.username}
                     groups={resolvedUser.groups}
                   />
                   <ConnectStatusPanel user={resolvedUser} />
@@ -218,7 +221,11 @@ function DashboardPage({
             <EventsPanel events={events.events} error={events.error} />
           </div>
           <div className="space-y-5">
-            <DashboardProfilePanel name={user.name} groups={user.groups} />
+            <DashboardProfilePanel
+              name={user.name}
+              username={user.username}
+              groups={user.groups}
+            />
             <ConnectStatusPanel user={user} />
           </div>
         </div>

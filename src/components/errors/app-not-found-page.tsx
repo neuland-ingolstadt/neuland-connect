@@ -6,7 +6,7 @@ import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageShell } from '#/components/layout/page-shell'
 import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
-import { ROUTES } from '#/lib/constants'
+import { LOGIN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
 
 export function AppNotFoundPage() {
   const pathname = useRouterState({
@@ -58,7 +58,7 @@ export function AppNotFoundPage() {
                 variant="outline"
                 asChild
               >
-                <Link to={ROUTES.LOGIN} search={{ error: undefined }}>
+                <Link to={ROUTES.LOGIN} search={LOGIN_SEARCH_DEFAULTS}>
                   Zur Anmeldung
                 </Link>
               </Button>

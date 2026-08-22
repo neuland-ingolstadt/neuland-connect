@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { ROUTES } from '#/lib/constants'
+import { LOGIN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
 import { hasActiveSessionFn } from '#/server/get-current-user'
 
 export const Route = createFileRoute('/')({
@@ -18,6 +18,6 @@ export const Route = createFileRoute('/')({
       })
     }
 
-    throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
+    throw redirect({ to: ROUTES.LOGIN, search: LOGIN_SEARCH_DEFAULTS })
   },
 })

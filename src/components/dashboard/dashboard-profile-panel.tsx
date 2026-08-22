@@ -5,11 +5,13 @@ import { partitionProfileGroups } from '#/lib/profile-groups'
 
 type DashboardProfilePanelProps = {
   name: string
+  username: string
   groups: string[]
 }
 
 export function DashboardProfilePanel({
   name,
+  username,
   groups,
 }: DashboardProfilePanelProps) {
   const { honorGroups, ressortGroups } = useMemo(
@@ -26,6 +28,14 @@ export function DashboardProfilePanel({
           </p>
           <p className="mt-0.5 break-words font-mono text-sm text-terminal-text">
             {name || '—'}
+          </p>
+        </div>
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
+            Benutzername
+          </p>
+          <p className="mt-0.5 break-all font-mono text-sm text-terminal-text">
+            {username || '—'}
           </p>
         </div>
         <ProfileGroupSection title="Spezialrollen" groups={honorGroups} />

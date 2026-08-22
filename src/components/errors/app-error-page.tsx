@@ -11,7 +11,7 @@ import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageShell } from '#/components/layout/page-shell'
 import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
-import { ROUTES } from '#/lib/constants'
+import { LOGIN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
 import { parseAppError } from '#/lib/errors'
 import { cn } from '#/lib/utils'
 
@@ -68,7 +68,7 @@ export function AppErrorPage({ error, reset }: ErrorComponentProps) {
                   variant="outline"
                   asChild
                 >
-                  <Link to={ROUTES.LOGIN} search={{ error: undefined }}>
+                  <Link to={ROUTES.LOGIN} search={LOGIN_SEARCH_DEFAULTS}>
                     <LogIn />
                     Zur Anmeldung
                   </Link>

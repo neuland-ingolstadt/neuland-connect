@@ -6,7 +6,7 @@ import { PageShell } from '#/components/layout/page-shell'
 import { ResourceHubContent } from '#/components/resources/resource-hub-content'
 import { Skeleton } from '#/components/ui/skeleton'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
-import { APP_NAME, ROUTES } from '#/lib/constants'
+import { APP_NAME, LOGIN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
 import { LOADER_STALE_MS } from '#/lib/deferred-loader'
 import { buildResourceHub } from '#/lib/resources/hub'
 import { getCurrentUserFn } from '#/server/get-current-user'
@@ -20,7 +20,7 @@ export const Route = createFileRoute('/ressourcen')({
   loader: () => {
     const groupsPromise = getCurrentUserFn().then(user => {
       if (!user) {
-        throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
+        throw redirect({ to: ROUTES.LOGIN, search: LOGIN_SEARCH_DEFAULTS })
       }
 
       return buildResourceHub(user.allGroups)

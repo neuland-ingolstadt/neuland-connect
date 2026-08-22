@@ -10,7 +10,11 @@ import {
 } from '#/lib/authentik/client'
 import type { AuthentikUserResponse } from '#/lib/authentik/types'
 import { serverConfig } from '#/lib/config'
-import { DASHBOARD_INTRO_SEARCH, ROUTES } from '#/lib/constants'
+import {
+  DASHBOARD_INTRO_SEARCH,
+  LOGIN_START_SEARCH,
+  ROUTES,
+} from '#/lib/constants'
 import { useAppSession } from '#/lib/session.server'
 
 let cachedDiscovery: OidcDiscoveryDocument | null = null
@@ -41,7 +45,7 @@ function redirectResponse(location: string): Response {
   })
 }
 
-export async function initiateOidcLogin(): Promise<Response> {
+export async function prepareOidcLogin(): Promise<string> {
   const discovery = await getOidcDiscovery()
   const state = generateRandomString()
   const codeVerifier = generateRandomString(48)
@@ -65,9 +69,11 @@ export async function initiateOidcLogin(): Promise<Response> {
     code_challenge_method: 'S256',
   })
 
-  return redirectResponse(
-    `${discovery.authorization_endpoint}?${params.toString()}`,
-  )
+  return `${discovery.authorization_endpoint}?${params.toString()}`
+}
+
+export async function initiateOidcLogin(): Promise<Response> {
+  return redirectResponse(await prepareOidcLogin())
 }
 
 export async function handleOidcCallback(request: Request): Promise<Response> {
@@ -86,12 +92,14 @@ export async function handleOidcCallback(request: Request): Promise<Response> {
   const expectedState = session.data.oidcState
   const codeVerifier = session.data.oidcCodeVerifier
 
-  if (!code || !state || !expectedState || state !== expectedState) {
-    return redirectResponse(`${ROUTES.LOGIN}?error=invalid_state`)
+  // Authentik "Log back into …" uses the app launch URL. Send the user to
+  // /login so the loading box can run before the next Authentik redirect.
+  if (!expectedState || !codeVerifier) {
+    return redirectResponse(`${ROUTES.LOGIN}?start=${LOGIN_START_SEARCH}`)
   }
 
-  if (!codeVerifier) {
-    return redirectResponse(`${ROUTES.LOGIN}?error=missing_verifier`)
+  if (!code || !state || state !== expectedState) {
+    return redirectResponse(`${ROUTES.LOGIN}?error=invalid_state`)
   }
 
   // Single-use: consume state/verifier before token exchange so parallel

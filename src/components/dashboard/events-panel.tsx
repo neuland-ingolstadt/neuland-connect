@@ -172,7 +172,7 @@ function EventRow({
           </p>
 
           {event.description ? (
-            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-terminal-text/70">
+            <p className="mt-2 line-clamp-1 text-sm leading-relaxed text-terminal-text/70">
               {event.description}
             </p>
           ) : null}

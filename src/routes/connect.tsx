@@ -19,6 +19,7 @@ import {
   APP_NAME,
   CONNECT_SEARCH_DEFAULTS,
   isDashboardIntroFlag,
+  LOGIN_SEARCH_DEFAULTS,
   ROUTES,
 } from '#/lib/constants'
 import { LOADER_STALE_MS } from '#/lib/deferred-loader'
@@ -133,7 +134,7 @@ function ConnectPage({ user: loaderUser }: { user: CurrentUser }) {
     const next = await refreshCurrentUserFn()
 
     if (!next) {
-      await navigate({ to: ROUTES.LOGIN, search: { error: undefined } })
+      await navigate({ to: ROUTES.LOGIN, search: LOGIN_SEARCH_DEFAULTS })
       return null
     }
 

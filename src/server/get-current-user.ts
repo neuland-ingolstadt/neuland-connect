@@ -5,7 +5,7 @@ import {
   isGitHubConnected,
   parseUserAttributes,
 } from '#/lib/authentik/types'
-import { ROUTES } from '#/lib/constants'
+import { LOGIN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
 import type { NeulandNextMemberSession } from '#/lib/integrations/neuland-next/session'
 import { isSpecialProfileGroup } from '#/lib/profile-groups'
 
@@ -232,7 +232,7 @@ export async function requireSignedInUser(): Promise<CurrentUser> {
   const user = await getCurrentUserFn()
 
   if (!user) {
-    throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
+    throw redirect({ to: ROUTES.LOGIN, search: LOGIN_SEARCH_DEFAULTS })
   }
 
   return user
