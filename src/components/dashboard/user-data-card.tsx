@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 import { ProfileGroupSection } from '#/components/dashboard/profile-group-badges'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import { partitionProfileGroups } from '#/lib/profile-groups'
-import { formatDate } from '#/lib/utils'
 
 const VISIBLE_GROUP_LIMIT = 4
 
@@ -11,7 +10,6 @@ type UserDataCardProps = {
   email: string
   username: string
   groups: string[]
-  accountCreatedAt: string | null
 }
 
 export function UserDataCard({
@@ -19,7 +17,6 @@ export function UserDataCard({
   email,
   username,
   groups,
-  accountCreatedAt,
 }: UserDataCardProps) {
   const [groupsExpanded, setGroupsExpanded] = useState(false)
   const { honorGroups, ressortGroups, otherGroups } = useMemo(
@@ -42,12 +39,6 @@ export function UserDataCard({
           <DetailItem label="Name" value={name} />
           <DetailItem label="E-Mail" value={email} />
           <DetailItem label="Benutzername" value={username} />
-          {accountCreatedAt ? (
-            <DetailItem
-              label="Konto erstellt"
-              value={formatDate(accountCreatedAt)}
-            />
-          ) : null}
         </dl>
 
         {hasProfileGroups ? (

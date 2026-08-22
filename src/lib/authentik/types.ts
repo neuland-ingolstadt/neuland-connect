@@ -30,7 +30,6 @@ export type AuthentikUserResponse = {
   username: string
   name: string
   email: string
-  date_joined?: string
   attributes: Record<string, unknown>
 }
 

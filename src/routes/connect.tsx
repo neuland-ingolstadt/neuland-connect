@@ -379,7 +379,6 @@ function ConnectPage({ user: loaderUser }: { user: CurrentUser }) {
                 email={user.email}
                 username={user.username}
                 groups={user.groups}
-                accountCreatedAt={user.accountCreatedAt}
               />
             </div>
           </div>
