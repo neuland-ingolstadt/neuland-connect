@@ -48,7 +48,7 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
             </div>
             <div>
               <p className="font-mono text-sm font-semibold text-terminal-lightGreen">
-                Digitaler Neuland Mitgliedsausweis
+                Digitaler Mitgliedsausweis
               </p>
               <p className="mt-0.5 text-xs leading-snug text-terminal-text/50">
                 {signedIn
