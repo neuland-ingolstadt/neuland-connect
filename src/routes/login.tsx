@@ -50,8 +50,8 @@ function LoginPage() {
                 {APP_NAME}
               </h1>
               <p className="mt-2 text-sm leading-relaxed text-terminal-text/65">
-                Melde dich mit deinem Neuland-Konto an, um deine Konten zu
-                verknüpfen.
+                Melde dich mit deinem Neuland-Konto an, um zum
+                Mitgliederportal zu gelangen.
               </p>
             </div>
 

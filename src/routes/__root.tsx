@@ -36,7 +36,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       {
         name: 'description',
         content:
-          'Neuland Connect – die Plattform zum Verknüpfen deiner Konten für Neuland Ingolstadt.',
+          'Neuland Connect – das Mitgliederportal von Neuland Ingolstadt.',
       },
     ],
     links: [

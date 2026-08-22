@@ -14,16 +14,31 @@ const FAQ_ITEMS: FaqItem[] = [
       <>
         <p>
           Connect ist das Mitgliederportal von Neuland Ingolstadt. Nach der
-          Anmeldung mit deinem Neuland-Konto (Authentik) kannst du GitHub und
-          Discord verknüpfen und erhältst darüber Zugang zur Organisation, zu
-          Teams, zum Discord-Server und zu den zugehörigen Rollen.
+          Anmeldung mit deinem Neuland-Konto (Authentik) siehst du auf dem
+          Dashboard Vereinstermine, dein Profil und den Status deiner
+          Verknüpfungen. Unter Ressourcen findest du Freigaben zu internen
+          Diensten, abhängig von deinen Gruppen.
         </p>
         <p>
-          Die Anmeldung ist auf Vereinsmitglieder beschränkt. Änderungen an
-          Name, E-Mail-Adresse oder Benutzername nimmt der Vorstand vor, nicht
-          diese Anwendung.
+          GitHub und Discord verknüpfst du auf der Connect-Seite. Darüber
+          erhältst du Zugang zur Organisation, zu Teams, zum Discord-Server und
+          zu den zugehörigen Rollen. Die Anmeldung ist auf Vereinsmitglieder
+          beschränkt. Änderungen an Name, E-Mail-Adresse oder Benutzername
+          nimmt der Vorstand vor, nicht diese Anwendung.
         </p>
       </>
+    ),
+  },
+  {
+    id: 'events',
+    question: 'Wo sehe ich die Vereinstermine?',
+    answer: (
+      <p>
+        Auf dem Dashboard listet Connect die Termine von Neuland Ingolstadt aus
+        dem Campus-Life-Kalender. Du kannst zwischen bevorstehenden und
+        vergangenen Terminen (bis zwei Monate zurück) wechseln. Ein Klick öffnet
+        die Details. Die Kontoverknüpfung bleibt auf der Connect-Seite.
+      </p>
     ),
   },
   {
@@ -64,9 +79,11 @@ const FAQ_ITEMS: FaqItem[] = [
     answer: (
       <>
         <p>
-          Connect führt keine eigene Nutzerdatenbank. Dein Profil liegt in
-          Authentik. Dort wird zusätzlich festgehalten, welche Konten verknüpft
-          sind:
+          Connect führt keine eigene Nutzerdatenbank. Dein Profil (Name,
+          E-Mail, Benutzername, Gruppen) liegt in Authentik und wird im Portal
+          angezeigt. Die Vereinstermine kommen aus dem Campus-Life-Kalender und
+          werden nicht dauerhaft in Connect gespeichert. In Authentik wird
+          zusätzlich festgehalten, welche Konten verknüpft sind:
         </p>
         <ul className="list-disc space-y-1 pl-5">
           <li>

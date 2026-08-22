@@ -26,9 +26,10 @@ export function DatenschutzContent() {
           <span className="font-mono text-terminal-text/90">
             connect.neuland.ing
           </span>
-          . Der Dienst ist nur für Vereinsmitglieder zugänglich und dient der
-          Verknüpfung von Konten (GitHub, Discord) sowie dem Onboarding in
-          Vereinsdienste.
+          . Der Dienst ist nur für Vereinsmitglieder zugänglich. Er bietet ein
+          Dashboard mit Vereinsterminen und Profilangaben, einen Ressourcen-Hub
+          sowie die optionale Verknüpfung von Konten (GitHub, Discord) und das
+          Onboarding in Vereinsdienste.
         </p>
         <p className="mt-2">
           Connect setzt{' '}
@@ -36,8 +37,8 @@ export function DatenschutzContent() {
             keine Analytics
           </strong>{' '}
           ein und erhebt keine Nutzungsstatistiken. Es werden nur die für
-          Betrieb, Anmeldung und Kontoverknüpfung erforderlichen Daten
-          verarbeitet.
+          Betrieb, Anmeldung, Mitgliederinformation (Kalender, Profil) und
+          optionale Kontoverknüpfung erforderlichen Daten verarbeitet.
         </p>
       </section>
 
@@ -50,7 +51,9 @@ export function DatenschutzContent() {
           <strong className="font-medium text-terminal-text">Authentik</strong>{' '}
           (OpenID Connect). Connect speichert keine eigenen Nutzerkonten -
           Profildaten (Name, E-Mail, Benutzername) stammen aus Authentik und
-          werden bei Bedarf von dort gelesen.
+          werden bei Bedarf von dort gelesen. Dazu gehören auch
+          Gruppenzugehörigkeiten, soweit sie im Portal angezeigt oder für
+          Freigaben (z. B. Ressourcen-Hub) benötigt werden.
         </p>
         <p className="mt-2">
           Nach erfolgreicher Anmeldung wird eine verschlüsselte{' '}
@@ -114,6 +117,38 @@ export function DatenschutzContent() {
 
       <section>
         <h2 className="font-mono text-base font-semibold text-terminal-lightGreen">
+          Vereinskalender
+        </h2>
+        <p className="mt-2">
+          Das Dashboard lädt Termine von{' '}
+          <strong className="font-medium text-terminal-text">
+            Campus Life Events
+          </strong>{' '}
+          (vereinsintern unter{' '}
+          <span className="font-mono text-terminal-text/90">
+            cl.neuland-ingolstadt.de
+          </span>
+          ) über eine serverseitige Programmierschnittstelle. Angezeigt werden
+          Titel, Beschreibung, Ort, Zeitraum und optionale Links der
+          Neuland-Termine.
+        </p>
+        <p className="mt-2">
+          Dabei wird ein API-Token des Vereins verwendet. Deine
+          Mitgliederidentität wird für diesen Abruf{' '}
+          <strong className="font-medium text-terminal-text">
+            nicht an Campus Life übermittelt
+          </strong>
+          . Connect speichert die Kalenderdaten nicht dauerhaft.
+        </p>
+        <p className="mt-2">
+          Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Information der
+          Mitglieder über Vereinsangebote) sowie Art. 6 Abs. 1 lit. f DSGVO
+          (berechtigtes Interesse an einem aktuellen Terminkalender im Portal).
+        </p>
+      </section>
+
+      <section>
+        <h2 className="font-mono text-base font-semibold text-terminal-lightGreen">
           Web-Server-Logs
         </h2>
         <p className="mt-2">
@@ -142,8 +177,8 @@ export function DatenschutzContent() {
           Drittanbieter
         </h2>
         <p className="mt-2">
-          Für Anmeldung und Integrationen werden folgende Dienste genutzt. Es
-          gelten zusätzlich deren Datenschutzbestimmungen:
+          Für Anmeldung, Kalender und Integrationen werden folgende Dienste
+          genutzt. Es gelten zusätzlich deren Datenschutzbestimmungen:
         </p>
         <ul className="mt-2 list-inside list-disc space-y-1 pl-1">
           <li>
@@ -151,6 +186,12 @@ export function DatenschutzContent() {
               Authentik
             </strong>{' '}
             - Identitäts- und Zugriffsverwaltung (Vereins-intern gehostet)
+          </li>
+          <li>
+            <strong className="font-medium text-terminal-text">
+              Campus Life Events
+            </strong>{' '}
+            - Vereinskalender (vereinsintern gehostet)
           </li>
           <li>
             <a
