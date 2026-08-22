@@ -72,7 +72,7 @@ function ResourceHubCard({
 
       <p
         className={cn(
-          'min-w-0 flex-1 font-mono text-sm font-semibold text-terminal-lightGreen transition-colors',
+          'min-w-0 flex-1 font-mono text-sm font-semibold text-terminal-text transition-colors',
           'group-hover/card:text-terminal-cyan',
         )}
       >
