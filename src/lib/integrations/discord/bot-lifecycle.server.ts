@@ -14,15 +14,11 @@ function isGatewayEnabled(): boolean {
     return false
   }
 
-  return Boolean(serverConfig.discord.botToken)
+  return true
 }
 
 export async function startDiscordBot(): Promise<void> {
   if (started) {
-    return
-  }
-
-  if (!serverConfig.discord.botToken) {
     return
   }
 
@@ -32,16 +28,10 @@ export async function startDiscordBot(): Promise<void> {
     startDiscordGateway(serverConfig.discord.botToken)
   }
 
-  if (serverConfig.discord.isRoleSyncConfigured) {
-    try {
-      await logGuildRolesForAuthentikSetup()
-    } catch (error) {
-      console.error('[discord-bot] Failed to list guild roles:', error)
-    }
-  }
-
-  if (!serverConfig.discord.isInteractionsConfigured) {
-    return
+  try {
+    await logGuildRolesForAuthentikSetup()
+  } catch (error) {
+    console.error('[discord-bot] Failed to list guild roles:', error)
   }
 
   try {

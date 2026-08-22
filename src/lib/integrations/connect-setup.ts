@@ -19,22 +19,16 @@ export function getConnectSetupProgress(
     githubOrgStatus: user.attributes.githubOrgStatus,
     teamSyncEnabled: user.teamSyncEnabled,
   })
-  const discord = user.discordOAuthEnabled
-    ? buildDiscordIntegrationProgress({
-        connected: user.discordConnected,
-        discordGuildStatus: user.attributes.discordGuildStatus,
-        roleSyncEnabled: user.roleSyncEnabled,
-      })
-    : null
+  const discord = buildDiscordIntegrationProgress({
+    connected: user.discordConnected,
+    discordGuildStatus: user.attributes.discordGuildStatus,
+  })
 
   const githubComplete = github.isComplete
-  const discordComplete = discord ? discord.isComplete : true
+  const discordComplete = discord.isComplete
   const nextComplete = user.nextSession.signedIn
 
-  const setupItems = [githubComplete, nextComplete]
-  if (discord) {
-    setupItems.push(discordComplete)
-  }
+  const setupItems = [githubComplete, discordComplete, nextComplete]
 
   const doneCount = setupItems.filter(Boolean).length
   const totalCount = setupItems.length

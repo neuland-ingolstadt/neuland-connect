@@ -27,14 +27,12 @@ const VISIBLE_ROLE_LIMIT = 4
 type DiscordConnectionCardProps = {
   connected: boolean
   attributes: UserAttributes
-  roleSyncEnabled: boolean
   discordRoles: string[]
 }
 
 export function DiscordConnectionCard({
   connected,
   attributes,
-  roleSyncEnabled,
   discordRoles,
 }: DiscordConnectionCardProps) {
   const router = useRouter()
@@ -54,11 +52,10 @@ export function DiscordConnectionCard({
       ? discordRoles
       : discordRoles.slice(0, VISIBLE_ROLE_LIMIT)
   const hiddenRoleCount = discordRoles.length - visibleRoles.length
-  const canSyncRoles = connected && roleSyncEnabled && inGuild
+  const canSyncRoles = connected && inGuild
   const integrationProgress = buildDiscordIntegrationProgress({
     connected,
     discordGuildStatus: attributes.discordGuildStatus,
-    roleSyncEnabled,
   })
 
   async function handleDisconnect() {
@@ -235,7 +232,7 @@ export function DiscordConnectionCard({
                   </Button>
                 ) : null}
               </div>
-            ) : inGuild && roleSyncEnabled ? (
+            ) : inGuild ? (
               <p className="text-xs leading-relaxed text-terminal-text/50">
                 Keine Vereinsgruppen mit Discord-Rollen-Mapping gefunden. In
                 Authentik braucht die Gruppe das Attribut{' '}

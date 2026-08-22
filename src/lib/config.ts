@@ -97,41 +97,24 @@ export const serverConfig = {
   },
   discord: {
     get clientId() {
-      return optionalEnv('DISCORD_CLIENT_ID')
+      return requireEnv('DISCORD_CLIENT_ID')
     },
     get clientSecret() {
-      return optionalEnv('DISCORD_CLIENT_SECRET')
+      return requireEnv('DISCORD_CLIENT_SECRET')
     },
     get redirectUri() {
       return `${serverConfig.appUrl}/api/integrations/discord/callback`
     },
     get botToken() {
-      return optionalEnv('DISCORD_BOT_TOKEN')
+      return requireEnv('DISCORD_BOT_TOKEN')
     },
     get guildId() {
-      return optionalEnv('DISCORD_GUILD_ID')
+      return requireEnv('DISCORD_GUILD_ID')
     },
     get publicKey() {
-      const value = optionalEnv('DISCORD_PUBLIC_KEY')
-      return value ? value.trim().replace(/^['"]|['"]$/g, '') : undefined
-    },
-    get isOAuthConfigured() {
-      return Boolean(
-        serverConfig.discord.clientId && serverConfig.discord.clientSecret,
-      )
-    },
-    get isRoleSyncConfigured() {
-      return Boolean(
-        serverConfig.discord.botToken && serverConfig.discord.guildId,
-      )
-    },
-    get isInteractionsConfigured() {
-      return Boolean(
-        serverConfig.discord.botToken &&
-          serverConfig.discord.publicKey &&
-          serverConfig.discord.clientId &&
-          serverConfig.discord.guildId,
-      )
+      return requireEnv('DISCORD_PUBLIC_KEY')
+        .trim()
+        .replace(/^['"]|['"]$/g, '')
     },
   },
   get cronSecret() {

@@ -352,7 +352,6 @@ function ConnectPage({ user: loaderUser }: { user: CurrentUser }) {
               githubConnected={user.githubConnected}
               githubOrgStatus={user.attributes.githubOrgStatus}
               githubOrg={user.githubOrg}
-              discordOAuthEnabled={user.discordOAuthEnabled}
               discordConnected={user.discordConnected}
               discordGuildStatus={user.attributes.discordGuildStatus}
               nextSignedIn={user.nextSession.signedIn}
@@ -367,14 +366,11 @@ function ConnectPage({ user: loaderUser }: { user: CurrentUser }) {
                   teamSyncEnabled={user.teamSyncEnabled}
                   githubTeams={user.githubTeams}
                 />
-                {user.discordOAuthEnabled ? (
-                  <DiscordConnectionCard
-                    connected={user.discordConnected}
-                    attributes={user.attributes}
-                    roleSyncEnabled={user.roleSyncEnabled}
-                    discordRoles={user.discordRoles}
-                  />
-                ) : null}
+                <DiscordConnectionCard
+                  connected={user.discordConnected}
+                  attributes={user.attributes}
+                  discordRoles={user.discordRoles}
+                />
                 <MembershipCard nextSession={user.nextSession} />
               </div>
 

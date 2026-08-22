@@ -38,19 +38,6 @@ export const Route = createFileRoute('/api/internal/discord-roles/sync')({
           return unauthorizedResponse()
         }
 
-        if (!serverConfig.discord.isRoleSyncConfigured) {
-          return new Response(
-            JSON.stringify({
-              error:
-                'Discord role sync is not configured (need DISCORD_BOT_TOKEN + DISCORD_GUILD_ID)',
-            }),
-            {
-              status: 503,
-              headers: { 'Content-Type': 'application/json' },
-            },
-          )
-        }
-
         void reconcileDiscordRoles()
           .then(result => {
             console.log('[discord-roles] Background reconcile completed:', {

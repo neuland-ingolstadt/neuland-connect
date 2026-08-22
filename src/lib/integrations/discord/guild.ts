@@ -105,9 +105,6 @@ async function discordApiFetch(
   init?: RequestInit,
 ): Promise<Response> {
   const botToken = serverConfig.discord.botToken
-  if (!botToken) {
-    throw new Error('DISCORD_BOT_TOKEN is not configured')
-  }
 
   for (let attempt = 0; attempt <= MAX_RATE_LIMIT_RETRIES; attempt += 1) {
     const response = await fetch(`${DISCORD_API_BASE}${path}`, {
@@ -161,9 +158,6 @@ async function discordBotFetch<T>(
 
 export async function listGuildRoles(): Promise<DiscordGuildRole[]> {
   const guildId = serverConfig.discord.guildId
-  if (!guildId) {
-    throw new Error('DISCORD_GUILD_ID is not configured')
-  }
 
   const roles = await discordBotFetch<DiscordGuildRole[]>(
     `/guilds/${guildId}/roles`,
@@ -176,9 +170,6 @@ export async function getGuildMember(
   discordUserId: string,
 ): Promise<DiscordGuildMember | null> {
   const guildId = serverConfig.discord.guildId
-  if (!guildId) {
-    throw new Error('DISCORD_GUILD_ID is not configured')
-  }
 
   const response = await discordApiFetch(
     `/guilds/${guildId}/members/${discordUserId}`,
@@ -212,9 +203,6 @@ export async function addGuildMember(
   userAccessToken: string,
 ): Promise<GuildJoinResult> {
   const guildId = serverConfig.discord.guildId
-  if (!guildId) {
-    throw new Error('DISCORD_GUILD_ID is not configured')
-  }
 
   const response = await discordApiFetch(
     `/guilds/${guildId}/members/${discordUserId}`,
@@ -245,9 +233,6 @@ export async function addGuildMemberRole(
   roleId: string,
 ): Promise<void> {
   const guildId = serverConfig.discord.guildId
-  if (!guildId) {
-    throw new Error('DISCORD_GUILD_ID is not configured')
-  }
 
   await discordBotFetch(
     `/guilds/${guildId}/members/${discordUserId}/roles/${roleId}`,
@@ -260,9 +245,6 @@ export async function removeGuildMemberRole(
   roleId: string,
 ): Promise<void> {
   const guildId = serverConfig.discord.guildId
-  if (!guildId) {
-    throw new Error('DISCORD_GUILD_ID is not configured')
-  }
 
   await discordBotFetch(
     `/guilds/${guildId}/members/${discordUserId}/roles/${roleId}`,
@@ -312,9 +294,6 @@ async function setGuildMemberRoles(
   roleIds: string[],
 ): Promise<void> {
   const guildId = serverConfig.discord.guildId
-  if (!guildId) {
-    throw new Error('DISCORD_GUILD_ID is not configured')
-  }
 
   await discordBotFetch(`/guilds/${guildId}/members/${discordUserId}`, {
     method: 'PATCH',

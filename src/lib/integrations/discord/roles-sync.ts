@@ -7,7 +7,6 @@ import {
 } from '#/lib/authentik/client'
 import { parseUserAttributes } from '#/lib/authentik/types'
 import { mapWithConcurrency } from '#/lib/concurrency'
-import { serverConfig } from '#/lib/config'
 import { AUTHENTIK_ATTRIBUTES, DISCORD_GUILD_STATUSES } from '#/lib/constants'
 import {
   addGuildMember,
@@ -202,10 +201,6 @@ export async function ensureDiscordGuildMembership(
   discordUserId: string,
   userAccessToken: string,
 ): Promise<'member' | 'not_in_guild'> {
-  if (!serverConfig.discord.isRoleSyncConfigured) {
-    return 'not_in_guild'
-  }
-
   try {
     const existing = await getGuildMember(discordUserId)
     if (existing) {
@@ -256,17 +251,6 @@ export async function syncUserDiscordRoles(
   },
 ): Promise<SyncUserDiscordRolesResult> {
   const userId = String(authentikUserId)
-
-  if (!serverConfig.discord.isRoleSyncConfigured) {
-    return {
-      authentikUserId: userId,
-      discordUserId,
-      status: 'skipped',
-      desired: [],
-      added: [],
-      removed: [],
-    }
-  }
 
   try {
     const member = await getGuildMember(discordUserId)
@@ -378,18 +362,6 @@ export async function syncUserDiscordRoles(
 }
 
 export async function reconcileDiscordRoles(): Promise<ReconcileDiscordRolesResult> {
-  if (!serverConfig.discord.isRoleSyncConfigured) {
-    return {
-      configured: false,
-      candidates: 0,
-      members: 0,
-      synced: 0,
-      skipped: 0,
-      errors: 0,
-      results: [],
-    }
-  }
-
   const [managedMap, users] = await Promise.all([
     getManagedDiscordRoleMap(),
     listAllAuthentikUsers(),

@@ -10,7 +10,6 @@ export type IntegrationProgressStep = {
 type BuildDiscordIntegrationProgressInput = {
   connected: boolean
   discordGuildStatus: DiscordGuildStatus | null
-  roleSyncEnabled: boolean
 }
 
 export function buildDiscordIntegrationProgress(
@@ -33,15 +32,12 @@ export function buildDiscordIntegrationProgress(
       label: 'Server',
       complete: inGuild,
     },
-  ]
-
-  if (input.roleSyncEnabled) {
-    steps.push({
+    {
       id: 'roles',
       label: 'Rollen',
       complete: inGuild,
-    })
-  }
+    },
+  ]
 
   let hint: string
 
@@ -49,10 +45,8 @@ export function buildDiscordIntegrationProgress(
     hint = 'Discord-Konto verbinden.'
   } else if (!inGuild) {
     hint = 'Discord erneut verbinden, um dem Server beizutreten.'
-  } else if (input.roleSyncEnabled) {
-    hint = 'Im Server – Rollen werden synchronisiert.'
   } else {
-    hint = 'Im Server.'
+    hint = 'Im Server – Rollen werden synchronisiert.'
   }
 
   return {

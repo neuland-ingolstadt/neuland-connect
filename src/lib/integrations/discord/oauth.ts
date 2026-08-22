@@ -20,26 +20,10 @@ function redirectResponse(location: string): Response {
 }
 
 async function startDiscordOAuth(): Promise<Response> {
-  if (!serverConfig.discord.isOAuthConfigured) {
-    return redirectResponse(
-      connectStatusPath({
-        integration: 'discord',
-        status: 'error',
-        message: 'not_configured',
-      }),
-    )
-  }
-
   const session = await useAppSession()
 
   if (!session.data.user) {
     return redirectResponse('/login')
-  }
-
-  const clientId = serverConfig.discord.clientId
-  const clientSecret = serverConfig.discord.clientSecret
-  if (!clientId || !clientSecret) {
-    throw new Error('Discord OAuth is not configured')
   }
 
   const state = generateRandomString()
@@ -49,7 +33,7 @@ async function startDiscordOAuth(): Promise<Response> {
   })
 
   const params = new URLSearchParams({
-    client_id: clientId,
+    client_id: serverConfig.discord.clientId,
     redirect_uri: serverConfig.discord.redirectUri,
     response_type: 'code',
     scope: DISCORD_OAUTH_SCOPE,
@@ -64,15 +48,9 @@ export async function initiateDiscordConnect(): Promise<Response> {
 }
 
 async function exchangeDiscordCode(code: string): Promise<string> {
-  const clientId = serverConfig.discord.clientId
-  const clientSecret = serverConfig.discord.clientSecret
-  if (!clientId || !clientSecret) {
-    throw new Error('Discord OAuth is not configured')
-  }
-
   const body = new URLSearchParams({
-    client_id: clientId,
-    client_secret: clientSecret,
+    client_id: serverConfig.discord.clientId,
+    client_secret: serverConfig.discord.clientSecret,
     grant_type: 'authorization_code',
     code,
     redirect_uri: serverConfig.discord.redirectUri,
@@ -189,8 +167,7 @@ export async function handleDiscordCallback(
 
     if (
       previousAttributes.discordId &&
-      previousAttributes.discordId !== discordUser.id &&
-      serverConfig.discord.isRoleSyncConfigured
+      previousAttributes.discordId !== discordUser.id
     ) {
       await clearGuildMemberRoles(previousAttributes.discordId)
     }
@@ -213,18 +190,16 @@ export async function handleDiscordCallback(
     )
     invalidateCurrentUserCache(authentikUserId)
 
-    if (serverConfig.discord.isRoleSyncConfigured) {
-      void postConnectDiscordSync(
-        authentikUserId,
-        discordUser.id,
-        accessToken,
-      ).catch(syncError => {
-        console.error(
-          '[discord] Post-connect guild join/sync failed:',
-          syncError,
-        )
-      })
-    }
+    void postConnectDiscordSync(
+      authentikUserId,
+      discordUser.id,
+      accessToken,
+    ).catch(syncError => {
+      console.error(
+        '[discord] Post-connect guild join/sync failed:',
+        syncError,
+      )
+    })
 
     await session.update({
       ...session.data,

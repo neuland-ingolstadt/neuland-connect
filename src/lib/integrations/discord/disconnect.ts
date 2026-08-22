@@ -7,7 +7,6 @@ export async function disconnectDiscordConnection(): Promise<void> {
   const { resolveSessionAuthentikUserId } = await import(
     '#/lib/authentik/session-user'
   )
-  const { serverConfig } = await import('#/lib/config')
   const { clearGuildMemberRoles } = await import(
     '#/lib/integrations/discord/guild'
   )
@@ -21,7 +20,7 @@ export async function disconnectDiscordConnection(): Promise<void> {
   const authentikUser = await getAuthentikUser(authentikUserId)
   const attributes = parseUserAttributes(authentikUser.attributes)
 
-  if (attributes.discordId && serverConfig.discord.isRoleSyncConfigured) {
+  if (attributes.discordId) {
     await clearGuildMemberRoles(attributes.discordId)
   }
 

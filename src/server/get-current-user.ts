@@ -26,8 +26,6 @@ export type CurrentUser = {
   /** GitHub team slugs mapped from Authentik groups the user belongs to */
   githubTeams: string[]
   discordConnected: boolean
-  discordOAuthEnabled: boolean
-  roleSyncEnabled: boolean
   /** Authentik group names that map to Discord roles */
   discordRoles: string[]
   /** Active Neuland Next Mitgliedsausweis OIDC session (refresh token). */
@@ -109,7 +107,6 @@ async function fetchCurrentUserFromAuthentik(): Promise<CurrentUser | null> {
     }
 
     const teamSyncEnabled = serverConfig.github.isTeamSyncConfigured
-    const roleSyncEnabled = serverConfig.discord.isRoleSyncConfigured
     const emptyMaps = {
       githubTeams: new Map<string, string>(),
       discordRoles: new Map<string, string>(),
@@ -123,9 +120,7 @@ async function fetchCurrentUserFromAuthentik(): Promise<CurrentUser | null> {
     const [authentikUser, groups, maps, nextSession] = await Promise.all([
       getAuthentikUser(authentikUserId),
       getAuthentikUserGroups(authentikUserId).catch(() => [] as string[]),
-      teamSyncEnabled || roleSyncEnabled
-        ? getManagedIntegrationMaps().catch(() => emptyMaps)
-        : Promise.resolve(emptyMaps),
+      getManagedIntegrationMaps().catch(() => emptyMaps),
       getNeulandNextMemberSession(authentikUserId).catch(
         () => inactiveNextSession,
       ),
@@ -156,22 +151,20 @@ async function fetchCurrentUserFromAuthentik(): Promise<CurrentUser | null> {
       ].sort((a, b) => a.localeCompare(b))
     }
 
-    if (roleSyncEnabled) {
-      if (discordConnected) {
-        for (const groupName of maps.discordRoles.keys()) {
-          if (!isSpecialProfileGroup(groupName)) {
-            hiddenGroups.add(groupName)
-          }
+    if (discordConnected) {
+      for (const groupName of maps.discordRoles.keys()) {
+        if (!isSpecialProfileGroup(groupName)) {
+          hiddenGroups.add(groupName)
         }
       }
-      discordRoles = [
-        ...new Set(
-          groups.flatMap(group =>
-            maps.discordRoles.has(group) ? [group] : [],
-          ),
-        ),
-      ].sort((a, b) => a.localeCompare(b, 'de'))
     }
+    discordRoles = [
+      ...new Set(
+        groups.flatMap(group =>
+          maps.discordRoles.has(group) ? [group] : [],
+        ),
+      ),
+    ].sort((a, b) => a.localeCompare(b, 'de'))
 
     const profileGroups =
       hiddenGroups.size > 0
@@ -192,8 +185,6 @@ async function fetchCurrentUserFromAuthentik(): Promise<CurrentUser | null> {
       teamSyncEnabled,
       githubTeams,
       discordConnected,
-      discordOAuthEnabled: serverConfig.discord.isOAuthConfigured,
-      roleSyncEnabled,
       discordRoles,
       nextSession,
     }

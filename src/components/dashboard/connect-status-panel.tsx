@@ -24,13 +24,10 @@ export function ConnectStatusPanel({ user }: ConnectStatusPanelProps) {
     githubOrgStatus: user.attributes.githubOrgStatus,
     teamSyncEnabled: user.teamSyncEnabled,
   })
-  const discord = user.discordOAuthEnabled
-    ? buildDiscordIntegrationProgress({
-        connected: user.discordConnected,
-        discordGuildStatus: user.attributes.discordGuildStatus,
-        roleSyncEnabled: user.roleSyncEnabled,
-      })
-    : null
+  const discord = buildDiscordIntegrationProgress({
+    connected: user.discordConnected,
+    discordGuildStatus: user.attributes.discordGuildStatus,
+  })
   const next = {
     steps: [
       {
@@ -66,20 +63,18 @@ export function ConnectStatusPanel({ user }: ConnectStatusPanelProps) {
               />
             }
           />
-          {discord ? (
-            <StatusRow
-              icon={<DiscordIcon className="size-4" />}
-              label="Discord"
-              hint={discord.hint}
-              complete={discord.isComplete}
-              progress={
-                <IntegrationProgressInline
-                  steps={discord.steps}
-                  isComplete={discord.isComplete}
-                />
-              }
-            />
-          ) : null}
+          <StatusRow
+            icon={<DiscordIcon className="size-4" />}
+            label="Discord"
+            hint={discord.hint}
+            complete={discord.isComplete}
+            progress={
+              <IntegrationProgressInline
+                steps={discord.steps}
+                isComplete={discord.isComplete}
+              />
+            }
+          />
           <StatusRow
             icon={<NeulandPalm className="size-4 text-terminal-text" />}
             label="Neuland Next"

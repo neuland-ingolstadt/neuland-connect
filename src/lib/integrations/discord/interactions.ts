@@ -91,10 +91,6 @@ export function handleDiscordInteraction(
   return new Response('Bad Request', { status: 400 })
 }
 
-function notConfiguredResponse(): Response {
-  return jsonResponse({ error: 'Not configured' }, 503)
-}
-
 function unauthorizedResponse(): Response {
   return new Response('Unauthorized', { status: 401 })
 }
@@ -102,20 +98,12 @@ function unauthorizedResponse(): Response {
 export async function handleDiscordInteractionsRequest(
   request: Request,
 ): Promise<Response> {
-  if (!serverConfig.discord.isInteractionsConfigured) {
-    console.warn(
-      '[discord-interactions] Rejected request: interactions not configured',
-    )
-    return notConfiguredResponse()
-  }
-
   const signature = request.headers.get('X-Signature-Ed25519')
   const timestamp = request.headers.get('X-Signature-Timestamp')
   const rawBody = await request.text()
   const publicKey = serverConfig.discord.publicKey
 
   if (
-    !publicKey ||
     !verifyDiscordInteractionRequest(rawBody, signature, timestamp, publicKey)
   ) {
     console.warn('[discord-interactions] Rejected request: invalid signature')

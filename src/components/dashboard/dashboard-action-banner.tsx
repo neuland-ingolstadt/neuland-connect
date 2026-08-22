@@ -22,7 +22,6 @@ type DashboardActionBannerProps = {
   githubConnected: boolean
   githubOrgStatus: GitHubOrgStatus | null
   githubOrg: string | null
-  discordOAuthEnabled: boolean
   discordConnected: boolean
   discordGuildStatus: DiscordGuildStatus | null
   nextSignedIn: boolean
@@ -42,7 +41,6 @@ function buildSetupTasks({
   githubConnected,
   githubOrgStatus,
   githubOrg,
-  discordOAuthEnabled,
   discordConnected,
   discordGuildStatus,
   nextSignedIn,
@@ -66,17 +64,15 @@ function buildSetupTasks({
     },
   ]
 
-  if (discordOAuthEnabled) {
-    const inGuild = discordConnected && isDiscordInGuild(discordGuildStatus)
-    tasks.push({
-      id: 'discord',
-      label: 'Discord',
-      icon: <DiscordIcon className="size-4" />,
-      complete: inGuild,
-      actionLabel: discordConnected ? 'Beitreten' : 'Verbinden',
-      href: ROUTES.DISCORD_CONNECT,
-    })
-  }
+  const inGuild = discordConnected && isDiscordInGuild(discordGuildStatus)
+  tasks.push({
+    id: 'discord',
+    label: 'Discord',
+    icon: <DiscordIcon className="size-4" />,
+    complete: inGuild,
+    actionLabel: discordConnected ? 'Beitreten' : 'Verbinden',
+    href: ROUTES.DISCORD_CONNECT,
+  })
 
   tasks.push({
     id: 'next',

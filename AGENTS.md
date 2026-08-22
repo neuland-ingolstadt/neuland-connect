@@ -83,7 +83,7 @@ Parse via `parseUserAttributes()` in `src/lib/authentik/types.ts`.
 - **Action banner** (`DashboardActionBanner`) – one strip with GitHub / Discord / Next as direct CTAs; hidden when all complete
 - **Per-integration progress** – dot indicator + fraction in panel title row (`IntegrationProgressInline`); hint in card subtitle when incomplete
 - GitHub steps: Verbunden → Eingeladen → Org-Zugang
-- Discord steps: Verbunden → Server → Rollen (Rollen step only when role sync enabled)
+- Discord steps: Verbunden → Server → Rollen
 - Mitgliedsausweis: signed-in badge when Authentik has a Next refresh token (`provider` for app slug `next`); setup steps otherwise
 
 ## GitHub integration (current)

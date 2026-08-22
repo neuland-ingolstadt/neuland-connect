@@ -16,15 +16,11 @@ type SetupExplainerProps = {
 
 export type LinkedAccountState = {
   githubConnected: boolean
-  discordOAuthEnabled: boolean
   discordConnected: boolean
 }
 
 export function hasNoLinkedAccounts(user: LinkedAccountState): boolean {
-  return (
-    !user.githubConnected &&
-    (!user.discordOAuthEnabled || !user.discordConnected)
-  )
+  return !user.githubConnected && !user.discordConnected
 }
 
 /** Auto-play after login only. Replay is always available from the footer. */

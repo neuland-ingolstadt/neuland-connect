@@ -12,15 +12,10 @@ async function discordBotFetch(
   path: string,
   init?: RequestInit,
 ): Promise<Response> {
-  const token = serverConfig.discord.botToken
-  if (!token) {
-    throw new Error('DISCORD_BOT_TOKEN is not configured')
-  }
-
   return fetch(`${DISCORD_API_BASE}${path}`, {
     ...init,
     headers: {
-      Authorization: `Bot ${token}`,
+      Authorization: `Bot ${serverConfig.discord.botToken}`,
       'Content-Type': 'application/json',
       ...init?.headers,
     },
@@ -28,17 +23,8 @@ async function discordBotFetch(
 }
 
 export async function registerDiscordSlashCommands(): Promise<void> {
-  const applicationId = serverConfig.discord.clientId
-  const guildId = serverConfig.discord.guildId
-
-  if (!applicationId || !guildId) {
-    throw new Error(
-      'Discord slash commands need DISCORD_CLIENT_ID and DISCORD_GUILD_ID',
-    )
-  }
-
   const response = await discordBotFetch(
-    `/applications/${applicationId}/guilds/${guildId}/commands`,
+    `/applications/${serverConfig.discord.clientId}/guilds/${serverConfig.discord.guildId}/commands`,
     {
       method: 'PUT',
       body: JSON.stringify([CONNECT_COMMAND]),

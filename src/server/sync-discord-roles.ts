@@ -12,7 +12,6 @@ export type SyncDiscordRolesFnResult = {
 export const syncDiscordRolesFn = createServerFn({ method: 'POST' }).handler(
   async (): Promise<SyncDiscordRolesFnResult> => {
     const { requireSessionUser } = await import('#/lib/session.server')
-    const { serverConfig } = await import('#/lib/config')
     const { getAuthentikUser } = await import('#/lib/authentik/client')
     const { resolveSessionAuthentikUserId } = await import(
       '#/lib/authentik/session-user'
@@ -24,10 +23,6 @@ export const syncDiscordRolesFn = createServerFn({ method: 'POST' }).handler(
     const sessionData = await requireSessionUser()
     if (!sessionData) {
       throw new Error('Nicht angemeldet.')
-    }
-
-    if (!serverConfig.discord.isRoleSyncConfigured) {
-      throw new Error('Discord-Rollen-Sync ist nicht konfiguriert.')
     }
 
     const { user, session } = sessionData
