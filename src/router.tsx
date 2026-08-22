@@ -1,4 +1,5 @@
 import { createRouter as createTanStackRouter } from '@tanstack/react-router'
+import { LOADER_STALE_MS } from '#/lib/deferred-loader'
 import { routeTree } from './routeTree.gen'
 
 export function getRouter() {
@@ -9,7 +10,7 @@ export function getRouter() {
     },
     scrollRestoration: true,
     defaultPreload: 'intent',
-    defaultPreloadStaleTime: 0,
+    defaultPreloadStaleTime: LOADER_STALE_MS,
   })
 
   return router

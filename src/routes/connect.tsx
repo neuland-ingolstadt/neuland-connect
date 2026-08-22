@@ -1,9 +1,4 @@
-import {
-  Await,
-  createFileRoute,
-  defer,
-  useNavigate,
-} from '@tanstack/react-router'
+import { createFileRoute, defer, redirect, useNavigate } from '@tanstack/react-router'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { DashboardActionBanner } from '#/components/dashboard/dashboard-action-banner'
@@ -17,7 +12,7 @@ import {
 } from '#/components/dashboard/setup-explainer'
 import { UserDataCard } from '#/components/dashboard/user-data-card'
 import { AppHeader } from '#/components/layout/app-header'
-import { ConnectBootScreen } from '#/components/layout/connect-boot-screen'
+import { ConnectLoadingShell } from '#/components/layout/connect-loading-shell'
 import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageShell } from '#/components/layout/page-shell'
 import {
@@ -26,65 +21,24 @@ import {
   isDashboardIntroFlag,
   ROUTES,
 } from '#/lib/constants'
+import { LOADER_STALE_MS } from '#/lib/deferred-loader'
+import { DeferredValue } from '#/components/deferred-value'
 import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-display'
 import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
 import {
   type CurrentUser,
   currentUserEquals,
+  hasActiveSessionFn,
   refreshCurrentUserFn,
   requireSignedInUser,
 } from '#/server/get-current-user'
-
-/**
- * First SSR document: Authentik still runs on the server. Router pending UI
- * is client-only, so we race and defer to stream ConnectBootScreen if slow.
- *
- * Client navigations (FAQ → Connect): never defer. Router SWR shows the
- * cached page immediately and revalidates in the background.
- */
-const BOOT_PENDING_MS = 150
-const BOOT_PENDING_MIN_MS = 350
-
-function waitMs(ms: number) {
-  return new Promise<void>(resolve => {
-    setTimeout(resolve, ms)
-  })
-}
-
-function isDeferredUser(
-  user: CurrentUser | Promise<CurrentUser>,
-): user is Promise<CurrentUser> {
-  return typeof (user as Promise<CurrentUser>).then === 'function'
-}
-
-function resolvedCachedUser(
-  user: CurrentUser | Promise<CurrentUser>,
-): CurrentUser | null {
-  if (!isDeferredUser(user)) {
-    return user
-  }
-
-  const deferredState = (
-    user as Promise<CurrentUser> & {
-      [key: symbol]: { status?: string; data?: CurrentUser }
-    }
-  )[Symbol.for('TSR_DEFERRED_PROMISE')]
-
-  if (deferredState?.status === 'success' && deferredState.data) {
-    return deferredState.data
-  }
-
-  return null
-}
 
 export const Route = createFileRoute('/connect')({
   head: () => ({
     meta: [{ title: `Connect · ${APP_NAME}` }],
   }),
-  staleTime: 0,
+  staleTime: LOADER_STALE_MS,
   gcTime: 5 * 60_000,
-  pendingMs: Number.POSITIVE_INFINITY,
-  pendingComponent: ConnectBootScreen,
   validateSearch: (search: Record<string, unknown>) => ({
     integration:
       typeof search.integration === 'string' ? search.integration : undefined,
@@ -93,33 +47,13 @@ export const Route = createFileRoute('/connect')({
     intro: isDashboardIntroFlag(search.intro) ? true : undefined,
   }),
   loader: async () => {
-    const userPromise = requireSignedInUser()
-
-    if (!import.meta.env.SSR) {
-      return { user: await userPromise }
-    }
-
-    const startedAt = Date.now()
-    const raced = await Promise.race([
-      userPromise.then(user => ({ ready: true as const, user })),
-      waitMs(BOOT_PENDING_MS).then(() => ({ ready: false as const })),
-    ])
-
-    if (raced.ready) {
-      return { user: raced.user }
+    const hasSession = await hasActiveSessionFn()
+    if (!hasSession) {
+      throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
     }
 
     return {
-      user: defer(
-        userPromise.then(async user => {
-          const bootVisibleFor = Date.now() - startedAt - BOOT_PENDING_MS
-          const remaining = BOOT_PENDING_MIN_MS - bootVisibleFor
-          if (remaining > 0) {
-            await waitMs(remaining)
-          }
-          return user
-        }),
-      ),
+      user: defer(requireSignedInUser()),
     }
   },
   component: ConnectRoute,
@@ -127,21 +61,12 @@ export const Route = createFileRoute('/connect')({
 
 function ConnectRoute() {
   const { user } = Route.useLoaderData()
-  const cachedUser = resolvedCachedUser(user)
 
-  if (cachedUser) {
-    return <ConnectPage user={cachedUser} />
-  }
-
-  if (isDeferredUser(user)) {
-    return (
-      <Await promise={user} fallback={<ConnectBootScreen />}>
-        {resolved => <ConnectPage user={resolved} />}
-      </Await>
-    )
-  }
-
-  return <ConnectPage user={user} />
+  return (
+    <DeferredValue value={user} fallback={<ConnectLoadingShell />}>
+      {resolvedUser => <ConnectPage user={resolvedUser} />}
+    </DeferredValue>
+  )
 }
 
 function ConnectPage({ user: loaderUser }: { user: CurrentUser }) {

@@ -1,13 +1,14 @@
-import { Await, createFileRoute, defer, redirect } from '@tanstack/react-router'
+import { createFileRoute, defer, redirect } from '@tanstack/react-router'
 import { ConnectSetupBanner } from '#/components/dashboard/connect-setup-banner'
 import { ConnectStatusPanel } from '#/components/dashboard/connect-status-panel'
 import { DashboardProfilePanel } from '#/components/dashboard/dashboard-profile-panel'
 import { EventsPanel } from '#/components/dashboard/events-panel'
 import { hasNoLinkedAccounts } from '#/components/dashboard/setup-explainer'
 import { AppHeader } from '#/components/layout/app-header'
-import { ConnectBootScreen } from '#/components/layout/connect-boot-screen'
 import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageShell } from '#/components/layout/page-shell'
+import { Skeleton } from '#/components/ui/skeleton'
+import { TerminalPanel } from '#/components/ui/terminal-panel'
 import type { CampusLifeEventsResult } from '#/lib/campus-life/types'
 import {
   APP_NAME,
@@ -16,75 +17,58 @@ import {
   ROUTES,
 } from '#/lib/constants'
 import {
+  LOADER_STALE_MS,
+  resolvedDeferred,
+} from '#/lib/deferred-loader'
+import { DeferredValue } from '#/components/deferred-value'
+import {
   type CurrentUser,
+  hasActiveSessionFn,
   requireSignedInUser,
 } from '#/server/get-current-user'
 import { getNeulandEventsFn } from '#/server/get-events'
 
-/**
- * First SSR document: Authentik still runs on the server. Router pending UI
- * is client-only, so we race and defer to stream ConnectBootScreen if slow.
- *
- * Client navigations never defer. Router SWR shows the cached dashboard
- * immediately and revalidates in the background.
- */
-const BOOT_PENDING_MS = 150
-const BOOT_PENDING_MIN_MS = 350
-
-type DashboardData = {
-  user: CurrentUser
-  events: CampusLifeEventsResult
+function EventsPanelSkeleton() {
+  return (
+    <TerminalPanel title="Events">
+      <div className="space-y-3 p-4 sm:p-5">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-16 w-full" />
+      </div>
+    </TerminalPanel>
+  )
 }
 
-function waitMs(ms: number) {
-  return new Promise<void>(resolve => {
-    setTimeout(resolve, ms)
-  })
-}
-
-function isDeferredData(
-  data: DashboardData | Promise<DashboardData>,
-): data is Promise<DashboardData> {
-  return typeof (data as Promise<DashboardData>).then === 'function'
-}
-
-function resolvedCachedData(
-  data: DashboardData | Promise<DashboardData>,
-): DashboardData | null {
-  if (!isDeferredData(data)) {
-    return data
-  }
-
-  const deferredState = (
-    data as Promise<DashboardData> & {
-      [key: symbol]: { status?: string; data?: DashboardData }
-    }
-  )[Symbol.for('TSR_DEFERRED_PROMISE')]
-
-  if (deferredState?.status === 'success' && deferredState.data) {
-    return deferredState.data
-  }
-
-  return null
-}
-
-async function loadDashboardData(): Promise<DashboardData> {
-  const [user, events] = await Promise.all([
-    requireSignedInUser(),
-    getNeulandEventsFn(),
-  ])
-
-  return { user, events }
+function ProfilePanelsSkeleton() {
+  return (
+    <>
+      <TerminalPanel title="Profil">
+        <div className="space-y-3 p-4 sm:p-5">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-8 w-full" />
+        </div>
+      </TerminalPanel>
+      <TerminalPanel title="Connect">
+        <div className="space-y-3 p-4 sm:p-5">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-4/5" />
+          <Skeleton className="h-4 w-3/5" />
+        </div>
+      </TerminalPanel>
+    </>
+  )
 }
 
 export const Route = createFileRoute('/dashboard')({
   head: () => ({
     meta: [{ title: `Dashboard · ${APP_NAME}` }],
   }),
-  staleTime: 0,
+  staleTime: LOADER_STALE_MS,
   gcTime: 5 * 60_000,
-  pendingMs: Number.POSITIVE_INFINITY,
-  pendingComponent: ConnectBootScreen,
   validateSearch: (search: Record<string, unknown>) => ({
     integration:
       typeof search.integration === 'string' ? search.integration : undefined,
@@ -94,22 +78,25 @@ export const Route = createFileRoute('/dashboard')({
   }),
   loaderDeps: ({ search }) => search,
   loader: async ({ deps: search }) => {
-    const dataPromise = loadDashboardData()
+    if (search.integration) {
+      throw redirect({
+        to: ROUTES.CONNECT,
+        search: {
+          integration: search.integration,
+          status: search.status,
+          message: search.message,
+          intro: search.intro,
+        },
+      })
+    }
 
-    const redirectIfNeeded = async (data: DashboardData) => {
-      if (search.integration) {
-        throw redirect({
-          to: ROUTES.CONNECT,
-          search: {
-            integration: search.integration,
-            status: search.status,
-            message: search.message,
-            intro: search.intro,
-          },
-        })
-      }
+    const hasSession = await hasActiveSessionFn()
+    if (!hasSession) {
+      throw redirect({ to: ROUTES.LOGIN, search: { error: undefined } })
+    }
 
-      if (search.intro && hasNoLinkedAccounts(data.user)) {
+    const userPromise = requireSignedInUser().then(user => {
+      if (search.intro && hasNoLinkedAccounts(user)) {
         throw redirect({
           to: ROUTES.CONNECT,
           search: {
@@ -119,60 +106,97 @@ export const Route = createFileRoute('/dashboard')({
         })
       }
 
-      return data
-    }
-
-    if (!import.meta.env.SSR) {
-      return { data: await redirectIfNeeded(await dataPromise) }
-    }
-
-    const startedAt = Date.now()
-    const raced = await Promise.race([
-      dataPromise.then(data => ({ ready: true as const, data })),
-      waitMs(BOOT_PENDING_MS).then(() => ({ ready: false as const })),
-    ])
-
-    if (raced.ready) {
-      return { data: await redirectIfNeeded(raced.data) }
-    }
+      return user
+    })
 
     return {
-      data: defer(
-        dataPromise.then(async data => {
-          const bootVisibleFor = Date.now() - startedAt - BOOT_PENDING_MS
-          const remaining = BOOT_PENDING_MIN_MS - bootVisibleFor
-          if (remaining > 0) {
-            await waitMs(remaining)
-          }
-          return redirectIfNeeded(data)
-        }),
-      ),
+      user: defer(userPromise),
+      events: defer(getNeulandEventsFn()),
     }
   },
   component: DashboardRoute,
 })
 
 function DashboardRoute() {
-  const { data } = Route.useLoaderData()
-  const cached = resolvedCachedData(data)
+  const { user, events } = Route.useLoaderData()
+  const cachedUser = resolvedDeferred(user)
+  const cachedEvents = resolvedDeferred(events)
 
-  if (cached) {
-    return <DashboardPage data={cached} />
+  if (cachedUser && cachedEvents) {
+    return <DashboardPage user={cachedUser} events={cachedEvents} />
   }
 
-  if (isDeferredData(data)) {
-    return (
-      <Await promise={data} fallback={<ConnectBootScreen />}>
-        {resolved => <DashboardPage data={resolved} />}
-      </Await>
-    )
-  }
+  return (
+    <PageShell>
+      <AppHeader isSignedIn />
 
-  return <DashboardPage data={data} />
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+        <DeferredValue
+          value={user}
+          fallback={
+            <header className="mb-6">
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
+                Dashboard
+              </p>
+              <Skeleton className="mt-2 h-8 w-48 sm:h-9" />
+            </header>
+          }
+        >
+          {resolvedUser => (
+            <>
+              <header className="mb-6">
+                <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
+                  Dashboard
+                </p>
+                <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+                  Hallo {resolvedUser.name.split(' ')[0]}
+                </h1>
+              </header>
+              <ConnectSetupBanner user={resolvedUser} />
+            </>
+          )}
+        </DeferredValue>
+
+        <div className="grid gap-5 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <DeferredValue value={events} fallback={<EventsPanelSkeleton />}>
+              {resolvedEvents => (
+                <EventsPanel
+                  events={resolvedEvents.events}
+                  error={resolvedEvents.error}
+                />
+              )}
+            </DeferredValue>
+          </div>
+          <div className="space-y-5">
+            <DeferredValue value={user} fallback={<ProfilePanelsSkeleton />}>
+              {resolvedUser => (
+                <>
+                  <DashboardProfilePanel
+                    name={resolvedUser.name}
+                    groups={resolvedUser.groups}
+                  />
+                  <ConnectStatusPanel user={resolvedUser} />
+                </>
+              )}
+            </DeferredValue>
+          </div>
+        </div>
+      </main>
+
+      <LegalFooter className="px-4" />
+    </PageShell>
+  )
 }
 
-function DashboardPage({ data }: { data: DashboardData }) {
-  const firstName = data.user.name.split(' ')[0]
+function DashboardPage({
+  user,
+  events,
+}: {
+  user: CurrentUser
+  events: CampusLifeEventsResult
+}) {
+  const firstName = user.name.split(' ')[0]
 
   return (
     <PageShell>
@@ -188,21 +212,15 @@ function DashboardPage({ data }: { data: DashboardData }) {
           </h1>
         </header>
 
-        <ConnectSetupBanner user={data.user} />
+        <ConnectSetupBanner user={user} />
 
         <div className="grid gap-5 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <EventsPanel
-              events={data.events.events}
-              error={data.events.error}
-            />
+            <EventsPanel events={events.events} error={events.error} />
           </div>
           <div className="space-y-5">
-            <DashboardProfilePanel
-              name={data.user.name}
-              groups={data.user.groups}
-            />
-            <ConnectStatusPanel user={data.user} />
+            <DashboardProfilePanel name={user.name} groups={user.groups} />
+            <ConnectStatusPanel user={user} />
           </div>
         </div>
       </main>
