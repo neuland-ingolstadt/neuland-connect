@@ -46,7 +46,7 @@ export function buildDiscordIntegrationProgress(
   } else if (!inGuild) {
     hint = 'Discord erneut verbinden, um dem Server beizutreten.'
   } else {
-    hint = 'Im Server – Rollen werden synchronisiert.'
+    hint = 'Server erfolgreich verbunden.'
   }
 
   return {

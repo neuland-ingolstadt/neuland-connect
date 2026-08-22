@@ -27,7 +27,7 @@ type EventsPanelProps = {
   error: string | null
 }
 
-function FilterButton({
+function FilterSegment({
   active,
   label,
   onClick,
@@ -41,10 +41,10 @@ function FilterButton({
       type="button"
       onClick={onClick}
       className={cn(
-        'cursor-pointer px-2 py-1 font-mono text-[10px] uppercase tracking-[0.16em] transition-colors',
+        'flex-1 cursor-pointer px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] transition-colors',
         active
-          ? 'border border-terminal-cyan/40 bg-terminal-cyan/15 text-terminal-cyan'
-          : 'border border-terminal-window-border bg-terminal-card text-terminal-text/55 hover:border-terminal-cyan/30 hover:text-terminal-text',
+          ? 'bg-terminal-cyan/10 text-terminal-cyan'
+          : 'text-terminal-text/50 hover:text-terminal-text/75',
       )}
     >
       {label}
@@ -81,16 +81,15 @@ export function EventsPanel({ events, error }: EventsPanelProps) {
   return (
     <TerminalPanel
       title="Events"
-      subtitle={`${filteredEvents.length} ${filteredEvents.length === 1 ? 'Termin' : 'Termine'}`}
     >
       <div className="space-y-4 p-4 sm:p-5">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <FilterButton
+        <div className="inline-flex w-full max-w-xs border border-terminal-window-border/70 p-0.5 sm:w-auto">
+          <FilterSegment
             active={timeFilter === 'upcoming'}
             label="Bevorstehend"
             onClick={() => setTimeFilter('upcoming')}
           />
-          <FilterButton
+          <FilterSegment
             active={timeFilter === 'past'}
             label="Vergangen"
             onClick={() => setTimeFilter('past')}
@@ -146,16 +145,16 @@ function EventRow({
         onClick={onSelect}
         className={cn(
           'flex w-full cursor-pointer gap-3 py-3.5 text-left sm:gap-4',
-          'transition-colors hover:bg-terminal-cyan/[0.04] focus-visible:bg-terminal-cyan/[0.04] focus-visible:outline-none',
+          'transition-colors hover:bg-terminal-text/3 focus-visible:bg-terminal-text/3 focus-visible:outline-none',
         )}
       >
-        <div className="flex size-12 shrink-0 flex-col items-center justify-center border border-terminal-window-border bg-terminal-card">
+        <div className="flex w-11 shrink-0 flex-col items-center justify-center border-l-2 border-terminal-cyan/30 pl-2.5">
           {dayParts ? (
             <>
-              <span className="font-mono text-sm font-semibold leading-none text-terminal-lightGreen">
+              <span className="font-mono text-sm font-semibold leading-none text-terminal-text">
                 {dayParts.day}
               </span>
-              <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.16em] text-terminal-text/45">
+              <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.14em] text-terminal-text/40">
                 {dayParts.month}
               </span>
             </>
@@ -165,7 +164,7 @@ function EventRow({
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="font-mono text-sm font-semibold text-terminal-lightGreen">
+          <p className="text-sm font-medium text-terminal-text">
             {event.title}
           </p>
 

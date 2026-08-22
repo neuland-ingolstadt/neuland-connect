@@ -121,7 +121,7 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
               key={task.id}
               className="flex items-center gap-3 px-4 py-3.5 text-terminal-text/45"
             >
-              <span className="flex size-8 shrink-0 items-center justify-center border border-terminal-window-border/60 bg-terminal-card/40">
+              <span className="flex size-8 shrink-0 items-center justify-center border border-terminal-window-border/50 text-terminal-text/45">
                 {task.icon}
               </span>
               <div className="min-w-0">
@@ -140,9 +140,9 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
               href={task.href}
               target={task.external ? '_blank' : undefined}
               rel={task.external ? 'noopener noreferrer' : undefined}
-              className="group flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-terminal-cyan/[0.06]"
+              className="group flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-terminal-text/3"
             >
-              <span className="flex size-8 shrink-0 items-center justify-center border border-terminal-window-border bg-terminal-card text-terminal-text">
+              <span className="flex size-8 shrink-0 items-center justify-center border border-terminal-window-border/70 text-terminal-text">
                 {task.icon}
               </span>
               <div className="min-w-0">

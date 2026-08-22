@@ -127,12 +127,12 @@ function DashboardRoute() {
     <PageShell>
       <AppHeader isSignedIn />
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
         <DeferredValue
           value={user}
           fallback={
             <header className="mb-6">
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
+              <p className="font-mono text-xs uppercase tracking-[0.16em] text-terminal-text/50">
                 Dashboard
               </p>
               <Skeleton className="mt-2 h-8 w-48 sm:h-9" />
@@ -142,10 +142,10 @@ function DashboardRoute() {
           {resolvedUser => (
             <>
               <header className="mb-6">
-                <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
-                  Dashboard
-                </p>
-                <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+              <p className="font-mono text-xs uppercase tracking-[0.16em] text-terminal-text/50">
+                Dashboard
+              </p>
+              <h1 className="mt-1 font-sans text-2xl font-bold tracking-tight sm:text-3xl">
                   Hallo {resolvedUser.name.split(' ')[0]}
                 </h1>
               </header>
@@ -199,12 +199,12 @@ function DashboardPage({
     <PageShell>
       <AppHeader isSignedIn />
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
         <header className="mb-6">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
+          <p className="font-mono text-xs uppercase tracking-[0.16em] text-terminal-text/50">
             Dashboard
           </p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+          <h1 className="mt-1 font-sans text-2xl font-bold tracking-tight sm:text-3xl">
             Hallo {firstName}
           </h1>
         </header>

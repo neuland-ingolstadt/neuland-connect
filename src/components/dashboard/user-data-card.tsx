@@ -33,7 +33,7 @@ export function UserDataCard({
   const hiddenCount = otherGroups.length - visibleOtherGroups.length
 
   return (
-    <TerminalPanel title="Profil" className="overflow-visible">
+    <TerminalPanel title="Profil">
       <div className="space-y-4 p-5">
         <dl className="space-y-4">
           <DetailItem label="Name" value={name} />

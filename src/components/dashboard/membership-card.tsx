@@ -43,7 +43,7 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
       >
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center border border-terminal-window-border bg-terminal-card">
+            <div className="flex size-10 shrink-0 items-center justify-center border border-terminal-window-border/70">
               <NeulandPalm className="size-5 text-terminal-text" />
             </div>
             <div>

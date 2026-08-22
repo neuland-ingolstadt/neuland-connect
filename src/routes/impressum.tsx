@@ -23,7 +23,7 @@ function ImpressumPage() {
     <PageShell>
       <AppHeader isSignedIn={isSignedIn} />
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
         <header className="mb-6">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
             Rechtliches

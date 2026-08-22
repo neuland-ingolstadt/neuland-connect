@@ -176,7 +176,7 @@ GET  /orgs/{org}/invitations            # optional: reconcile pending invites
 
 ## UI conventions
 
-- **Layout width:** `max-w-5xl` for main content and header
+- **Layout width:** `max-w-6xl` for main content and header
 - **Navbar:** `bg-terminal-nav` (distinct from page `terminal-bg`)
 - **Panels:** `TerminalPanel` with `// title` header style
 - **GitHub icon:** monochrome (`text-terminal-text`), never green/cyan

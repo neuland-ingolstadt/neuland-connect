@@ -60,8 +60,8 @@ export function buildGitHubIntegrationProgress(
   } else if (isInOrg) {
     if (input.teamSyncEnabled) {
       hint = isAdmin
-        ? 'Admin in der Organisation – Teams werden synchronisiert.'
-        : 'In der Organisation – Teams werden synchronisiert.'
+        ? 'Admin in der Organisation'
+        : 'Mitglied in der Organisation'
     } else {
       hint = isAdmin ? 'Admin in der Organisation.' : 'In der Organisation.'
     }

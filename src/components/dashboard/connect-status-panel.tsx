@@ -50,9 +50,9 @@ export function ConnectStatusPanel({ user }: ConnectStatusPanelProps) {
       subtitle={`${doneCount}/${totalCount} eingerichtet`}
     >
       <div className="space-y-4 p-4 sm:p-5">
-        <ul className="space-y-2.5">
+        <ul className="divide-y divide-terminal-window-border/50 border-t border-terminal-window-border/50">
           <StatusRow
-            icon={<GitHubIcon className="size-4" />}
+            icon={<GitHubIcon className="size-3.5" />}
             label="GitHub"
             hint={github.hint}
             complete={github.isComplete}
@@ -64,7 +64,7 @@ export function ConnectStatusPanel({ user }: ConnectStatusPanelProps) {
             }
           />
           <StatusRow
-            icon={<DiscordIcon className="size-4" />}
+            icon={<DiscordIcon className="size-3.5" />}
             label="Discord"
             hint={discord.hint}
             complete={discord.isComplete}
@@ -76,7 +76,7 @@ export function ConnectStatusPanel({ user }: ConnectStatusPanelProps) {
             }
           />
           <StatusRow
-            icon={<NeulandPalm className="size-4 text-terminal-text" />}
+            icon={<NeulandPalm className="size-3.5 text-terminal-text" />}
             label="Neuland Next"
             hint={next.hint}
             complete={next.isComplete}
@@ -123,29 +123,27 @@ function StatusRow({
         to={ROUTES.CONNECT}
         search={CONNECT_SEARCH_DEFAULTS}
         className={cn(
-          'flex items-start gap-3 border border-terminal-window-border bg-terminal-card px-3 py-2.5 no-underline transition-colors',
-          'hover:border-terminal-cyan/40 hover:bg-terminal-window focus-visible:border-terminal-cyan/40 focus-visible:outline-none',
+          'flex items-start gap-3 py-3 no-underline transition-colors',
+          'hover:bg-terminal-text/3 focus-visible:bg-terminal-text/3 focus-visible:outline-none',
         )}
       >
         <span
           className={cn(
-            'mt-0.5 flex size-8 shrink-0 items-center justify-center border',
+            'mt-0.5 flex size-7 shrink-0 items-center justify-center',
             complete
-              ? 'border-terminal-cyan/30 bg-terminal-cyan/10 text-terminal-text'
-              : 'border-terminal-window-border bg-terminal-bg text-terminal-text',
+              ? 'border border-terminal-cyan/25 bg-terminal-cyan/8 text-terminal-cyan'
+              : 'border border-terminal-window-border/70 text-terminal-text/70',
           )}
         >
           {complete ? (
-            <Check className="size-3.5 text-terminal-cyan" strokeWidth={2.5} />
+            <Check className="size-3.5" strokeWidth={2.5} />
           ) : (
             icon
           )}
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
-            <p className="font-mono text-xs font-semibold tracking-wide text-terminal-text">
-              {label}
-            </p>
+            <p className="text-xs font-medium text-terminal-text">{label}</p>
             {progress}
           </div>
           <p className="mt-0.5 text-xs leading-snug text-terminal-text/50">

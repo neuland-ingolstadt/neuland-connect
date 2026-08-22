@@ -7,6 +7,18 @@ type TerminalPanelProps = {
   title?: string
   subtitle?: string
   titleAside?: ReactNode
+  showCorners?: boolean
+}
+
+function TerminalCorners() {
+  return (
+    <>
+      <span className="terminal-corner terminal-corner--tl" aria-hidden />
+      <span className="terminal-corner terminal-corner--tr" aria-hidden />
+      <span className="terminal-corner terminal-corner--bl" aria-hidden />
+      <span className="terminal-corner terminal-corner--br" aria-hidden />
+    </>
+  )
 }
 
 export function TerminalPanel({
@@ -15,6 +27,7 @@ export function TerminalPanel({
   title,
   subtitle,
   titleAside,
+  showCorners = true,
 }: TerminalPanelProps) {
   return (
     <div
@@ -23,12 +36,10 @@ export function TerminalPanel({
         className,
       )}
     >
-      <div className="pointer-events-none absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-terminal-cyan/[0.04] via-transparent to-terminal-cyan/[0.06]" />
-      </div>
+      {showCorners ? <TerminalCorners /> : null}
 
       {title ? (
-        <div className="relative z-10 border-b border-terminal-window-border/70 bg-terminal-window-title/80 px-4 py-1.5">
+        <div className="relative z-10 border-b border-terminal-window-border/50 px-4 py-1.5">
           <div className="flex items-center justify-between gap-3">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-terminal-text/65">
               <span className="text-terminal-cyan/75">//</span> {title}
