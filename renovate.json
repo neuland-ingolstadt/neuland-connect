@@ -1,95 +1,15 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    "customManagers:biomeVersions",
-    ":configMigration",
-    ":semanticCommits",
-    ":semanticCommitScope(package)",
-    "helpers:pinGitHubActionDigests",
-    "docker:pinDigests"
-  ],
-  "npm": {
-    "enabled": false
-  },
-  "customManagers": [
-    {
-      "customType": "regex",
-      "description": "package.json packageManager bun version",
-      "managerFilePatterns": ["package.json"],
-      "matchStrings": [
-        "\"packageManager\":\\s*\"bun@(?<currentValue>[^\"\\s]+)\""
-      ],
-      "datasourceTemplate": "npm",
-      "depNameTemplate": "bun",
-      "versioningTemplate": "npm"
-    }
-  ],
+  "extends": ["github>neuland-ingolstadt/renovate-config:web"],
   "lockFileMaintenance": {
     "enabled": true
   },
   "packageRules": [
     {
-      "description": "Keep @biomejs/biome, bun.lock, and biome.json $schema in one PR",
-      "matchPackageNames": ["@biomejs/biome"],
-      "groupName": "biome",
-      "groupSlug": "biome"
-    },
-    {
       "description": "Group TanStack packages",
       "groupName": "tanstack",
       "groupSlug": "tanstack",
       "matchPackageNames": ["@tanstack/**"]
-    },
-    {
-      "description": "Production dependencies",
-      "groupName": "production dependencies",
-      "groupSlug": "prod",
-      "matchDepTypes": ["dependencies"],
-      "matchPackageNames": ["!@biomejs/biome", "!@tanstack/**"]
-    },
-    {
-      "description": "Development dependencies",
-      "groupName": "dev dependencies",
-      "groupSlug": "dev",
-      "matchDepTypes": ["devDependencies"],
-      "matchPackageNames": ["!@biomejs/biome", "!@tanstack/**"]
-    },
-    {
-      "description": "Docker base images",
-      "groupName": "docker",
-      "groupSlug": "docker",
-      "matchManagers": ["dockerfile"]
-    },
-    {
-      "description": "GitHub Actions",
-      "groupName": "github actions",
-      "groupSlug": "actions",
-      "matchManagers": ["github-actions"]
-    },
-    {
-      "description": "Bun runtime (.bun-version, packageManager, setup-bun)",
-      "groupName": "bun",
-      "groupSlug": "bun",
-      "matchDepNames": ["bun", "oven-sh/setup-bun"],
-      "matchManagers": ["bun-version", "custom.regex", "github-actions"]
-    },
-    {
-      "description": "Automerge all GitHub Actions updates",
-      "matchManagers": ["github-actions"],
-      "automerge": true
-    },
-    {
-      "description": "Automerge minor/patch development dependencies",
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true
-    },
-    {
-      "description": "Automerge minor/patch/digest Docker base image updates",
-      "matchManagers": ["dockerfile"],
-      "matchUpdateTypes": ["minor", "patch", "digest", "pin"],
-      "automerge": true
     }
   ]
 }
