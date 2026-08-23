@@ -2,6 +2,8 @@ export const APP_NAME = 'Neuland Connect' as const
 
 export const EXTERNAL_LINKS = {
   WEBSITE: 'https://neuland-ingolstadt.de',
+  BLOG: 'https://neuland-ingolstadt.de/blog',
+  BLOG_FEED: 'https://neuland-ingolstadt.de/feed',
   /** Main website legal pages — Connect uses ROUTES.IMPRESSUM / ROUTES.DATENSCHUTZ */
   WEBSITE_IMPRESSUM: 'https://neuland-ingolstadt.de/legal/impressum',
   /** Main website policy - Connect uses ROUTES.DATENSCHUTZ instead */

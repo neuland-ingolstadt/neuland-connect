@@ -1,4 +1,5 @@
 import { createFileRoute, defer, redirect } from '@tanstack/react-router'
+import { BlogPostsPanel } from '#/components/dashboard/blog-posts-panel'
 import { DashboardProfilePanel } from '#/components/dashboard/dashboard-profile-panel'
 import { DashboardQuickLinks } from '#/components/dashboard/dashboard-quick-links'
 import { EventsPanel } from '#/components/dashboard/events-panel'
@@ -10,9 +11,11 @@ import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageShell } from '#/components/layout/page-shell'
 import { Skeleton } from '#/components/ui/skeleton'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
+import type { BlogPostsResult } from '#/lib/blog/types'
 import type { CampusLifeEventsResult } from '#/lib/campus-life/types'
 import { APP_NAME, ROUTES } from '#/lib/constants'
 import { LOADER_STALE_MS, resolvedDeferred } from '#/lib/deferred-loader'
+import { getLatestBlogPostsFn } from '#/server/get-blog-posts'
 import {
   type CurrentUser,
   requireSignedInUser,
@@ -27,6 +30,19 @@ function EventsPanelSkeleton() {
         <Skeleton className="h-16 w-full" />
         <Skeleton className="h-16 w-full" />
         <Skeleton className="h-16 w-full" />
+      </div>
+    </TerminalPanel>
+  )
+}
+
+function BlogPostsPanelSkeleton() {
+  return (
+    <TerminalPanel title="Blog">
+      <div className="space-y-3 p-4 sm:p-5">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-14 w-full" />
+        <Skeleton className="h-14 w-full" />
+        <Skeleton className="h-14 w-full" />
       </div>
     </TerminalPanel>
   )
@@ -105,18 +121,26 @@ export const Route = createFileRoute('/dashboard')({
     return {
       user,
       events: defer(getNeulandEventsFn()),
+      blogPosts: defer(getLatestBlogPostsFn()),
     }
   },
   component: DashboardRoute,
 })
 
 function DashboardRoute() {
-  const { user, events } = Route.useLoaderData()
+  const { user, events, blogPosts } = Route.useLoaderData()
   const cachedUser = resolvedDeferred(user)
   const cachedEvents = resolvedDeferred(events)
+  const cachedBlogPosts = resolvedDeferred(blogPosts)
 
-  if (cachedUser && cachedEvents) {
-    return <DashboardPage user={cachedUser} events={cachedEvents} />
+  if (cachedUser && cachedEvents && cachedBlogPosts) {
+    return (
+      <DashboardPage
+        user={cachedUser}
+        events={cachedEvents}
+        blogPosts={cachedBlogPosts}
+      />
+    )
   }
 
   return (
@@ -177,6 +201,20 @@ function DashboardRoute() {
             </DeferredValue>
           </div>
         </div>
+
+        <div className="mt-5">
+          <DeferredValue
+            value={blogPosts}
+            fallback={<BlogPostsPanelSkeleton />}
+          >
+            {resolvedBlogPosts => (
+              <BlogPostsPanel
+                posts={resolvedBlogPosts.posts}
+                error={resolvedBlogPosts.error}
+              />
+            )}
+          </DeferredValue>
+        </div>
       </main>
 
       <LegalFooter className="px-4" />
@@ -187,9 +225,11 @@ function DashboardRoute() {
 function DashboardPage({
   user,
   events,
+  blogPosts,
 }: {
   user: CurrentUser
   events: CampusLifeEventsResult
+  blogPosts: BlogPostsResult
 }) {
   const firstName = user.name.split(' ')[0]
 
@@ -222,6 +262,10 @@ function DashboardPage({
             <DashboardQuickLinks groups={user.allGroups} />
             <KontenStatusPanel user={user} />
           </div>
+        </div>
+
+        <div className="mt-5">
+          <BlogPostsPanel posts={blogPosts.posts} error={blogPosts.error} />
         </div>
       </main>
 

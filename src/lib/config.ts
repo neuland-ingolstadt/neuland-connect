@@ -1,4 +1,8 @@
-import { APP_NAME, NEULAND_NEXT_APP_SLUG } from '#/lib/constants'
+import {
+  APP_NAME,
+  EXTERNAL_LINKS,
+  NEULAND_NEXT_APP_SLUG,
+} from '#/lib/constants'
 
 function requireEnv(name: string): string {
   const value = process.env[name]
@@ -131,6 +135,13 @@ export const serverConfig = {
     },
     get isConfigured() {
       return Boolean(serverConfig.campusLife.apiKey)
+    },
+  },
+  blog: {
+    get feedUrl() {
+      return (
+        optionalEnv('WEBSITE_FEED_URL') ?? EXTERNAL_LINKS.BLOG_FEED
+      ).replace(/\/$/, '')
     },
   },
 } as const
