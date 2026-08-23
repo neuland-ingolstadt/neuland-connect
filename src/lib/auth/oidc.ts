@@ -10,11 +10,7 @@ import {
 } from '#/lib/authentik/client'
 import type { AuthentikUserResponse } from '#/lib/authentik/types'
 import { serverConfig } from '#/lib/config'
-import {
-  DASHBOARD_INTRO_SEARCH,
-  LOGIN_START_SEARCH,
-  ROUTES,
-} from '#/lib/constants'
+import { LOGIN_START_SEARCH, ROUTES } from '#/lib/constants'
 import { useAppSession } from '#/lib/session.server'
 
 let cachedDiscovery: OidcDiscoveryDocument | null = null
@@ -176,7 +172,7 @@ export async function handleOidcCallback(request: Request): Promise<Response> {
     oidcCodeVerifier: undefined,
   })
 
-  return redirectResponse(`${ROUTES.DASHBOARD}?intro=${DASHBOARD_INTRO_SEARCH}`)
+  return redirectResponse(ROUTES.DASHBOARD)
 }
 
 /**

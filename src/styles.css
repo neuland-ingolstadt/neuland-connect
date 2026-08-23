@@ -454,92 +454,10 @@ h4 {
   }
 }
 
-.setup-explainer {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  background: var(--terminal-bg);
-  animation: setup-explainer-enter 0.55s ease-out both;
-}
-
-.setup-explainer--exit {
-  animation: setup-explainer-exit 0.72s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  pointer-events: none;
-}
-
-.setup-explainer-panel {
-  animation: setup-explainer-panel 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.setup-explainer-slide {
-  animation: setup-explainer-slide 0.48s ease-out both;
-}
-
-.setup-explainer-icon {
-  animation: setup-explainer-icon 0.7s ease-out both;
-}
-
-@keyframes setup-explainer-enter {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes setup-explainer-exit {
-  from {
-    opacity: 1;
-    clip-path: inset(0 0 0 0);
-  }
-  to {
-    opacity: 0;
-    clip-path: inset(0 0 100% 0);
-  }
-}
-
-@keyframes setup-explainer-panel {
-  from {
-    opacity: 0;
-    transform: translateY(18px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes setup-explainer-slide {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes setup-explainer-icon {
-  from {
-    opacity: 0.4;
-    transform: scale(0.92);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .connect-boot-palm-wrap,
   .connect-boot-cursor,
-  .connect-boot-bar,
-  .setup-explainer,
-  .setup-explainer-panel,
-  .setup-explainer-slide,
-  .setup-explainer-icon {
+  .connect-boot-bar {
     animation: none;
   }
 
@@ -553,9 +471,5 @@ h4 {
     width: 100%;
     transform: none;
     opacity: 0.55;
-  }
-
-  .setup-explainer--exit {
-    opacity: 0;
   }
 }

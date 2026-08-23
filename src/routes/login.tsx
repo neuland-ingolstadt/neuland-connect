@@ -30,7 +30,6 @@ export const Route = createFileRoute('/login')({
           integration: undefined,
           status: undefined,
           message: undefined,
-          intro: undefined,
         },
       })
     }

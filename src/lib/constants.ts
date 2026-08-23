@@ -82,28 +82,15 @@ export const LOGIN_SEARCH_DEFAULTS = {
 /** Query flag so /login shows the loading box and starts Authentik */
 export const LOGIN_START_SEARCH = '1' as const
 
-/** Query flag set by the OIDC callback so first-run UX can run */
-export const DASHBOARD_INTRO_SEARCH = 'neu' as const
-
 export const CONNECT_SEARCH_DEFAULTS = {
   integration: undefined,
   status: undefined,
   message: undefined,
-  intro: undefined,
 } as const
 
 export function isLoginStartFlag(value: unknown): boolean {
   return (
     value === LOGIN_START_SEARCH ||
-    value === true ||
-    value === 1 ||
-    value === '1'
-  )
-}
-
-export function isDashboardIntroFlag(value: unknown): boolean {
-  return (
-    value === DASHBOARD_INTRO_SEARCH ||
     value === true ||
     value === 1 ||
     value === '1'

@@ -4,7 +4,6 @@ import { ConnectStatusPanel } from '#/components/dashboard/connect-status-panel'
 import { DashboardProfilePanel } from '#/components/dashboard/dashboard-profile-panel'
 import { DashboardQuickLinks } from '#/components/dashboard/dashboard-quick-links'
 import { EventsPanel } from '#/components/dashboard/events-panel'
-import { hasNoLinkedAccounts } from '#/components/dashboard/setup-explainer'
 import { DeferredValue } from '#/components/deferred-value'
 import { AppHeader } from '#/components/layout/app-header'
 import { LegalFooter } from '#/components/layout/legal-footer'
@@ -12,12 +11,7 @@ import { PageShell } from '#/components/layout/page-shell'
 import { Skeleton } from '#/components/ui/skeleton'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import type { CampusLifeEventsResult } from '#/lib/campus-life/types'
-import {
-  APP_NAME,
-  CONNECT_SEARCH_DEFAULTS,
-  isDashboardIntroFlag,
-  ROUTES,
-} from '#/lib/constants'
+import { APP_NAME, ROUTES } from '#/lib/constants'
 import { LOADER_STALE_MS, resolvedDeferred } from '#/lib/deferred-loader'
 import {
   type CurrentUser,
@@ -85,11 +79,9 @@ export const Route = createFileRoute('/dashboard')({
       typeof search.integration === 'string' ? search.integration : undefined,
     status: typeof search.status === 'string' ? search.status : undefined,
     message: typeof search.message === 'string' ? search.message : undefined,
-    intro: isDashboardIntroFlag(search.intro) ? true : undefined,
   }),
   loaderDeps: ({ search }) => ({
     integration: search.integration,
-    intro: search.intro,
   }),
   loader: async ({ deps, location }) => {
     if (deps.integration) {
@@ -104,22 +96,11 @@ export const Route = createFileRoute('/dashboard')({
           integration: deps.integration,
           status: callbackSearch.status,
           message: callbackSearch.message,
-          intro: deps.intro,
         },
       })
     }
 
     const user = await requireSignedInUser()
-
-    if (deps.intro && hasNoLinkedAccounts(user)) {
-      throw redirect({
-        to: ROUTES.CONNECT,
-        search: {
-          ...CONNECT_SEARCH_DEFAULTS,
-          intro: true,
-        },
-      })
-    }
 
     return {
       user,
