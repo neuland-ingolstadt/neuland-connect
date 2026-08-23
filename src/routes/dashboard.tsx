@@ -109,22 +109,20 @@ export const Route = createFileRoute('/dashboard')({
       })
     }
 
-    const userPromise = requireSignedInUser().then(user => {
-      if (deps.intro && hasNoLinkedAccounts(user)) {
-        throw redirect({
-          to: ROUTES.CONNECT,
-          search: {
-            ...CONNECT_SEARCH_DEFAULTS,
-            intro: true,
-          },
-        })
-      }
+    const user = await requireSignedInUser()
 
-      return user
-    })
+    if (deps.intro && hasNoLinkedAccounts(user)) {
+      throw redirect({
+        to: ROUTES.CONNECT,
+        search: {
+          ...CONNECT_SEARCH_DEFAULTS,
+          intro: true,
+        },
+      })
+    }
 
     return {
-      user: defer(userPromise),
+      user,
       events: defer(getNeulandEventsFn()),
     }
   },

@@ -1,4 +1,4 @@
-import { createFileRoute, defer, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { DashboardActionBanner } from '#/components/dashboard/dashboard-action-banner'
@@ -51,8 +51,8 @@ export const Route = createFileRoute('/connect')({
     message: typeof search.message === 'string' ? search.message : undefined,
     intro: isDashboardIntroFlag(search.intro) ? true : undefined,
   }),
-  loader: () => ({
-    user: defer(requireSignedInUser()),
+  loader: async () => ({
+    user: await requireSignedInUser(),
   }),
   component: ConnectRoute,
 })
