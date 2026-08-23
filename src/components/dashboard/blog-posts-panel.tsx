@@ -49,7 +49,7 @@ export function BlogPostsPanel({ posts, error }: BlogPostsPanelProps) {
             Noch keine Beiträge verfügbar.
           </p>
         ) : (
-          <ul className="divide-y divide-terminal-window-border/70 border-t border-terminal-window-border/70">
+          <ul className="divide-y divide-terminal-window-border/70">
             {posts.map(post => (
               <BlogPostRow key={post.url} post={post} />
             ))}
