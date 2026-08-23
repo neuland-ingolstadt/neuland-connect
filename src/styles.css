@@ -286,7 +286,8 @@ h4 {
 
 .neuland-badge-hint__tooltip {
   position: absolute;
-  top: calc(100% + 6px);
+  /* Open upward so tooltips stay inside TerminalPanel (overflow-hidden). */
+  bottom: calc(100% + 6px);
   left: 50%;
   z-index: 30;
   width: max-content;
@@ -306,7 +307,7 @@ h4 {
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transform: translateX(-50%) translateY(-2px);
+  transform: translateX(-50%) translateY(2px);
   transition:
     opacity 0.15s ease,
     visibility 0.15s ease,
