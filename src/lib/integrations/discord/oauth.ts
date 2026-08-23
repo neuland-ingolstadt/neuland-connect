@@ -1,6 +1,6 @@
 import { generateRandomString } from '#/lib/auth/crypto'
 import { serverConfig } from '#/lib/config'
-import { connectStatusPath, DISCORD_OAUTH_SCOPE } from '#/lib/constants'
+import { kontenStatusPath, DISCORD_OAUTH_SCOPE } from '#/lib/constants'
 import { useAppSession } from '#/lib/session.server'
 
 const DISCORD_AUTHORIZE_URL = 'https://discord.com/api/oauth2/authorize'
@@ -107,7 +107,7 @@ export async function handleDiscordCallback(
 
   if (error) {
     return redirectResponse(
-      connectStatusPath({
+      kontenStatusPath({
         integration: 'discord',
         status: 'error',
         message: error,
@@ -121,7 +121,7 @@ export async function handleDiscordCallback(
 
   if (!code || !state || !expectedState || state !== expectedState) {
     return redirectResponse(
-      connectStatusPath({
+      kontenStatusPath({
         integration: 'discord',
         status: 'error',
         message: 'invalid_state',
@@ -210,11 +210,11 @@ export async function handleDiscordCallback(
     })
 
     return redirectResponse(
-      connectStatusPath({ integration: 'discord', status: 'success' }),
+      kontenStatusPath({ integration: 'discord', status: 'success' }),
     )
   } catch {
     return redirectResponse(
-      connectStatusPath({
+      kontenStatusPath({
         integration: 'discord',
         status: 'error',
         message: 'connection_failed',

@@ -7,18 +7,18 @@ import { DiscordIcon } from '#/components/icons/discord-icon'
 import { GitHubIcon } from '#/components/icons/github-icon'
 import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
-import { CONNECT_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
-import { getConnectSetupProgress } from '#/lib/integrations/connect-setup'
+import { KONTEN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
+import { getAccountSetupProgress } from '#/lib/integrations/account-setup'
 import { buildDiscordIntegrationProgress } from '#/lib/integrations/discord/integration-progress'
 import { buildGitHubIntegrationProgress } from '#/lib/integrations/github/integration-progress'
 import { cn } from '#/lib/utils'
 import type { CurrentUser } from '#/server/get-current-user'
 
-type ConnectStatusPanelProps = {
+type KontenStatusPanelProps = {
   user: CurrentUser
 }
 
-export function ConnectStatusPanel({ user }: ConnectStatusPanelProps) {
+export function KontenStatusPanel({ user }: KontenStatusPanelProps) {
   const github = buildGitHubIntegrationProgress({
     connected: user.githubConnected,
     githubOrgStatus: user.attributes.githubOrgStatus,
@@ -42,10 +42,10 @@ export function ConnectStatusPanel({ user }: ConnectStatusPanelProps) {
     isComplete: user.nextSession.signedIn,
   }
 
-  const { allComplete } = getConnectSetupProgress(user)
+  const { allComplete } = getAccountSetupProgress(user)
 
   return (
-    <TerminalPanel title="Connect">
+    <TerminalPanel title="Konten">
       <div className="space-y-4 p-4 sm:p-5">
         <ul className="divide-y divide-terminal-window-border/50">
           <StatusRow
@@ -91,7 +91,7 @@ export function ConnectStatusPanel({ user }: ConnectStatusPanelProps) {
           className="w-full"
           asChild
         >
-          <Link to={ROUTES.CONNECT} search={CONNECT_SEARCH_DEFAULTS}>
+          <Link to={ROUTES.CONNECT} search={KONTEN_SEARCH_DEFAULTS}>
             {allComplete ? 'Konten verwalten' : 'Konten einrichten'}
             <ArrowRight />
           </Link>
@@ -118,7 +118,7 @@ function StatusRow({
     <li>
       <Link
         to={ROUTES.CONNECT}
-        search={CONNECT_SEARCH_DEFAULTS}
+        search={KONTEN_SEARCH_DEFAULTS}
         className={cn(
           'flex items-start gap-3 py-3 no-underline transition-colors',
           'hover:bg-terminal-text/3 focus-visible:bg-terminal-text/3 focus-visible:outline-none',

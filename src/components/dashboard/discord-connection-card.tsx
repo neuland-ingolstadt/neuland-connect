@@ -263,7 +263,7 @@ export function DiscordConnectionCard({
                 reconnectLabel={inGuild ? 'Neu verbinden' : 'Erneut beitreten'}
                 reconnectIcon={<DiscordIcon className="text-inherit" />}
                 disconnectTitle="Discord-Verbindung trennen?"
-                disconnectDescription="Du bleibst im Discord-Server, verlierst aber alle Rollen. Connect vergisst die Verknüpfung."
+                disconnectDescription="Du bleibst im Discord-Server, verlierst aber alle Rollen. Neuland Connect entfernt die Verknüpfung."
                 disconnectOpen={disconnectOpen}
                 onDisconnectOpenChange={setDisconnectOpen}
                 isDisconnecting={isDisconnecting}

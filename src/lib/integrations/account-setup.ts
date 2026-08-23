@@ -2,7 +2,7 @@ import { buildDiscordIntegrationProgress } from '#/lib/integrations/discord/inte
 import { buildGitHubIntegrationProgress } from '#/lib/integrations/github/integration-progress'
 import type { CurrentUser } from '#/server/get-current-user'
 
-export type ConnectSetupProgress = {
+export type AccountSetupProgress = {
   doneCount: number
   totalCount: number
   allComplete: boolean
@@ -11,9 +11,9 @@ export type ConnectSetupProgress = {
   nextComplete: boolean
 }
 
-export function getConnectSetupProgress(
+export function getAccountSetupProgress(
   user: CurrentUser,
-): ConnectSetupProgress {
+): AccountSetupProgress {
   const github = buildGitHubIntegrationProgress({
     connected: user.githubConnected,
     githubOrgStatus: user.attributes.githubOrgStatus,

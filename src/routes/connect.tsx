@@ -8,7 +8,7 @@ import { MembershipCard } from '#/components/dashboard/membership-card'
 import { UserDataCard } from '#/components/dashboard/user-data-card'
 import { DeferredValue } from '#/components/deferred-value'
 import { AppHeader } from '#/components/layout/app-header'
-import { ConnectLoadingShell } from '#/components/layout/connect-loading-shell'
+import { KontenLoadingShell } from '#/components/layout/konten-loading-shell'
 import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageShell } from '#/components/layout/page-shell'
 import { APP_NAME, LOGIN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
@@ -24,7 +24,7 @@ import {
 
 export const Route = createFileRoute('/connect')({
   head: () => ({
-    meta: [{ title: `Connect · ${APP_NAME}` }],
+    meta: [{ title: `Konten · ${APP_NAME}` }],
   }),
   staleTime: LOADER_STALE_MS,
   gcTime: 5 * 60_000,
@@ -44,7 +44,7 @@ function ConnectRoute() {
   const { user } = Route.useLoaderData()
 
   return (
-    <DeferredValue value={user} fallback={<ConnectLoadingShell />}>
+    <DeferredValue value={user} fallback={<KontenLoadingShell />}>
       {resolvedUser => <ConnectPage user={resolvedUser} />}
     </DeferredValue>
   )
@@ -185,7 +185,7 @@ function ConnectPage({ user: loaderUser }: { user: CurrentUser }) {
         <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
-              Connect
+              Konten
             </p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
               Konten verknüpfen

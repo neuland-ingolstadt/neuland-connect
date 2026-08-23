@@ -12,7 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '#/components/ui/sheet'
-import { CONNECT_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
+import { KONTEN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
 import { cn } from '#/lib/utils'
 
 type AppHeaderProps = {
@@ -26,7 +26,7 @@ type AppNavTo =
   | typeof ROUTES.RESSOURCEN
   | typeof ROUTES.FAQ
 
-const dashboardSearch = CONNECT_SEARCH_DEFAULTS
+const dashboardSearch = KONTEN_SEARCH_DEFAULTS
 
 export function AppHeader({
   isSignedIn = false,
@@ -77,9 +77,9 @@ export function AppHeader({
                 </HeaderNavLink>
                 <HeaderNavLink
                   to={ROUTES.CONNECT}
-                  search={CONNECT_SEARCH_DEFAULTS}
+                  search={KONTEN_SEARCH_DEFAULTS}
                 >
-                  Connect
+                  Konten
                 </HeaderNavLink>
               </>
             ) : null}
@@ -139,9 +139,9 @@ export function AppHeader({
                     </MobileNavLink>
                     <MobileNavLink
                       to={ROUTES.CONNECT}
-                      search={CONNECT_SEARCH_DEFAULTS}
+                      search={KONTEN_SEARCH_DEFAULTS}
                     >
-                      Connect
+                      Konten
                     </MobileNavLink>
                   </>
                 ) : null}
@@ -173,7 +173,7 @@ function HeaderNavLink({
 }: {
   to: AppNavTo
   children: string
-  search?: typeof CONNECT_SEARCH_DEFAULTS
+  search?: typeof KONTEN_SEARCH_DEFAULTS
   activeOptions?: { exact: boolean }
 }) {
   return (
@@ -202,7 +202,7 @@ function MobileNavLink({
 }: {
   to: AppNavTo
   children: string
-  search?: typeof CONNECT_SEARCH_DEFAULTS
+  search?: typeof KONTEN_SEARCH_DEFAULTS
   activeOptions?: { exact: boolean }
 }) {
   return (

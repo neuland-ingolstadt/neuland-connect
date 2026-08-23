@@ -1,6 +1,6 @@
 import { generateRandomString } from '#/lib/auth/crypto'
 import { serverConfig } from '#/lib/config'
-import { connectStatusPath, GITHUB_OAUTH_SCOPE } from '#/lib/constants'
+import { kontenStatusPath, GITHUB_OAUTH_SCOPE } from '#/lib/constants'
 import { useAppSession } from '#/lib/session.server'
 
 const GITHUB_AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'
@@ -100,7 +100,7 @@ export async function handleGitHubCallback(
 
   if (error) {
     return redirectResponse(
-      connectStatusPath({
+      kontenStatusPath({
         integration: 'github',
         status: 'error',
         message: error,
@@ -118,7 +118,7 @@ export async function handleGitHubCallback(
   const expectedState = session.data.githubOAuthState
   if (!code || !state || !expectedState || state !== expectedState) {
     return redirectResponse(
-      connectStatusPath({
+      kontenStatusPath({
         integration: 'github',
         status: 'error',
         message: 'invalid_state',
@@ -197,11 +197,11 @@ export async function handleGitHubCallback(
     })
 
     return redirectResponse(
-      connectStatusPath({ integration: 'github', status: 'success' }),
+      kontenStatusPath({ integration: 'github', status: 'success' }),
     )
   } catch {
     return redirectResponse(
-      connectStatusPath({
+      kontenStatusPath({
         integration: 'github',
         status: 'error',
         message: 'connection_failed',

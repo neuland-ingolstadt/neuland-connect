@@ -82,7 +82,7 @@ export const LOGIN_SEARCH_DEFAULTS = {
 /** Query flag so /login shows the loading box and starts Authentik */
 export const LOGIN_START_SEARCH = '1' as const
 
-export const CONNECT_SEARCH_DEFAULTS = {
+export const KONTEN_SEARCH_DEFAULTS = {
   integration: undefined,
   status: undefined,
   message: undefined,
@@ -97,7 +97,7 @@ export function isLoginStartFlag(value: unknown): boolean {
   )
 }
 
-export function connectStatusPath(options: {
+export function kontenStatusPath(options: {
   integration: 'github' | 'discord'
   status: 'success' | 'error' | 'disconnected'
   message?: string

@@ -267,7 +267,7 @@ export function GitHubConnectionCard({
                 reconnectLabel="Neu verbinden"
                 reconnectIcon={<GitHubIcon className="text-inherit" />}
                 disconnectTitle="GitHub-Verbindung trennen?"
-                disconnectDescription="Du bleibst in der GitHub-Organisation, verlierst aber alle Teams. Connect vergisst die Verknüpfung."
+                disconnectDescription="Du bleibst in der GitHub-Organisation, verlierst aber alle Teams. Neuland Connect entfernt die Verknüpfung."
                 disconnectOpen={disconnectOpen}
                 onDisconnectOpenChange={setDisconnectOpen}
                 isDisconnecting={isDisconnecting}

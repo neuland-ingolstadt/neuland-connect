@@ -20,7 +20,7 @@ const FAQ_ITEMS: FaqItem[] = [
           Diensten, abhängig von deinen Gruppen.
         </p>
         <p>
-          GitHub und Discord verknüpfst du auf der Connect-Seite. Darüber
+          GitHub und Discord verknüpfst du auf der Konten-Seite. Darüber
           erhältst du Zugang zur Organisation, zu Teams, zum Discord-Server und
           zu den zugehörigen Rollen. Die Anmeldung ist auf Vereinsmitglieder
           beschränkt. Änderungen an Name, E-Mail-Adresse oder Benutzername nimmt
@@ -37,7 +37,7 @@ const FAQ_ITEMS: FaqItem[] = [
         Auf dem Dashboard listet Connect die Termine von Neuland Ingolstadt aus
         dem Campus-Life-Kalender. Du kannst zwischen bevorstehenden und
         vergangenen Terminen (bis zwei Monate zurück) wechseln. Ein Klick öffnet
-        die Details. Die Kontoverknüpfung bleibt auf der Connect-Seite.
+        die Details. Die Kontoverknüpfung bleibt auf der Konten-Seite.
       </p>
     ),
   },
@@ -46,7 +46,7 @@ const FAQ_ITEMS: FaqItem[] = [
     question: 'Wie funktioniert die Verknüpfung?',
     answer: (
       <>
-        <p>Der Ablauf auf der Connect-Seite ist wie folgt:</p>
+        <p>Der Ablauf auf der Konten-Seite ist wie folgt:</p>
         <ol className="list-decimal space-y-1 pl-5">
           <li>
             <strong>GitHub:</strong> Konto verbinden, Einladung in die
@@ -147,7 +147,7 @@ const FAQ_ITEMS: FaqItem[] = [
         </p>
         <ol className="list-decimal space-y-1 pl-5">
           <li>
-            Auf der Connect-Seite bei Discord bzw. GitHub „Synchronisieren“
+            Auf der Konten-Seite bei Discord bzw. GitHub „Synchronisieren“
             ausführen.
           </li>
           <li>
@@ -182,7 +182,7 @@ const FAQ_ITEMS: FaqItem[] = [
           sichtbar ist.
         </p>
         <p>
-          Für eine unmittelbare Aktualisierung steht auf der Connect-Seite bei
+          Für eine unmittelbare Aktualisierung steht auf der Konten-Seite bei
           Discord und GitHub der Button „Synchronisieren“ zur Verfügung.
           Entfällt eine Gruppe, wird die zugehörige Rolle bzw. das Team beim
           nächsten Abgleich entfernt – entweder über den Button oder spätestens
@@ -225,7 +225,7 @@ const FAQ_ITEMS: FaqItem[] = [
       <p>
         Die Abmeldung beendet deine Connect-Sitzung (Cookie) und leitet dich zur
         Authentik-Abmeldeseite weiter. Verknüpfte GitHub- und Discord-Konten
-        bleiben bestehen, bis du die Verbindung auf der Connect-Seite löst.
+        bleiben bestehen, bis du die Verbindung auf der Konten-Seite löst.
       </p>
     ),
   },

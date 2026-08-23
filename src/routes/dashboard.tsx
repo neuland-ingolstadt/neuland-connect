@@ -1,6 +1,6 @@
 import { createFileRoute, defer, redirect } from '@tanstack/react-router'
-import { ConnectSetupBanner } from '#/components/dashboard/connect-setup-banner'
-import { ConnectStatusPanel } from '#/components/dashboard/connect-status-panel'
+import { KontenSetupBanner } from '#/components/dashboard/konten-setup-banner'
+import { KontenStatusPanel } from '#/components/dashboard/konten-status-panel'
 import { DashboardProfilePanel } from '#/components/dashboard/dashboard-profile-panel'
 import { DashboardQuickLinks } from '#/components/dashboard/dashboard-quick-links'
 import { EventsPanel } from '#/components/dashboard/events-panel'
@@ -57,7 +57,7 @@ function ProfilePanelsSkeleton() {
           </div>
         </div>
       </TerminalPanel>
-      <TerminalPanel title="Connect">
+      <TerminalPanel title="Konten">
         <div className="space-y-3 p-4 sm:p-5">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-4/5" />
@@ -145,7 +145,7 @@ function DashboardRoute() {
                   Hallo {resolvedUser.name.split(' ')[0]}
                 </h1>
               </header>
-              <ConnectSetupBanner user={resolvedUser} />
+              <KontenSetupBanner user={resolvedUser} />
             </>
           )}
         </DeferredValue>
@@ -171,7 +171,7 @@ function DashboardRoute() {
                     groups={resolvedUser.groups}
                   />
                   <DashboardQuickLinks groups={resolvedUser.allGroups} />
-                  <ConnectStatusPanel user={resolvedUser} />
+                  <KontenStatusPanel user={resolvedUser} />
                 </>
               )}
             </DeferredValue>
@@ -207,7 +207,7 @@ function DashboardPage({
           </h1>
         </header>
 
-        <ConnectSetupBanner user={user} />
+        <KontenSetupBanner user={user} />
 
         <div className="grid gap-5 lg:grid-cols-3">
           <div className="lg:col-span-2">
@@ -220,7 +220,7 @@ function DashboardPage({
               groups={user.groups}
             />
             <DashboardQuickLinks groups={user.allGroups} />
-            <ConnectStatusPanel user={user} />
+            <KontenStatusPanel user={user} />
           </div>
         </div>
       </main>

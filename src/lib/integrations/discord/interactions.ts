@@ -48,7 +48,7 @@ function buildConnectCommandResponse(): Response {
     type: DISCORD_INTERACTION_RESPONSE_TYPES.CHANNEL_MESSAGE_WITH_SOURCE,
     data: {
       content:
-        'GitHub und Discord verbindest du über Neuland Connect. Melde dich dort mit deinem Vereinskonto an.',
+        'GitHub und Discord verknüpfst du in Neuland Connect unter Konten. Melde dich dort mit deinem Vereinskonto an.',
       flags: DISCORD_MESSAGE_FLAGS.EPHEMERAL,
       components: [
         {
@@ -57,7 +57,7 @@ function buildConnectCommandResponse(): Response {
             {
               type: DISCORD_COMPONENT_TYPES.BUTTON,
               style: DISCORD_BUTTON_STYLES.LINK,
-              label: 'Connect öffnen',
+              label: 'Konten öffnen',
               url: connectDashboardUrl(),
             },
           ],
