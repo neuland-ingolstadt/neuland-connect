@@ -2,11 +2,29 @@ import {
   type CampusLifeEvent,
   type CampusLifeEventsResult,
   mapCampusLifeApiEvent,
+  readCampusLifeOrganizerId,
 } from '#/lib/campus-life/types'
 import { NEULAND_CAMPUS_LIFE_ORGANIZER_ID } from '#/lib/constants'
 
 function sortByStart(a: CampusLifeEvent, b: CampusLifeEvent): number {
   return a.startDateTime.localeCompare(b.startDateTime) || a.id - b.id
+}
+
+function extractEventItems(payload: unknown): unknown[] | null {
+  if (Array.isArray(payload)) {
+    return payload
+  }
+
+  if (
+    payload &&
+    typeof payload === 'object' &&
+    'items' in payload &&
+    Array.isArray((payload as { items: unknown }).items)
+  ) {
+    return (payload as { items: unknown[] }).items
+  }
+
+  return null
 }
 
 export async function fetchNeulandEvents(): Promise<CampusLifeEventsResult> {
@@ -19,7 +37,10 @@ export async function fetchNeulandEvents(): Promise<CampusLifeEventsResult> {
     }
   }
 
-  const url = `${serverConfig.campusLife.apiUrl}/ical/${NEULAND_CAMPUS_LIFE_ORGANIZER_ID}/events`
+  // Protected events API includes host-only events for the token's organizer.
+  // The legacy `/ical/{id}/events` feed only returns `publish_in_ical` events.
+  const url = new URL(`${serverConfig.campusLife.apiUrl}/v1/events`)
+  url.searchParams.set('organizer_id', String(NEULAND_CAMPUS_LIFE_ORGANIZER_ID))
 
   try {
     const response = await fetch(url, {
@@ -41,18 +62,31 @@ export async function fetchNeulandEvents(): Promise<CampusLifeEventsResult> {
     }
 
     const payload: unknown = await response.json()
-    if (!Array.isArray(payload)) {
-      console.error('[campus-life] Events response was not an array')
+    const items = extractEventItems(payload)
+    if (!items) {
+      console.error('[campus-life] Events response was not a list')
       return {
         events: [],
         error: 'invalid_response',
       }
     }
 
-    const events = payload
-      .map(item =>
-        item && typeof item === 'object' ? mapCampusLifeApiEvent(item) : null,
-      )
+    const events = items
+      .map(item => {
+        if (!item || typeof item !== 'object') {
+          return null
+        }
+
+        const organizerId = readCampusLifeOrganizerId(item)
+        if (
+          organizerId !== null &&
+          organizerId !== NEULAND_CAMPUS_LIFE_ORGANIZER_ID
+        ) {
+          return null
+        }
+
+        return mapCampusLifeApiEvent(item)
+      })
       .filter((event): event is CampusLifeEvent => event !== null)
       .sort(sortByStart)
 

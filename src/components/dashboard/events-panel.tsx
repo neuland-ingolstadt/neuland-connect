@@ -1,4 +1,4 @@
-import { ArrowUpRight, Clock3, MapPin } from 'lucide-react'
+import { ArrowUpRight, Clock3, Globe, MapPin } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Button } from '#/components/ui/button'
 import {
@@ -61,6 +61,19 @@ function errorMessage(error: string): string {
   }
 
   return 'Events konnten gerade nicht geladen werden. Versuche es später erneut.'
+}
+
+function PublicEventIcon({ className }: { className?: string }) {
+  return (
+    <span
+      role="img"
+      title="Öffentlich"
+      aria-label="Öffentlich"
+      className={cn('inline-flex shrink-0 text-terminal-text/45', className)}
+    >
+      <Globe className="size-3.5" aria-hidden />
+    </span>
+  )
 }
 
 export function EventsPanel({ events, error }: EventsPanelProps) {
@@ -165,8 +178,9 @@ function EventRow({
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-terminal-text">
-            {event.title}
+          <p className="flex items-center gap-1.5 text-sm font-medium text-terminal-text">
+            <span className="min-w-0 truncate">{event.title}</span>
+            {event.visibility === 'public' ? <PublicEventIcon /> : null}
           </p>
 
           <p className="mt-1 text-xs text-terminal-text/55">
@@ -200,7 +214,10 @@ function EventDetailsDialog({
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-terminal-text/45">
               Event
             </p>
-            <DialogTitle className="text-lg">{event.title}</DialogTitle>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <span className="min-w-0">{event.title}</span>
+              {event.visibility === 'public' ? <PublicEventIcon /> : null}
+            </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-3">

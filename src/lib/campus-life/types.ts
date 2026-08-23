@@ -1,3 +1,5 @@
+export type CampusLifeEventVisibility = 'public' | 'internal'
+
 export type CampusLifeEvent = {
   id: number
   title: string
@@ -6,7 +8,7 @@ export type CampusLifeEvent = {
   startDateTime: string
   endDateTime: string | null
   eventUrl: string | null
-  isInternal: boolean
+  visibility: CampusLifeEventVisibility
 }
 
 export type CampusLifeEventsResult = {
@@ -16,6 +18,7 @@ export type CampusLifeEventsResult = {
 
 type CampusLifeApiEvent = {
   id?: unknown
+  organizer_id?: unknown
   title_de?: unknown
   title_en?: unknown
   description_de?: unknown
@@ -24,6 +27,11 @@ type CampusLifeApiEvent = {
   start_date_time?: unknown
   end_date_time?: unknown
   event_url?: unknown
+  host_only?: unknown
+  publish_app?: unknown
+  publish_newsletter?: unknown
+  publish_in_ical?: unknown
+  publish_web?: unknown
   is_internal?: unknown
 }
 
@@ -31,6 +39,22 @@ function readString(value: unknown): string | null {
   return typeof value === 'string' && value.trim().length > 0
     ? value.trim()
     : null
+}
+
+function readOrganizerId(value: unknown): number | null {
+  const id = typeof value === 'number' ? value : Number(value)
+  return Number.isInteger(id) && id > 0 ? id : null
+}
+
+function resolveVisibility(raw: CampusLifeApiEvent): CampusLifeEventVisibility {
+  const publishApp = raw.publish_app === true
+  const publishNewsletter = raw.publish_newsletter === true
+  if (raw.host_only !== true && (publishApp || publishNewsletter)) {
+    return 'public'
+  }
+
+  // Host-only, iCal/web-only, and other club-only events share one icon.
+  return 'internal'
 }
 
 export function mapCampusLifeApiEvent(
@@ -58,6 +82,12 @@ export function mapCampusLifeApiEvent(
     startDateTime,
     endDateTime: readString(raw.end_date_time),
     eventUrl: readString(raw.event_url),
-    isInternal: raw.is_internal === true,
+    visibility: resolveVisibility(raw),
   }
+}
+
+export function readCampusLifeOrganizerId(
+  raw: CampusLifeApiEvent,
+): number | null {
+  return readOrganizerId(raw.organizer_id)
 }
