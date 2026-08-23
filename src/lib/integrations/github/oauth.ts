@@ -1,6 +1,6 @@
 import { generateRandomString } from '#/lib/auth/crypto'
 import { serverConfig } from '#/lib/config'
-import { kontenStatusPath, GITHUB_OAUTH_SCOPE } from '#/lib/constants'
+import { GITHUB_OAUTH_SCOPE, kontenStatusPath } from '#/lib/constants'
 import { useAppSession } from '#/lib/session.server'
 
 const GITHUB_AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'

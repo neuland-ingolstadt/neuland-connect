@@ -4,7 +4,8 @@ const DISCORD_API_BASE = 'https://discord.com/api/v10'
 
 const CONNECT_COMMAND = {
   name: 'connect',
-  description: 'Öffnet Neuland Connect (Konten) zum Verknüpfen von GitHub und Discord',
+  description:
+    'Öffnet Neuland Connect (Konten) zum Verknüpfen von GitHub und Discord',
   type: 1,
 } as const
 

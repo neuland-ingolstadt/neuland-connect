@@ -1,6 +1,6 @@
 import { generateRandomString } from '#/lib/auth/crypto'
 import { serverConfig } from '#/lib/config'
-import { kontenStatusPath, DISCORD_OAUTH_SCOPE } from '#/lib/constants'
+import { DISCORD_OAUTH_SCOPE, kontenStatusPath } from '#/lib/constants'
 import { useAppSession } from '#/lib/session.server'
 
 const DISCORD_AUTHORIZE_URL = 'https://discord.com/api/oauth2/authorize'
