@@ -14,16 +14,12 @@ import {
   formatEventDateRange,
   formatEventDayParts,
   isEventPast,
-  isRecentPastEvent,
   sortEvents,
 } from '#/lib/campus-life/format'
 import type { CampusLifeEvent } from '#/lib/campus-life/types'
 import { cn } from '#/lib/utils'
 
 type TimeFilter = 'upcoming' | 'past'
-
-const MAX_VISIBLE_EVENTS = 7
-const PAST_EVENT_MONTHS = 4
 
 type EventsPanelProps = {
   events: CampusLifeEvent[]
@@ -86,12 +82,10 @@ export function EventsPanel({ events, error }: EventsPanelProps) {
     const now = Date.now()
     const visible = events.filter(event => {
       const past = isEventPast(event, now)
-      return timeFilter === 'upcoming'
-        ? !past
-        : isRecentPastEvent(event, PAST_EVENT_MONTHS, now)
+      return timeFilter === 'upcoming' ? !past : past
     })
 
-    return sortEvents(visible, timeFilter).slice(0, MAX_VISIBLE_EVENTS)
+    return sortEvents(visible, timeFilter)
   }, [events, timeFilter])
 
   return (

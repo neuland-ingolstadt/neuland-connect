@@ -2,9 +2,7 @@ import {
   type CampusLifeEvent,
   type CampusLifeEventsResult,
   mapCampusLifeApiEvent,
-  readCampusLifeOrganizerId,
 } from '#/lib/campus-life/types'
-import { NEULAND_CAMPUS_LIFE_ORGANIZER_ID } from '#/lib/constants'
 
 function sortByStart(a: CampusLifeEvent, b: CampusLifeEvent): number {
   return a.startDateTime.localeCompare(b.startDateTime) || a.id - b.id
@@ -37,10 +35,9 @@ export async function fetchNeulandEvents(): Promise<CampusLifeEventsResult> {
     }
   }
 
-  // Protected events API includes host-only events for the token's organizer.
-  // The legacy `/ical/{id}/events` feed only returns `publish_in_ical` events.
-  const url = new URL(`${serverConfig.campusLife.apiUrl}/v1/events`)
-  url.searchParams.set('organizer_id', String(NEULAND_CAMPUS_LIFE_ORGANIZER_ID))
+  // Bearer-token my-events API: all events for the token holder's club,
+  // including host-only and unpublished-in-iCal events.
+  const url = new URL(`${serverConfig.campusLife.apiUrl}/v1/my-events`)
 
   try {
     const response = await fetch(url, {
@@ -74,14 +71,6 @@ export async function fetchNeulandEvents(): Promise<CampusLifeEventsResult> {
     const events = items
       .map(item => {
         if (!item || typeof item !== 'object') {
-          return null
-        }
-
-        const organizerId = readCampusLifeOrganizerId(item)
-        if (
-          organizerId !== null &&
-          organizerId !== NEULAND_CAMPUS_LIFE_ORGANIZER_ID
-        ) {
           return null
         }
 

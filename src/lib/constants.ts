@@ -115,6 +115,3 @@ export function kontenStatusPath(options: {
 
   return `${ROUTES.CONNECT}?${params.toString()}`
 }
-
-/** Campus Life organizer id for Neuland Ingolstadt e.V. */
-export const NEULAND_CAMPUS_LIFE_ORGANIZER_ID = 4 as const

@@ -64,21 +64,6 @@ export function isEventPast(event: CampusLifeEvent, now = Date.now()): boolean {
   return timestamp !== null && timestamp < now
 }
 
-export function isRecentPastEvent(
-  event: CampusLifeEvent,
-  monthsBack = 2,
-  now = Date.now(),
-): boolean {
-  const timestamp = getEventTimestamp(event)
-  if (timestamp === null || timestamp >= now) {
-    return false
-  }
-
-  const cutoff = new Date(now)
-  cutoff.setMonth(cutoff.getMonth() - monthsBack)
-  return timestamp >= cutoff.getTime()
-}
-
 export function formatEventDateRange(
   event: CampusLifeEvent,
   fallback = 'Termin folgt',

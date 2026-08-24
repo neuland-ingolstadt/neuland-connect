@@ -41,11 +41,6 @@ function readString(value: unknown): string | null {
     : null
 }
 
-function readOrganizerId(value: unknown): number | null {
-  const id = typeof value === 'number' ? value : Number(value)
-  return Number.isInteger(id) && id > 0 ? id : null
-}
-
 function resolveVisibility(raw: CampusLifeApiEvent): CampusLifeEventVisibility {
   const publishApp = raw.publish_app === true
   const publishNewsletter = raw.publish_newsletter === true
@@ -84,10 +79,4 @@ export function mapCampusLifeApiEvent(
     eventUrl: readString(raw.event_url),
     visibility: resolveVisibility(raw),
   }
-}
-
-export function readCampusLifeOrganizerId(
-  raw: CampusLifeApiEvent,
-): number | null {
-  return readOrganizerId(raw.organizer_id)
 }
