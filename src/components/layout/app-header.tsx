@@ -13,7 +13,6 @@ import {
   SheetTrigger,
 } from '#/components/ui/sheet'
 import { KONTEN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
-import { cn } from '#/lib/utils'
 
 type AppHeaderProps = {
   isSignedIn?: boolean
@@ -68,11 +67,7 @@ export function AppHeader({
           >
             {showDashboardLink ? (
               <>
-                <HeaderNavLink
-                  to={ROUTES.DASHBOARD}
-                  search={dashboardSearch}
-                  activeOptions={{ exact: true }}
-                >
+                <HeaderNavLink to={ROUTES.DASHBOARD} search={dashboardSearch}>
                   Dashboard
                 </HeaderNavLink>
                 <HeaderNavLink
@@ -133,7 +128,6 @@ export function AppHeader({
                     <MobileNavLink
                       to={ROUTES.DASHBOARD}
                       search={dashboardSearch}
-                      activeOptions={{ exact: true }}
                     >
                       Dashboard
                     </MobileNavLink>
@@ -165,28 +159,30 @@ export function AppHeader({
   )
 }
 
+const navActiveOptions = { exact: true, includeSearch: false } as const
+
 function HeaderNavLink({
   to,
   children,
   search,
-  activeOptions,
 }: {
   to: AppNavTo
   children: string
   search?: typeof KONTEN_SEARCH_DEFAULTS
-  activeOptions?: { exact: boolean }
 }) {
   return (
     <Link
       to={to}
       search={search}
-      activeOptions={activeOptions}
-      className={cn(
-        'px-2 py-1 font-mono text-[11px] uppercase tracking-[0.18em] text-terminal-text/50 no-underline transition-colors',
-        'hover:text-terminal-text',
-      )}
+      activeOptions={navActiveOptions}
+      className="px-2 py-1 font-mono text-[11px] uppercase tracking-[0.18em] transition-colors"
+      inactiveProps={{
+        className:
+          'text-terminal-text/50 no-underline hover:text-terminal-text',
+      }}
       activeProps={{
-        className: 'text-terminal-lightGreen',
+        className:
+          'text-terminal-text underline decoration-terminal-text underline-offset-8',
       }}
     >
       {children}
@@ -198,25 +194,24 @@ function MobileNavLink({
   to,
   children,
   search,
-  activeOptions,
 }: {
   to: AppNavTo
   children: string
   search?: typeof KONTEN_SEARCH_DEFAULTS
-  activeOptions?: { exact: boolean }
 }) {
   return (
     <SheetClose asChild>
       <Link
         to={to}
         search={search}
-        activeOptions={activeOptions}
-        className={cn(
-          'flex items-center px-3 py-3 font-mono text-sm uppercase tracking-[0.18em] text-terminal-text/70 no-underline transition-colors',
-          'hover:bg-terminal-card hover:text-terminal-text',
-        )}
+        activeOptions={navActiveOptions}
+        className="flex items-center px-3 py-3 font-mono text-sm uppercase tracking-[0.18em] no-underline transition-colors"
+        inactiveProps={{
+          className:
+            'text-terminal-text/70 hover:bg-terminal-card hover:text-terminal-text',
+        }}
         activeProps={{
-          className: 'bg-terminal-card text-terminal-lightGreen',
+          className: 'bg-terminal-card text-terminal-text',
         }}
       >
         {children}
