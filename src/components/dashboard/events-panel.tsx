@@ -1,5 +1,13 @@
-import { ArrowUpRight, Clock3, Globe, MapPin } from 'lucide-react'
-import { type CSSProperties, useMemo, useState } from 'react'
+import { useRouter } from '@tanstack/react-router'
+import {
+  ArrowUpRight,
+  CalendarDays,
+  Clock3,
+  Globe,
+  MapPin,
+  RefreshCw,
+} from 'lucide-react'
+import { type CSSProperties, type ReactNode, useMemo, useState } from 'react'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import {
@@ -58,7 +66,7 @@ function errorMessage(error: string): string {
     return 'Der Events-Kalender ist noch nicht konfiguriert.'
   }
 
-  return 'Events konnten gerade nicht geladen werden. Versuche es später erneut.'
+  return 'Events konnten gerade nicht geladen werden.'
 }
 
 function PublicEventIcon({ className }: { className?: string }) {
@@ -74,11 +82,36 @@ function PublicEventIcon({ className }: { className?: string }) {
   )
 }
 
+function EventsStatusPanel({
+  code,
+  message,
+  icon,
+  action,
+}: {
+  code: string
+  message: string
+  icon: ReactNode
+  action?: ReactNode
+}) {
+  return (
+    <div className="flex flex-col items-center gap-3 border border-terminal-window-border/70 bg-terminal-bg/40 px-4 py-8 text-center">
+      <span className="text-terminal-text/30">{icon}</span>
+      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-terminal-text/45">
+        <span className="text-terminal-cyan/75">//</span> {code}
+      </p>
+      <p className="max-w-xs text-sm text-terminal-text/65">{message}</p>
+      {action}
+    </div>
+  )
+}
+
 export function EventsPanel({ events, error }: EventsPanelProps) {
+  const router = useRouter()
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('upcoming')
   const [selectedEvent, setSelectedEvent] = useState<CampusLifeEvent | null>(
     null,
   )
+  const [isRetrying, setIsRetrying] = useState(false)
 
   const filteredEvents = useMemo(() => {
     const now = Date.now()
@@ -89,6 +122,15 @@ export function EventsPanel({ events, error }: EventsPanelProps) {
 
     return sortEvents(visible, timeFilter)
   }, [events, timeFilter])
+
+  async function handleRetry() {
+    setIsRetrying(true)
+    try {
+      await router.invalidate()
+    } finally {
+      setIsRetrying(false)
+    }
+  }
 
   return (
     <TerminalPanel title="Events">
@@ -107,13 +149,39 @@ export function EventsPanel({ events, error }: EventsPanelProps) {
         </div>
 
         {error ? (
-          <p className="font-mono text-sm text-terminal-text/60">
-            {errorMessage(error)}
-          </p>
+          <EventsStatusPanel
+            code="load failed"
+            message={errorMessage(error)}
+            icon={<CalendarDays className="size-6" aria-hidden />}
+            action={
+              error === 'not_configured' ? undefined : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isRetrying}
+                  onClick={() => {
+                    void handleRetry()
+                  }}
+                >
+                  <RefreshCw
+                    className={isRetrying ? 'animate-spin' : undefined}
+                  />
+                  {isRetrying ? 'Lädt…' : 'Erneut laden'}
+                </Button>
+              )
+            }
+          />
         ) : filteredEvents.length === 0 ? (
-          <p className="font-mono text-sm text-terminal-text/60">
-            Keine Events für diese Filter.
-          </p>
+          <EventsStatusPanel
+            code="no events"
+            message={
+              timeFilter === 'upcoming'
+                ? 'Aktuell stehen keine Events an.'
+                : 'Keine vergangenen Events.'
+            }
+            icon={<CalendarDays className="size-6" aria-hidden />}
+          />
         ) : (
           <ul className="divide-y divide-terminal-window-border/70 border-t border-terminal-window-border/70">
             {filteredEvents.map((event, index) => (
