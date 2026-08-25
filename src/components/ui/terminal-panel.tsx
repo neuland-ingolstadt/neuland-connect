@@ -4,6 +4,7 @@ import { cn } from '#/lib/utils'
 type TerminalPanelProps = {
   children: ReactNode
   className?: string
+  id?: string
   title?: string
   subtitle?: string
   titleAside?: ReactNode
@@ -24,6 +25,7 @@ function TerminalCorners() {
 export function TerminalPanel({
   children,
   className,
+  id,
   title,
   subtitle,
   titleAside,
@@ -31,6 +33,7 @@ export function TerminalPanel({
 }: TerminalPanelProps) {
   return (
     <div
+      id={id}
       className={cn(
         'group relative overflow-hidden border border-terminal-window-border bg-terminal-window',
         className,

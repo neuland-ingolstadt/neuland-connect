@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
 import { KONTEN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
 import { getAccountSetupProgress } from '#/lib/integrations/account-setup'
+import { firstIncompleteConnectHash } from '#/lib/integrations/connect-anchors'
 import { cn } from '#/lib/utils'
 import type { CurrentUser } from '#/server/get-current-user'
 
@@ -10,28 +11,25 @@ type KontenSetupBannerProps = {
 }
 
 export function KontenSetupBanner({ user }: KontenSetupBannerProps) {
-  const {
-    doneCount,
-    totalCount,
-    githubComplete,
-    discordComplete,
-    nextComplete,
-  } = getAccountSetupProgress(user)
+  const progress = getAccountSetupProgress(user)
 
-  if (discordComplete && nextComplete) {
+  if (progress.allComplete) {
     return null
   }
 
+  const setupHash = firstIncompleteConnectHash(progress)
   const steps = [
-    { id: 'github', complete: githubComplete },
-    { id: 'discord', complete: discordComplete },
-    { id: 'next', complete: nextComplete },
+    { id: 'github', complete: progress.githubComplete },
+    { id: 'discord', complete: progress.discordComplete },
+    { id: 'next', complete: progress.nextComplete },
   ]
 
   return (
     <Link
       to={ROUTES.CONNECT}
       search={KONTEN_SEARCH_DEFAULTS}
+      hash={setupHash}
+      hashScrollIntoView={{ behavior: 'smooth', block: 'start' }}
       className="group mb-5 block overflow-hidden border border-terminal-window-border bg-terminal-window no-underline transition-colors hover:border-terminal-cyan/40 lg:hidden"
     >
       <div className="flex h-0.5">
@@ -52,7 +50,7 @@ export function KontenSetupBanner({ user }: KontenSetupBannerProps) {
             Konten einrichten
           </span>
           <span className="mt-0.5 block font-mono text-[10px] uppercase tracking-[0.16em] text-terminal-text/50 transition-colors group-hover:text-terminal-cyan">
-            {doneCount}/{totalCount} eingerichtet →
+            {progress.doneCount}/{progress.totalCount} eingerichtet →
           </span>
         </span>
         <ArrowRight

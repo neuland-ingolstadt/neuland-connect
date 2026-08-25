@@ -1,5 +1,5 @@
 import { ArrowUpRight, Clock3, Globe, MapPin } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { type CSSProperties, useMemo, useState } from 'react'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import {
@@ -116,10 +116,11 @@ export function EventsPanel({ events, error }: EventsPanelProps) {
           </p>
         ) : (
           <ul className="divide-y divide-terminal-window-border/70 border-t border-terminal-window-border/70">
-            {filteredEvents.map(event => (
+            {filteredEvents.map((event, index) => (
               <EventRow
-                key={event.id}
+                key={`${timeFilter}-${event.id}`}
                 event={event}
+                index={index}
                 onSelect={() => setSelectedEvent(event)}
               />
             ))}
@@ -153,18 +154,27 @@ function TodayBadge({ className }: { className?: string }) {
   )
 }
 
+const REVEAL_STEP_MS = 45
+const REVEAL_MAX_INDEX = 10
+
 function EventRow({
   event,
+  index,
   onSelect,
 }: {
   event: CampusLifeEvent
+  index: number
   onSelect: () => void
 }) {
   const dayParts = formatEventDayParts(event)
   const isToday = isEventToday(event)
+  const revealDelay = Math.min(index, REVEAL_MAX_INDEX) * REVEAL_STEP_MS
 
   return (
-    <li>
+    <li
+      className="list-reveal"
+      style={{ '--reveal-delay': `${revealDelay}ms` } as CSSProperties}
+    >
       <button
         type="button"
         onClick={onSelect}

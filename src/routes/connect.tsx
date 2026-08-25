@@ -11,6 +11,7 @@ import { AppHeader } from '#/components/layout/app-header'
 import { KontenLoadingShell } from '#/components/layout/konten-loading-shell'
 import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageShell } from '#/components/layout/page-shell'
+import { useIntegrationCardHighlight } from '#/hooks/use-integration-card-highlight'
 import { APP_NAME, LOGIN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
 import { LOADER_STALE_MS } from '#/lib/deferred-loader'
 import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-display'
@@ -54,6 +55,8 @@ function ConnectPage({ user: loaderUser }: { user: CurrentUser }) {
   const navigate = useNavigate()
   const search = Route.useSearch()
   const [user, setUser] = useState<CurrentUser>(loaderUser)
+
+  useIntegrationCardHighlight()
 
   useEffect(() => {
     setUser(prev => (currentUserEquals(prev, loaderUser) ? prev : loaderUser))

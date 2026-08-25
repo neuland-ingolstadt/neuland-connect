@@ -1,4 +1,5 @@
 import { ArrowUpRight, Newspaper } from 'lucide-react'
+import type { CSSProperties } from 'react'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import type { BlogPost } from '#/lib/blog/types'
 import { EXTERNAL_LINKS } from '#/lib/constants'
@@ -8,6 +9,9 @@ type BlogPostsPanelProps = {
   posts: BlogPost[]
   error: string | null
 }
+
+const REVEAL_STEP_MS = 45
+const REVEAL_MAX_INDEX = 10
 
 function formatPublishedDate(value: string): string | null {
   const date = new Date(value)
@@ -50,8 +54,8 @@ export function BlogPostsPanel({ posts, error }: BlogPostsPanelProps) {
           </p>
         ) : (
           <ul className="divide-y divide-terminal-window-border/70">
-            {posts.map(post => (
-              <BlogPostRow key={post.url} post={post} />
+            {posts.map((post, index) => (
+              <BlogPostRow key={post.url} post={post} index={index} />
             ))}
           </ul>
         )}
@@ -60,11 +64,15 @@ export function BlogPostsPanel({ posts, error }: BlogPostsPanelProps) {
   )
 }
 
-function BlogPostRow({ post }: { post: BlogPost }) {
+function BlogPostRow({ post, index }: { post: BlogPost; index: number }) {
   const published = formatPublishedDate(post.publishedAt)
+  const revealDelay = Math.min(index, REVEAL_MAX_INDEX) * REVEAL_STEP_MS
 
   return (
-    <li>
+    <li
+      className="list-reveal"
+      style={{ '--reveal-delay': `${revealDelay}ms` } as CSSProperties}
+    >
       <a
         href={post.url}
         target="_blank"

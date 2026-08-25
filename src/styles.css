@@ -473,3 +473,84 @@ h4 {
     opacity: 0.55;
   }
 }
+
+/* Deep-link flash for Konten integration cards */
+.integration-card-flash {
+  animation: integration-card-flash 1.25s ease-out;
+}
+
+@keyframes integration-card-flash {
+  0% {
+    border-color: color-mix(in oklab, var(--terminal-cyan) 75%, transparent);
+    box-shadow: 0 0 0 1px
+      color-mix(in oklab, var(--terminal-cyan) 35%, transparent);
+  }
+  100% {
+    border-color: var(--terminal-window-border);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+/* Staggered list reveal (events, blog) */
+.list-reveal {
+  opacity: 0;
+  transform: translateY(6px);
+  animation: list-reveal 0.4s ease-out forwards;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+@keyframes list-reveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .integration-card-flash {
+    animation: none;
+    border-color: color-mix(in oklab, var(--terminal-cyan) 55%, transparent);
+  }
+
+  .list-reveal {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
+/* Theme toggle: View Transitions crossfade + color-transition fallback */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+  animation-timing-function: ease;
+}
+
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    fill 180ms ease,
+    stroke 180ms ease,
+    box-shadow 180ms ease !important;
+  transition-delay: 0s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  html.theme-transition,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition: none !important;
+  }
+}

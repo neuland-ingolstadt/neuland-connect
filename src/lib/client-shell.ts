@@ -9,6 +9,7 @@ export const clientShellScript = `
     light: 'Helles Design',
     dark: 'Dunkles Design',
   };
+  var THEME_TRANSITION_MS = 180;
 
   function readMode() {
     try {
@@ -56,6 +57,41 @@ export const clientShellScript = `
     });
   }
 
+  function prefersReducedMotion() {
+    return (
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
+  }
+
+  function commitTheme(mode) {
+    applyMode(mode);
+    document.querySelectorAll('[data-theme-toggle]').forEach(function (toggle) {
+      syncToggle(toggle, mode);
+    });
+  }
+
+  function applyThemeWithTransition(mode) {
+    if (prefersReducedMotion()) {
+      commitTheme(mode);
+      return;
+    }
+
+    if (typeof document.startViewTransition === 'function') {
+      document.startViewTransition(function () {
+        commitTheme(mode);
+      });
+      return;
+    }
+
+    var root = document.documentElement;
+    root.classList.add('theme-transition');
+    commitTheme(mode);
+    window.setTimeout(function () {
+      root.classList.remove('theme-transition');
+    }, THEME_TRANSITION_MS);
+  }
+
   document.addEventListener('click', function (event) {
     var button = event.target.closest('[data-theme-toggle]');
     if (!button) {
@@ -63,11 +99,7 @@ export const clientShellScript = `
     }
 
     event.preventDefault();
-    var next = nextMode(readMode());
-    applyMode(next);
-    document.querySelectorAll('[data-theme-toggle]').forEach(function (toggle) {
-      syncToggle(toggle, next);
-    });
+    applyThemeWithTransition(nextMode(readMode()));
   });
 
   // Apply data-theme immediately to avoid a color flash. Do not touch the

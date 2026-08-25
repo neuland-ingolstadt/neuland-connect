@@ -14,10 +14,6 @@ import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-displa
 import { githubOrgInvitationUrl } from '#/lib/integrations/github/org-status-display'
 import { cn } from '#/lib/utils'
 
-const GITHUB_CARD_ID = 'integration-github'
-const DISCORD_CARD_ID = 'integration-discord'
-const MEMBERSHIP_CARD_ID = 'integration-membership'
-
 type DashboardActionBannerProps = {
   githubConnected: boolean
   githubOrgStatus: GitHubOrgStatus | null
@@ -160,9 +156,3 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
     </div>
   )
 }
-
-export const INTEGRATION_CARD_IDS = {
-  github: GITHUB_CARD_ID,
-  discord: DISCORD_CARD_ID,
-  membership: MEMBERSHIP_CARD_ID,
-} as const

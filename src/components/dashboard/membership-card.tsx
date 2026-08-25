@@ -1,11 +1,12 @@
 import { Check } from 'lucide-react'
 import { NeulandPalm } from '#/components/brand/neuland-palm'
-import { INTEGRATION_CARD_IDS } from '#/components/dashboard/dashboard-action-banner'
 import { IntegrationProgressInline } from '#/components/dashboard/integration-progress-inline'
+import { MembershipPassButton } from '#/components/dashboard/membership-pass-button'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import { EXTERNAL_LINKS } from '#/lib/constants'
+import { INTEGRATION_CARD_IDS } from '#/lib/integrations/connect-anchors'
 import type { NeulandNextMemberSession } from '#/lib/integrations/neuland-next/session'
 
 const SETUP_STEPS = [
@@ -29,6 +30,8 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
 
   return (
     <TerminalPanel
+      id={INTEGRATION_CARD_IDS.membership}
+      className="scroll-mt-24"
       title="Mitgliedsausweis"
       titleAside={
         <IntegrationProgressInline
@@ -37,10 +40,7 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
         />
       }
     >
-      <div
-        id={INTEGRATION_CARD_IDS.membership}
-        className="space-y-4 p-4 scroll-mt-24"
-      >
+      <div className="space-y-4 p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="flex size-10 shrink-0 items-center justify-center border border-terminal-window-border/70">
@@ -61,18 +61,25 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
         </div>
 
         {signedIn ? (
-          <ul className="space-y-2">
-            {UNLOCKED_FEATURES.map(title => (
-              <li key={title} className="flex items-center gap-3">
-                <Check
-                  className="size-3.5 shrink-0 text-terminal-cyan/80"
-                  strokeWidth={2.5}
-                  aria-hidden
-                />
-                <p className="font-mono text-sm text-terminal-text">{title}</p>
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="space-y-2">
+              {UNLOCKED_FEATURES.map(title => (
+                <li key={title} className="flex items-center gap-3">
+                  <Check
+                    className="size-3.5 shrink-0 text-terminal-cyan/80"
+                    strokeWidth={2.5}
+                    aria-hidden
+                  />
+                  <p className="font-mono text-sm text-terminal-text">
+                    {title}
+                  </p>
+                </li>
+              ))}
+            </ul>
+            <div>
+              <MembershipPassButton variant="outline" />
+            </div>
+          </>
         ) : (
           <>
             <ol className="space-y-2">

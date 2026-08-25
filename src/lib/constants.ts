@@ -11,6 +11,8 @@ export const EXTERNAL_LINKS = {
   REPOSITORY: 'https://github.com/neuland-ingolstadt/neuland-connect',
   EGGL_DEV: 'https://eggl.dev',
   NEULAND_NEXT_GET: 'https://neuland.app/get',
+  NEULAND_NEXT_MEMBER: 'https://web.neuland.app/member',
+  NEULAND_NEXT_MEMBER_DEEPLINK: 'neuland://member',
 } as const
 
 /** Authentik application slug for the Next Mitgliedsausweis OIDC client */

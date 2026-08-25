@@ -3,7 +3,6 @@ import { useServerFn } from '@tanstack/react-start'
 import { RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { INTEGRATION_CARD_IDS } from '#/components/dashboard/dashboard-action-banner'
 import { IntegrationOverflowMenu } from '#/components/dashboard/integration-overflow-menu'
 import { IntegrationProgressInline } from '#/components/dashboard/integration-progress-inline'
 import { GitHubIcon } from '#/components/icons/github-icon'
@@ -12,6 +11,7 @@ import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import type { UserAttributes } from '#/lib/authentik/types'
 import { GITHUB_ORG_STATUSES, ROUTES } from '#/lib/constants'
+import { INTEGRATION_CARD_IDS } from '#/lib/integrations/connect-anchors'
 import { buildGitHubIntegrationProgress } from '#/lib/integrations/github/integration-progress'
 import {
   getGitHubOrgStatusDisplay,
@@ -112,6 +112,8 @@ export function GitHubConnectionCard({
 
   return (
     <TerminalPanel
+      id={INTEGRATION_CARD_IDS.github}
+      className="scroll-mt-24"
       title="GitHub"
       titleAside={
         <IntegrationProgressInline
@@ -120,10 +122,7 @@ export function GitHubConnectionCard({
         />
       }
     >
-      <div
-        id={INTEGRATION_CARD_IDS.github}
-        className="space-y-4 p-4 scroll-mt-24"
-      >
+      <div className="space-y-4 p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="flex size-10 shrink-0 items-center justify-center border border-terminal-window-border/70">
