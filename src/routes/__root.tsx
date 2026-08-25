@@ -24,7 +24,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      {
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1, viewport-fit=cover',
+      },
       { title: APP_NAME },
       {
         name: 'theme-color',
@@ -81,19 +84,21 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         />
         <script dangerouslySetInnerHTML={{ __html: clientShellScript }} />
       </head>
-      <body className="min-h-screen bg-terminal-bg font-sans text-terminal-text antialiased">
+      <body className="min-h-screen min-w-0 max-w-full bg-terminal-bg font-sans text-terminal-text antialiased">
         <Providers>
           {children}
           {import.meta.env.DEV ? (
-            <TanStackDevtools
-              config={{ position: 'bottom-right' }}
-              plugins={[
-                {
-                  name: 'Tanstack Router',
-                  render: <TanStackRouterDevtoolsPanel />,
-                },
-              ]}
-            />
+            <div className="hidden md:contents">
+              <TanStackDevtools
+                config={{ position: 'bottom-right' }}
+                plugins={[
+                  {
+                    name: 'Tanstack Router',
+                    render: <TanStackRouterDevtoolsPanel />,
+                  },
+                ]}
+              />
+            </div>
           ) : null}
         </Providers>
         <Scripts />

@@ -11,7 +11,7 @@ export function LegalFooter({ className }: LegalFooterProps) {
   return (
     <footer
       className={cn(
-        'border-t border-terminal-window-border/60 py-6 text-center font-mono text-xs text-terminal-text/45',
+        'page-gutter w-full min-w-0 border-t border-terminal-window-border/60 py-6 text-center font-mono text-xs text-terminal-text/45',
         className,
       )}
     >

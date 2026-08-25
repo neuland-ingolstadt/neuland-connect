@@ -123,13 +123,13 @@ export function GitHubConnectionCard({
       }
     >
       <div className="space-y-4 p-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <div className="flex size-10 shrink-0 items-center justify-center border border-terminal-window-border/70">
               <GitHubIcon className="size-5" />
             </div>
-            <div>
-              <p className="font-mono text-sm font-semibold text-terminal-lightGreen">
+            <div className="min-w-0">
+              <p className="break-words font-mono text-sm font-semibold text-terminal-lightGreen">
                 {connected && attributes.githubUsername ? (
                   <a
                     href={githubProfileUrl(attributes.githubUsername)}
@@ -302,7 +302,7 @@ function DetailItem({
       <dt className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
         {label}
       </dt>
-      <dd className="mt-0.5 font-mono text-sm text-terminal-text">
+      <dd className="mt-0.5 break-all font-mono text-sm text-terminal-text">
         {href && value ? (
           <a
             href={href}

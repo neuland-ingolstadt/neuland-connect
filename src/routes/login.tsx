@@ -109,7 +109,7 @@ function LoginShell({ children }: { children: ReactNode }) {
     <PageShell>
       <AppHeader showDashboardLink={false} />
 
-      <div className="flex flex-1 items-center justify-center p-4">
+      <div className="flex w-full min-w-0 flex-1 items-center justify-center p-4">
         <TerminalPanel title="Authentifizierung" className="w-full max-w-md">
           {children}
         </TerminalPanel>

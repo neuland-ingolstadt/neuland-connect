@@ -17,7 +17,7 @@ export function AppNotFoundPage() {
     <PageShell>
       <AppHeader showDashboardLink={false} />
 
-      <div className="flex flex-1 items-center justify-center p-4">
+      <div className="flex w-full min-w-0 flex-1 items-center justify-center p-4">
         <TerminalPanel title="Navigation" className="w-full max-w-md">
           <div className="space-y-6 p-6 text-center">
             <div className="mx-auto flex justify-center">

@@ -107,7 +107,7 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
 
       <div
         className={cn(
-          'grid divide-y divide-terminal-window-border sm:divide-x sm:divide-y-0',
+          'grid grid-cols-1 divide-y divide-terminal-window-border sm:divide-x sm:divide-y-0',
           tasks.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3',
         )}
       >

@@ -70,11 +70,11 @@ export function MembershipPassDialog({
               alt="QR-Code zum Mitgliedsausweis"
               width={220}
               height={220}
-              className="size-[220px]"
+              className="h-auto w-full max-w-[220px]"
             />
           ) : (
             <div
-              className="flex size-[220px] items-center justify-center"
+              className="flex aspect-square w-full max-w-[220px] items-center justify-center"
               aria-hidden
             >
               <Smartphone className="size-8 text-terminal-text/35" />

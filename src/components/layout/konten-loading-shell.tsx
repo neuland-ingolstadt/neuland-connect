@@ -1,6 +1,6 @@
 import { AppHeader } from '#/components/layout/app-header'
 import { LegalFooter } from '#/components/layout/legal-footer'
-import { PageShell } from '#/components/layout/page-shell'
+import { PageMain, PageShell } from '#/components/layout/page-shell'
 import { Skeleton } from '#/components/ui/skeleton'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 
@@ -21,7 +21,7 @@ export function KontenLoadingShell() {
     <PageShell>
       <AppHeader isSignedIn />
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+      <PageMain>
         <header className="mb-6">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
             Konten
@@ -31,21 +31,23 @@ export function KontenLoadingShell() {
           </h1>
         </header>
 
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <Skeleton className="h-14 w-full" />
 
-          <div className="grid gap-5 lg:grid-cols-3">
-            <div className="space-y-5 lg:col-span-2">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+            <div className="min-w-0 space-y-5 lg:col-span-2">
               <CardSkeleton />
               <CardSkeleton />
               <CardSkeleton />
             </div>
-            <CardSkeleton />
+            <div className="min-w-0">
+              <CardSkeleton />
+            </div>
           </div>
         </div>
-      </main>
+      </PageMain>
 
-      <LegalFooter className="px-4" />
+      <LegalFooter />
     </PageShell>
   )
 }

@@ -28,7 +28,7 @@ export function ResourceHubContent({ groups }: ResourceHubContentProps) {
           >
             {group.label}
           </h2>
-          <ul className="grid gap-3 sm:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {group.items.map(item => (
               <li key={item.slug}>
                 <ResourceHubCard item={item} />

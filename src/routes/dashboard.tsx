@@ -8,7 +8,7 @@ import { KontenStatusPanel } from '#/components/dashboard/konten-status-panel'
 import { DeferredValue } from '#/components/deferred-value'
 import { AppHeader } from '#/components/layout/app-header'
 import { LegalFooter } from '#/components/layout/legal-footer'
-import { PageShell } from '#/components/layout/page-shell'
+import { PageMain, PageShell } from '#/components/layout/page-shell'
 import { Skeleton } from '#/components/ui/skeleton'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import type { BlogPostsResult } from '#/lib/blog/types'
@@ -154,7 +154,7 @@ function DashboardRoute() {
     <PageShell>
       <AppHeader isSignedIn />
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+      <PageMain>
         <header className="mb-6">
           <p className="font-mono text-xs uppercase tracking-[0.16em] text-terminal-text/50">
             Dashboard
@@ -168,8 +168,8 @@ function DashboardRoute() {
           {resolvedUser => <KontenSetupBanner user={resolvedUser} />}
         </DeferredValue>
 
-        <div className="grid gap-5 lg:grid-cols-3">
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <div className="min-w-0 lg:col-span-2">
             <DeferredValue value={events} fallback={<EventsPanelSkeleton />}>
               {resolvedEvents => (
                 <EventsPanel
@@ -179,7 +179,7 @@ function DashboardRoute() {
               )}
             </DeferredValue>
           </div>
-          <div className="space-y-5">
+          <div className="min-w-0 space-y-5">
             <DeferredValue value={user} fallback={<ProfilePanelsSkeleton />}>
               {resolvedUser => (
                 <>
@@ -196,7 +196,7 @@ function DashboardRoute() {
           </div>
         </div>
 
-        <div className="mt-5">
+        <div className="mt-5 min-w-0">
           <DeferredValue
             value={blogPosts}
             fallback={<BlogPostsPanelSkeleton />}
@@ -209,9 +209,9 @@ function DashboardRoute() {
             )}
           </DeferredValue>
         </div>
-      </main>
+      </PageMain>
 
-      <LegalFooter className="px-4" />
+      <LegalFooter />
     </PageShell>
   )
 }
@@ -233,7 +233,7 @@ function DashboardPage({
     <PageShell>
       <AppHeader isSignedIn />
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+      <PageMain>
         <header className="mb-6">
           <p className="font-mono text-xs uppercase tracking-[0.16em] text-terminal-text/50">
             Dashboard
@@ -245,11 +245,11 @@ function DashboardPage({
 
         <KontenSetupBanner user={user} />
 
-        <div className="grid gap-5 lg:grid-cols-3">
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <div className="min-w-0 lg:col-span-2">
             <EventsPanel events={events.events} error={events.error} />
           </div>
-          <div className="space-y-5">
+          <div className="min-w-0 space-y-5">
             <DashboardProfilePanel
               name={user.name}
               username={user.username}
@@ -260,12 +260,12 @@ function DashboardPage({
           </div>
         </div>
 
-        <div className="mt-5">
+        <div className="mt-5 min-w-0">
           <BlogPostsPanel posts={blogPosts.posts} error={blogPosts.error} />
         </div>
-      </main>
+      </PageMain>
 
-      <LegalFooter className="px-4" />
+      <LegalFooter />
     </PageShell>
   )
 }

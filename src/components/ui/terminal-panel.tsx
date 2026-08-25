@@ -35,7 +35,7 @@ export function TerminalPanel({
     <div
       id={id}
       className={cn(
-        'group relative overflow-hidden border border-terminal-window-border bg-terminal-window',
+        'group relative min-w-0 max-w-full overflow-hidden border border-terminal-window-border bg-terminal-window',
         className,
       )}
     >

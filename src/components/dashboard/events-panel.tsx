@@ -44,7 +44,7 @@ function FilterSegment({
       className={cn(
         'flex-1 cursor-pointer px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] transition-colors',
         active
-          ? 'bg-terminal-cyan/10 text-terminal-cyan'
+          ? 'bg-terminal-cyan text-terminal-onAccent'
           : 'text-terminal-text/50 hover:text-terminal-text/75',
       )}
     >
@@ -179,7 +179,7 @@ function EventRow({
         type="button"
         onClick={onSelect}
         className={cn(
-          'flex w-full cursor-pointer gap-3 py-3.5 text-left sm:gap-4',
+          'flex w-full min-w-0 cursor-pointer gap-3 py-3.5 text-left sm:gap-4',
           'transition-colors hover:bg-terminal-text/3 focus-visible:bg-terminal-text/3 focus-visible:outline-none',
         )}
       >
@@ -220,7 +220,7 @@ function EventRow({
             {event.visibility === 'public' ? <PublicEventIcon /> : null}
           </div>
 
-          <p className="mt-1 text-xs text-terminal-text/55">
+          <p className="mt-1 break-words text-xs text-terminal-text/55">
             {formatEventDateRange(event)}
             {event.location ? ` · ${event.location}` : null}
           </p>

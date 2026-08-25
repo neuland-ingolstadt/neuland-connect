@@ -12,7 +12,7 @@ export function ConnectBootScreen() {
   return (
     <PageShell>
       <main
-        className="flex flex-1 items-center justify-center px-4 py-10"
+        className="page-gutter flex w-full min-w-0 flex-1 items-center justify-center py-10"
         aria-busy="true"
         aria-live="polite"
       >

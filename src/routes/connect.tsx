@@ -10,7 +10,7 @@ import { DeferredValue } from '#/components/deferred-value'
 import { AppHeader } from '#/components/layout/app-header'
 import { KontenLoadingShell } from '#/components/layout/konten-loading-shell'
 import { LegalFooter } from '#/components/layout/legal-footer'
-import { PageShell } from '#/components/layout/page-shell'
+import { PageMain, PageShell } from '#/components/layout/page-shell'
 import { useIntegrationCardHighlight } from '#/hooks/use-integration-card-highlight'
 import { APP_NAME, LOGIN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
 import { LOADER_STALE_MS } from '#/lib/deferred-loader'
@@ -188,9 +188,9 @@ function ConnectPage({ user: loaderUser }: { user: CurrentUser }) {
     <PageShell>
       <AppHeader isSignedIn />
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+      <PageMain>
         <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
-          <div>
+          <div className="min-w-0">
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
               Konten
             </p>
@@ -200,7 +200,7 @@ function ConnectPage({ user: loaderUser }: { user: CurrentUser }) {
           </div>
         </header>
 
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <DashboardActionBanner
             githubConnected={user.githubConnected}
             githubOrgStatus={user.attributes.githubOrgStatus}
@@ -210,8 +210,8 @@ function ConnectPage({ user: loaderUser }: { user: CurrentUser }) {
             nextSignedIn={user.nextSession.signedIn}
           />
 
-          <div className="grid gap-5 lg:grid-cols-3">
-            <div className="space-y-5 lg:col-span-2">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+            <div className="min-w-0 space-y-5 lg:col-span-2">
               <GitHubConnectionCard
                 connected={user.githubConnected}
                 attributes={user.attributes}
@@ -227,17 +227,19 @@ function ConnectPage({ user: loaderUser }: { user: CurrentUser }) {
               <MembershipCard nextSession={user.nextSession} />
             </div>
 
-            <UserDataCard
-              name={user.name}
-              email={user.email}
-              username={user.username}
-              groups={user.groups}
-            />
+            <div className="min-w-0">
+              <UserDataCard
+                name={user.name}
+                email={user.email}
+                username={user.username}
+                groups={user.groups}
+              />
+            </div>
           </div>
         </div>
-      </main>
+      </PageMain>
 
-      <LegalFooter className="px-4" />
+      <LegalFooter />
     </PageShell>
   )
 }
