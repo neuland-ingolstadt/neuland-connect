@@ -15,10 +15,12 @@ import type { BlogPostsResult } from '#/lib/blog/types'
 import type { CampusLifeEventsResult } from '#/lib/campus-life/types'
 import { APP_NAME, ROUTES } from '#/lib/constants'
 import { LOADER_STALE_MS, resolvedDeferred } from '#/lib/deferred-loader'
+import type { SessionUser } from '#/lib/session-types'
 import { getLatestBlogPostsFn } from '#/server/get-blog-posts'
 import {
   type CurrentUser,
-  requireSignedInUser,
+  loadSignedInUser,
+  requireActiveSession,
 } from '#/server/get-current-user'
 import { getNeulandEventsFn } from '#/server/get-events'
 
@@ -116,10 +118,13 @@ export const Route = createFileRoute('/dashboard')({
       })
     }
 
-    const user = await requireSignedInUser()
+    // Cookie gate only — Authentik profile streams via defer so the shell paints
+    // immediately (greeting from session name; panels skeleton until ready).
+    const sessionUser = await requireActiveSession()
 
     return {
-      user,
+      sessionUser,
+      user: defer(loadSignedInUser()),
       events: defer(getNeulandEventsFn()),
       blogPosts: defer(getLatestBlogPostsFn()),
     }
@@ -128,7 +133,8 @@ export const Route = createFileRoute('/dashboard')({
 })
 
 function DashboardRoute() {
-  const { user, events, blogPosts } = Route.useLoaderData()
+  const { sessionUser, user, events, blogPosts } = Route.useLoaderData()
+  const firstName = sessionUser.name.split(' ')[0]
   const cachedUser = resolvedDeferred(user)
   const cachedEvents = resolvedDeferred(events)
   const cachedBlogPosts = resolvedDeferred(blogPosts)
@@ -136,6 +142,7 @@ function DashboardRoute() {
   if (cachedUser && cachedEvents && cachedBlogPosts) {
     return (
       <DashboardPage
+        sessionUser={sessionUser}
         user={cachedUser}
         events={cachedEvents}
         blogPosts={cachedBlogPosts}
@@ -148,30 +155,17 @@ function DashboardRoute() {
       <AppHeader isSignedIn />
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
-        <DeferredValue
-          value={user}
-          fallback={
-            <header className="mb-6">
-              <p className="font-mono text-xs uppercase tracking-[0.16em] text-terminal-text/50">
-                Dashboard
-              </p>
-              <Skeleton className="mt-2 h-8 w-48 sm:h-9" />
-            </header>
-          }
-        >
-          {resolvedUser => (
-            <>
-              <header className="mb-6">
-                <p className="font-mono text-xs uppercase tracking-[0.16em] text-terminal-text/50">
-                  Dashboard
-                </p>
-                <h1 className="mt-1 font-sans text-2xl font-bold tracking-tight sm:text-3xl">
-                  Hallo {resolvedUser.name.split(' ')[0]}
-                </h1>
-              </header>
-              <KontenSetupBanner user={resolvedUser} />
-            </>
-          )}
+        <header className="mb-6">
+          <p className="font-mono text-xs uppercase tracking-[0.16em] text-terminal-text/50">
+            Dashboard
+          </p>
+          <h1 className="mt-1 font-sans text-2xl font-bold tracking-tight sm:text-3xl">
+            Hallo {firstName}
+          </h1>
+        </header>
+
+        <DeferredValue value={user} fallback={null}>
+          {resolvedUser => <KontenSetupBanner user={resolvedUser} />}
         </DeferredValue>
 
         <div className="grid gap-5 lg:grid-cols-3">
@@ -223,15 +217,17 @@ function DashboardRoute() {
 }
 
 function DashboardPage({
+  sessionUser,
   user,
   events,
   blogPosts,
 }: {
+  sessionUser: SessionUser
   user: CurrentUser
   events: CampusLifeEventsResult
   blogPosts: BlogPostsResult
 }) {
-  const firstName = user.name.split(' ')[0]
+  const firstName = (user.name || sessionUser.name).split(' ')[0]
 
   return (
     <PageShell>

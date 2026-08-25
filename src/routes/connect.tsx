@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, defer, useNavigate } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { DashboardActionBanner } from '#/components/dashboard/dashboard-action-banner'
@@ -19,8 +19,9 @@ import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
 import {
   type CurrentUser,
   currentUserEquals,
+  loadSignedInUser,
   refreshCurrentUserFn,
-  requireSignedInUser,
+  requireActiveSession,
 } from '#/server/get-current-user'
 
 export const Route = createFileRoute('/connect')({
@@ -35,9 +36,12 @@ export const Route = createFileRoute('/connect')({
     status: typeof search.status === 'string' ? search.status : undefined,
     message: typeof search.message === 'string' ? search.message : undefined,
   }),
-  loader: async () => ({
-    user: await requireSignedInUser(),
-  }),
+  loader: async () => {
+    await requireActiveSession()
+    return {
+      user: defer(loadSignedInUser()),
+    }
+  },
   component: ConnectRoute,
 })
 

@@ -8,6 +8,7 @@ import {
 import { LOGIN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
 import type { NeulandNextMemberSession } from '#/lib/integrations/neuland-next/session'
 import { isSpecialProfileGroup } from '#/lib/profile-groups'
+import type { SessionUser } from '#/lib/session-types'
 
 export type CurrentUser = {
   sub: string
@@ -64,6 +65,26 @@ export const hasActiveSessionFn = createServerFn({ method: 'GET' }).handler(
     return Boolean(sessionData)
   },
 )
+
+/** Cookie identity only — no Authentik round-trip. */
+export const getSessionUserFn = createServerFn({ method: 'GET' }).handler(
+  async (): Promise<SessionUser | null> => {
+    const { requireSessionUser } = await import('#/lib/session.server')
+    const sessionData = await requireSessionUser()
+    return sessionData?.user ?? null
+  },
+)
+
+/** Fast auth gate for loaders: session cookie present, redirect if not. */
+export async function requireActiveSession(): Promise<SessionUser> {
+  const user = await getSessionUserFn()
+
+  if (!user) {
+    throw redirect({ to: ROUTES.LOGIN, search: LOGIN_SEARCH_DEFAULTS })
+  }
+
+  return user
+}
 
 async function fetchCurrentUserFromAuthentik(): Promise<CurrentUser | null> {
   const { requireSessionUser } = await import('#/lib/session.server')
@@ -229,13 +250,21 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
 )
 
 export async function requireSignedInUser(): Promise<CurrentUser> {
-  const user = await getCurrentUserFn()
+  return loadSignedInUser()
+}
 
-  if (!user) {
-    throw redirect({ to: ROUTES.LOGIN, search: LOGIN_SEARCH_DEFAULTS })
-  }
+/**
+ * Authentik profile promise for `defer()` — shell can paint from the session
+ * cookie while this resolves.
+ */
+export function loadSignedInUser(): Promise<CurrentUser> {
+  return getCurrentUserFn().then(user => {
+    if (!user) {
+      throw redirect({ to: ROUTES.LOGIN, search: LOGIN_SEARCH_DEFAULTS })
+    }
 
-  return user
+    return user
+  })
 }
 
 /** Bypass cache after connect/disconnect or while polling org/guild status. */

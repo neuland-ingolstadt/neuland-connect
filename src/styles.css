@@ -536,7 +536,10 @@ html.theme-transition *::after {
     color 180ms ease,
     fill 180ms ease,
     stroke 180ms ease,
+    /* Override component transitions during theme swap */
+    /* biome-ignore lint/complexity/noImportantStyles: must beat per-component transition rules */
     box-shadow 180ms ease !important;
+  /* biome-ignore lint/complexity/noImportantStyles: cancel delayed transitions during theme swap */
   transition-delay: 0s !important;
 }
 
@@ -544,6 +547,7 @@ html.theme-transition *::after {
   ::view-transition-group(*),
   ::view-transition-old(*),
   ::view-transition-new(*) {
+    /* biome-ignore lint/complexity/noImportantStyles: respect reduced motion over VT defaults */
     animation: none !important;
   }
 
@@ -551,6 +555,7 @@ html.theme-transition *::after {
   html.theme-transition *,
   html.theme-transition *::before,
   html.theme-transition *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: respect reduced motion over theme swap */
     transition: none !important;
   }
 }

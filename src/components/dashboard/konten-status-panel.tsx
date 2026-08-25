@@ -90,9 +90,7 @@ export function KontenStatusPanel({ user }: KontenStatusPanelProps) {
           <StatusRow
             icon={<NeulandPalm className="size-3.5 text-terminal-text" />}
             label="Neuland Next"
-            hint={
-              next.isComplete ? 'Mitgliedsausweis öffnen.' : next.hint
-            }
+            hint={next.isComplete ? 'Mitgliedsausweis öffnen.' : next.hint}
             complete={next.isComplete}
             hash={INTEGRATION_CARD_IDS.membership}
             onActivate={next.isComplete ? openPass : undefined}
