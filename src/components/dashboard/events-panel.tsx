@@ -1,5 +1,6 @@
 import { ArrowUpRight, Clock3, Globe, MapPin } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import {
   Dialog,
@@ -14,6 +15,7 @@ import {
   formatEventDateRange,
   formatEventDayParts,
   isEventPast,
+  isEventToday,
   sortEvents,
 } from '#/lib/campus-life/format'
 import type { CampusLifeEvent } from '#/lib/campus-life/types'
@@ -137,6 +139,20 @@ export function EventsPanel({ events, error }: EventsPanelProps) {
   )
 }
 
+function TodayBadge({ className }: { className?: string }) {
+  return (
+    <Badge
+      variant="default"
+      className={cn(
+        'shrink-0 px-1.5 py-px text-[9px] tracking-[0.14em]',
+        className,
+      )}
+    >
+      Heute
+    </Badge>
+  )
+}
+
 function EventRow({
   event,
   onSelect,
@@ -145,6 +161,7 @@ function EventRow({
   onSelect: () => void
 }) {
   const dayParts = formatEventDayParts(event)
+  const isToday = isEventToday(event)
 
   return (
     <li>
@@ -156,14 +173,29 @@ function EventRow({
           'transition-colors hover:bg-terminal-text/3 focus-visible:bg-terminal-text/3 focus-visible:outline-none',
         )}
       >
-        <div className="flex w-11 shrink-0 flex-col items-center justify-center border-l-2 border-terminal-cyan/30 pl-2.5">
+        <div
+          className={cn(
+            'flex w-11 shrink-0 flex-col items-center justify-center border-l-2 pl-2.5',
+            isToday ? 'border-terminal-cyan' : 'border-terminal-cyan/30',
+          )}
+        >
           {dayParts ? (
             <>
-              <span className="font-mono text-sm font-semibold leading-none text-terminal-text">
+              <span
+                className={cn(
+                  'font-mono text-sm font-semibold leading-none',
+                  isToday ? 'text-terminal-cyan' : 'text-terminal-text',
+                )}
+              >
                 {dayParts.day}
               </span>
-              <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.14em] text-terminal-text/40">
-                {dayParts.month}
+              <span
+                className={cn(
+                  'mt-1 font-mono text-[9px] font-semibold uppercase tracking-[0.14em]',
+                  isToday ? 'text-terminal-cyan' : 'text-terminal-text/40',
+                )}
+              >
+                {isToday ? 'Heute' : dayParts.month}
               </span>
             </>
           ) : (
@@ -172,10 +204,11 @@ function EventRow({
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="flex items-center gap-1.5 text-sm font-medium text-terminal-text">
+          <div className="flex min-w-0 items-center gap-1.5 text-sm font-medium text-terminal-text">
+            {isToday ? <TodayBadge /> : null}
             <span className="min-w-0 truncate">{event.title}</span>
             {event.visibility === 'public' ? <PublicEventIcon /> : null}
-          </p>
+          </div>
 
           <p className="mt-1 text-xs text-terminal-text/55">
             {formatEventDateRange(event)}
@@ -210,6 +243,7 @@ function EventDetailsDialog({
             </p>
             <DialogTitle className="flex items-center gap-2 text-lg">
               <span className="min-w-0">{event.title}</span>
+              {isEventToday(event) ? <TodayBadge /> : null}
               {event.visibility === 'public' ? <PublicEventIcon /> : null}
             </DialogTitle>
           </DialogHeader>

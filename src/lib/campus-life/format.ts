@@ -64,6 +64,30 @@ export function isEventPast(event: CampusLifeEvent, now = Date.now()): boolean {
   return timestamp !== null && timestamp < now
 }
 
+export function isEventToday(
+  event: CampusLifeEvent,
+  now = Date.now(),
+): boolean {
+  const startMs = getEventTimestamp(event)
+  if (startMs === null) {
+    return false
+  }
+
+  const todayKey = formatDayKey(new Date(now))
+  const startKey = formatDayKey(new Date(startMs))
+  if (startKey === todayKey) {
+    return true
+  }
+
+  const endMs = event.endDateTime ? timestampOf(event.endDateTime) : null
+  if (endMs === null) {
+    return false
+  }
+
+  const endKey = formatDayKey(new Date(endMs))
+  return startKey <= todayKey && todayKey <= endKey
+}
+
 export function formatEventDateRange(
   event: CampusLifeEvent,
   fallback = 'Termin folgt',
