@@ -44,7 +44,7 @@ function FilterSegment({
       className={cn(
         'flex-1 cursor-pointer px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] transition-colors',
         active
-          ? 'bg-terminal-cyan text-terminal-onAccent'
+          ? 'bg-terminal-cyan/10 text-terminal-lightGreen'
           : 'text-terminal-text/50 hover:text-terminal-text/75',
       )}
     >
