@@ -158,8 +158,7 @@ function buildDigestPayload(
   now: number,
 ) {
   const displayDate = formatDisplayDate(dayKey, now)
-  const countLabel =
-    events.length === 1 ? '1 Event' : `${events.length} Events`
+  const countLabel = events.length === 1 ? '1 Event' : `${events.length} Events`
 
   const description = events
     .slice(0, 25)
