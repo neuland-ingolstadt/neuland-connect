@@ -65,8 +65,13 @@ export function getEventTimestamp(event: CampusLifeEvent): number | null {
 }
 
 export function isEventPast(event: CampusLifeEvent, now = Date.now()): boolean {
-  const timestamp = getEventTimestamp(event)
-  return timestamp !== null && timestamp < now
+  const endMs = event.endDateTime ? timestampOf(event.endDateTime) : null
+  if (endMs !== null) {
+    return endMs < now
+  }
+
+  const startMs = getEventTimestamp(event)
+  return startMs !== null && startMs < now
 }
 
 export function isEventToday(
