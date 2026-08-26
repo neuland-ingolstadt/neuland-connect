@@ -154,8 +154,8 @@ class DiscordGatewayClient {
             url: DISCORD_PRESENCE_URL,
           },
         ],
-        status: 'dnd',
-        afk: false,
+        status: 'idle',
+        afk: true,
       },
     })
   }

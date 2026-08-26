@@ -18,6 +18,7 @@ declare global {
       readonly DISCORD_GUILD_ID: string
       readonly DISCORD_PUBLIC_KEY: string
       readonly DISCORD_BOT_GATEWAY?: string
+      readonly DISCORD_EVENTS_CHANNEL_ID?: string
       readonly CL_API_KEY?: string
       readonly CL_API_URL?: string
       readonly NODE_ENV: 'development' | 'production' | 'test'

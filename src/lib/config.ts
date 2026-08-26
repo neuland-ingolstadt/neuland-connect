@@ -120,6 +120,10 @@ export const serverConfig = {
         .trim()
         .replace(/^['"]|['"]$/g, '')
     },
+    /** Channel for daily “events today” digests. Optional until notify cron is used. */
+    get eventsChannelId() {
+      return optionalEnv('DISCORD_EVENTS_CHANNEL_ID')
+    },
   },
   get cronSecret() {
     return optionalEnv('CRON_SECRET')

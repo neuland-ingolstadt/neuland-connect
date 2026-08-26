@@ -141,9 +141,10 @@ Copy [`.env.example`](./.env.example) to `.env` (or `.env.local` for Vite).
 | `CRON_SECRET` | Org/team/Discord sync | Bearer token for internal cron endpoints |
 | `DISCORD_CLIENT_ID` | Discord | Discord OAuth App client ID |
 | `DISCORD_CLIENT_SECRET` | Discord | Discord OAuth App client secret |
-| `DISCORD_BOT_TOKEN` | Discord | Bot token (guild join, role sync) |
+| `DISCORD_BOT_TOKEN` | Discord | Bot token (guild join, role sync, events digest) |
 | `DISCORD_GUILD_ID` | Discord | Neuland guild snowflake |
 | `DISCORD_PUBLIC_KEY` | Discord | Application public key for slash-command interactions |
+| `DISCORD_EVENTS_CHANNEL_ID` | Discord | Channel for daily “events today” digests (optional) |
 | `CL_API_KEY` | Events | Campus Life API token (same as the website) for Neuland events including internal ones |
 
 ## Authentik setup
@@ -240,6 +241,17 @@ Connect uses an **OAuth App** (member linking) and a **bot** (guild join, role a
 ### Bot role sync (group → role mapping)
 
 For automatic role assignment based on Authentik groups, set the group attribute `discord_role` to the Discord role snowflake ID. The bot syncs roles on connect and via cron (`POST /api/internal/discord-roles/sync`).
+
+### Daily events digest
+
+When `DISCORD_EVENTS_CHANNEL_ID` and `CL_API_KEY` are set, a cron can post today’s Campus Life events to that channel (at most once per Europe/Berlin calendar day; duplicate runs are skipped via a marker in the message footer):
+
+```bash
+curl -X POST https://connect.neuland.ing/api/internal/discord-events/notify \
+  -H "Authorization: Bearer $CRON_SECRET"
+```
+
+Schedule this once in the morning (e.g. every hour from 07:00–10:00 Berlin). The bot needs **View Channel**, **Send Messages**, and **Read Message History** on the target channel.
 
 ## Docker
 

@@ -102,6 +102,7 @@ Parse via `parseUserAttributes()` in `src/lib/authentik/types.ts`.
 - Implementation: `src/lib/integrations/discord/`
 - Member flow: link account → auto-join guild on callback → bot syncs roles from Authentik groups with `discord_role`
 - Cron: `POST /api/internal/discord-roles/sync` (Bearer `CRON_SECRET`)
+- Events digest cron: `POST /api/internal/discord-events/notify` — posts today’s Campus Life events to `DISCORD_EVENTS_CHANNEL_ID` once per Berlin day (idempotent via message footer marker)
 - Disconnect: `disconnectDiscordFn` clears Discord attributes and strips guild roles (no kick)
 
 ## Future plan: GitHub Org invitations (GitHub App)

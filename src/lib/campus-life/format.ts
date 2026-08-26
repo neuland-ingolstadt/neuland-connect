@@ -50,6 +50,11 @@ function formatDayKey(date: Date): string {
   return dayKeyFormatter.format(date)
 }
 
+/** Calendar day key in Europe/Berlin (`YYYY-MM-DD`). */
+export function getBerlinDayKey(date: Date = new Date()): string {
+  return formatDayKey(date)
+}
+
 function timestampOf(iso: string): number | null {
   const value = new Date(iso).getTime()
   return Number.isNaN(value) ? null : value

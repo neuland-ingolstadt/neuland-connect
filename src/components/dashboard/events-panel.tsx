@@ -283,7 +283,6 @@ function EventRow({
 
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-1.5 text-sm font-medium text-terminal-text">
-            {isToday ? <TodayBadge /> : null}
             <span className="min-w-0 truncate">{event.title}</span>
             {event.visibility === 'public' ? <PublicEventIcon /> : null}
           </div>

@@ -304,4 +304,72 @@ async function setGuildMemberRoles(
   })
 }
 
+export type DiscordChannelMessage = {
+  id: string
+  content: string
+  author?: {
+    id: string
+    bot?: boolean
+  }
+  embeds?: Array<{
+    url?: string
+    footer?: {
+      text?: string
+    }
+  }>
+}
+
+export type DiscordCreateMessageBody = {
+  content?: string
+  embeds?: Array<{
+    title?: string
+    description?: string
+    url?: string
+    color?: number
+    fields?: Array<{
+      name: string
+      value: string
+      inline?: boolean
+    }>
+    footer?: {
+      text: string
+    }
+  }>
+  components?: Array<{
+    type: number
+    components: Array<{
+      type: number
+      style?: number
+      label?: string
+      url?: string
+    }>
+  }>
+}
+
+export async function listChannelMessages(
+  channelId: string,
+  limit = 50,
+): Promise<DiscordChannelMessage[]> {
+  const capped = Math.min(Math.max(limit, 1), 100)
+  return discordBotFetch<DiscordChannelMessage[]>(
+    `/channels/${channelId}/messages?limit=${capped}`,
+  )
+}
+
+export async function createChannelMessage(
+  channelId: string,
+  body: DiscordCreateMessageBody,
+): Promise<DiscordChannelMessage> {
+  return discordBotFetch<DiscordChannelMessage>(
+    `/channels/${channelId}/messages`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    },
+  )
+}
+
 export { DiscordApiError }

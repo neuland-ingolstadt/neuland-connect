@@ -26,6 +26,7 @@ import { Route as ApiIntegrationsDiscordConnectRouteImport } from './routes/api/
 import { Route as ApiIntegrationsDiscordInteractionsRouteImport } from './routes/api/integrations/discord/interactions'
 import { Route as ApiIntegrationsGithubCallbackRouteImport } from './routes/api/integrations/github/callback'
 import { Route as ApiIntegrationsGithubConnectRouteImport } from './routes/api/integrations/github/connect'
+import { Route as ApiInternalDiscordEventsNotifyRouteImport } from './routes/api/internal/discord-events/notify'
 import { Route as ApiInternalDiscordRolesSyncRouteImport } from './routes/api/internal/discord-roles/sync'
 import { Route as ApiInternalGithubOrgSyncRouteImport } from './routes/api/internal/github-org/sync'
 import { Route as ApiInternalGithubTeamsSyncRouteImport } from './routes/api/internal/github-teams/sync'
@@ -120,6 +121,12 @@ const ApiIntegrationsGithubConnectRoute =
     path: '/api/integrations/github/connect',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiInternalDiscordEventsNotifyRoute =
+  ApiInternalDiscordEventsNotifyRouteImport.update({
+    id: '/api/internal/discord-events/notify',
+    path: '/api/internal/discord-events/notify',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiInternalDiscordRolesSyncRoute =
   ApiInternalDiscordRolesSyncRouteImport.update({
     id: '/api/internal/discord-roles/sync',
@@ -157,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/api/integrations/discord/interactions': typeof ApiIntegrationsDiscordInteractionsRoute
   '/api/integrations/github/callback': typeof ApiIntegrationsGithubCallbackRoute
   '/api/integrations/github/connect': typeof ApiIntegrationsGithubConnectRoute
+  '/api/internal/discord-events/notify': typeof ApiInternalDiscordEventsNotifyRoute
   '/api/internal/discord-roles/sync': typeof ApiInternalDiscordRolesSyncRoute
   '/api/internal/github-org/sync': typeof ApiInternalGithubOrgSyncRoute
   '/api/internal/github-teams/sync': typeof ApiInternalGithubTeamsSyncRoute
@@ -179,6 +187,7 @@ export interface FileRoutesByTo {
   '/api/integrations/discord/interactions': typeof ApiIntegrationsDiscordInteractionsRoute
   '/api/integrations/github/callback': typeof ApiIntegrationsGithubCallbackRoute
   '/api/integrations/github/connect': typeof ApiIntegrationsGithubConnectRoute
+  '/api/internal/discord-events/notify': typeof ApiInternalDiscordEventsNotifyRoute
   '/api/internal/discord-roles/sync': typeof ApiInternalDiscordRolesSyncRoute
   '/api/internal/github-org/sync': typeof ApiInternalGithubOrgSyncRoute
   '/api/internal/github-teams/sync': typeof ApiInternalGithubTeamsSyncRoute
@@ -202,6 +211,7 @@ export interface FileRoutesById {
   '/api/integrations/discord/interactions': typeof ApiIntegrationsDiscordInteractionsRoute
   '/api/integrations/github/callback': typeof ApiIntegrationsGithubCallbackRoute
   '/api/integrations/github/connect': typeof ApiIntegrationsGithubConnectRoute
+  '/api/internal/discord-events/notify': typeof ApiInternalDiscordEventsNotifyRoute
   '/api/internal/discord-roles/sync': typeof ApiInternalDiscordRolesSyncRoute
   '/api/internal/github-org/sync': typeof ApiInternalGithubOrgSyncRoute
   '/api/internal/github-teams/sync': typeof ApiInternalGithubTeamsSyncRoute
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/api/integrations/discord/interactions'
     | '/api/integrations/github/callback'
     | '/api/integrations/github/connect'
+    | '/api/internal/discord-events/notify'
     | '/api/internal/discord-roles/sync'
     | '/api/internal/github-org/sync'
     | '/api/internal/github-teams/sync'
@@ -248,6 +259,7 @@ export interface FileRouteTypes {
     | '/api/integrations/discord/interactions'
     | '/api/integrations/github/callback'
     | '/api/integrations/github/connect'
+    | '/api/internal/discord-events/notify'
     | '/api/internal/discord-roles/sync'
     | '/api/internal/github-org/sync'
     | '/api/internal/github-teams/sync'
@@ -270,6 +282,7 @@ export interface FileRouteTypes {
     | '/api/integrations/discord/interactions'
     | '/api/integrations/github/callback'
     | '/api/integrations/github/connect'
+    | '/api/internal/discord-events/notify'
     | '/api/internal/discord-roles/sync'
     | '/api/internal/github-org/sync'
     | '/api/internal/github-teams/sync'
@@ -293,6 +306,7 @@ export interface RootRouteChildren {
   ApiIntegrationsDiscordInteractionsRoute: typeof ApiIntegrationsDiscordInteractionsRoute
   ApiIntegrationsGithubCallbackRoute: typeof ApiIntegrationsGithubCallbackRoute
   ApiIntegrationsGithubConnectRoute: typeof ApiIntegrationsGithubConnectRoute
+  ApiInternalDiscordEventsNotifyRoute: typeof ApiInternalDiscordEventsNotifyRoute
   ApiInternalDiscordRolesSyncRoute: typeof ApiInternalDiscordRolesSyncRoute
   ApiInternalGithubOrgSyncRoute: typeof ApiInternalGithubOrgSyncRoute
   ApiInternalGithubTeamsSyncRoute: typeof ApiInternalGithubTeamsSyncRoute
@@ -419,6 +433,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiIntegrationsGithubConnectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/internal/discord-events/notify': {
+      id: '/api/internal/discord-events/notify'
+      path: '/api/internal/discord-events/notify'
+      fullPath: '/api/internal/discord-events/notify'
+      preLoaderRoute: typeof ApiInternalDiscordEventsNotifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/internal/discord-roles/sync': {
       id: '/api/internal/discord-roles/sync'
       path: '/api/internal/discord-roles/sync'
@@ -462,6 +483,7 @@ const rootRouteChildren: RootRouteChildren = {
     ApiIntegrationsDiscordInteractionsRoute,
   ApiIntegrationsGithubCallbackRoute: ApiIntegrationsGithubCallbackRoute,
   ApiIntegrationsGithubConnectRoute: ApiIntegrationsGithubConnectRoute,
+  ApiInternalDiscordEventsNotifyRoute: ApiInternalDiscordEventsNotifyRoute,
   ApiInternalDiscordRolesSyncRoute: ApiInternalDiscordRolesSyncRoute,
   ApiInternalGithubOrgSyncRoute: ApiInternalGithubOrgSyncRoute,
   ApiInternalGithubTeamsSyncRoute: ApiInternalGithubTeamsSyncRoute,
