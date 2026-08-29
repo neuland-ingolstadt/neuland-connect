@@ -31,6 +31,8 @@ import { cn } from '#/lib/utils'
 
 type TimeFilter = 'upcoming' | 'past'
 
+const MAX_VISIBLE_EVENTS = 7
+
 type EventsPanelProps = {
   events: CampusLifeEvent[]
   error: string | null
@@ -120,7 +122,7 @@ export function EventsPanel({ events, error }: EventsPanelProps) {
       return timeFilter === 'upcoming' ? !past : past
     })
 
-    return sortEvents(visible, timeFilter)
+    return sortEvents(visible, timeFilter).slice(0, MAX_VISIBLE_EVENTS)
   }, [events, timeFilter])
 
   async function handleRetry() {
