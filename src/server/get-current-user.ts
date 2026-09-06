@@ -254,8 +254,8 @@ export async function requireSignedInUser(): Promise<CurrentUser> {
 }
 
 /**
- * Authentik profile promise for `defer()` — shell can paint from the session
- * cookie while this resolves.
+ * Authentik profile for server-side callers that need a hard redirect on miss.
+ * Signed-in pages prefer client `getCurrentUserFn` + ConnectBootScreen instead.
  */
 export function loadSignedInUser(): Promise<CurrentUser> {
   return getCurrentUserFn().then(user => {

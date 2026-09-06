@@ -1,5 +1,6 @@
 import { NeulandPalm } from '#/components/brand/neuland-palm'
 import { PageShell } from '#/components/layout/page-shell'
+import { Button } from '#/components/ui/button'
 import { APP_NAME } from '#/lib/constants'
 
 const BOOT_LINES = [
@@ -8,12 +9,20 @@ const BOOT_LINES = [
   { prompt: 'profil', detail: 'laden' },
 ] as const
 
-export function ConnectBootScreen() {
+type ConnectBootScreenProps = {
+  error?: boolean
+  onRetry?: () => void
+}
+
+export function ConnectBootScreen({
+  error = false,
+  onRetry,
+}: ConnectBootScreenProps) {
   return (
     <PageShell>
       <main
         className="page-gutter flex w-full min-w-0 flex-1 items-center justify-center py-10"
-        aria-busy="true"
+        aria-busy={!error}
         aria-live="polite"
       >
         <div className="relative w-full max-w-md overflow-hidden border border-terminal-window-border bg-terminal-window">
@@ -37,36 +46,55 @@ export function ConnectBootScreen() {
                 {APP_NAME}
               </p>
               <p className="mt-2 text-sm text-terminal-text/60">
-                Dein Profil wird vorbereitet.
+                {error
+                  ? 'Authentik antwortet gerade nicht.'
+                  : 'Dein Profil wird vorbereitet.'}
               </p>
             </div>
 
-            <ol className="space-y-1.5 font-mono text-[12px] leading-relaxed">
-              {BOOT_LINES.map((line, index) => (
-                <li
-                  key={line.prompt}
-                  className="connect-boot-line flex items-baseline gap-2 text-terminal-text/55"
-                  style={{ animationDelay: `${180 + index * 280}ms` }}
-                >
-                  <span className="text-terminal-cyan/80">$</span>
-                  <span className="text-terminal-text/40">{line.prompt}</span>
-                  <span className="text-terminal-text/25">·</span>
-                  <span>{line.detail}</span>
-                </li>
-              ))}
-              <li
-                className="connect-boot-line flex items-center gap-2 pt-1 text-terminal-lightGreen"
-                style={{ animationDelay: '1020ms' }}
-              >
-                <span className="text-terminal-cyan/80">$</span>
-                <span>warte auf authentik</span>
-                <span className="connect-boot-cursor" aria-hidden="true" />
-              </li>
-            </ol>
+            {error ? (
+              <div className="space-y-4 text-center">
+                <p className="font-mono text-[12px] text-terminal-text/55">
+                  Die Sitzung ist da — das Profil konnte nicht geladen werden.
+                </p>
+                {onRetry ? (
+                  <Button variant="outline" type="button" onClick={onRetry}>
+                    Erneut versuchen
+                  </Button>
+                ) : null}
+              </div>
+            ) : (
+              <>
+                <ol className="space-y-1.5 font-mono text-[12px] leading-relaxed">
+                  {BOOT_LINES.map((line, index) => (
+                    <li
+                      key={line.prompt}
+                      className="connect-boot-line flex items-baseline gap-2 text-terminal-text/55"
+                      style={{ animationDelay: `${180 + index * 280}ms` }}
+                    >
+                      <span className="text-terminal-cyan/80">$</span>
+                      <span className="text-terminal-text/40">
+                        {line.prompt}
+                      </span>
+                      <span className="text-terminal-text/25">·</span>
+                      <span>{line.detail}</span>
+                    </li>
+                  ))}
+                  <li
+                    className="connect-boot-line flex items-center gap-2 pt-1 text-terminal-lightGreen"
+                    style={{ animationDelay: '1020ms' }}
+                  >
+                    <span className="text-terminal-cyan/80">$</span>
+                    <span>warte auf authentik</span>
+                    <span className="connect-boot-cursor" aria-hidden="true" />
+                  </li>
+                </ol>
 
-            <div className="connect-boot-track" aria-hidden="true">
-              <div className="connect-boot-bar" />
-            </div>
+                <div className="connect-boot-track" aria-hidden="true">
+                  <div className="connect-boot-bar" />
+                </div>
+              </>
+            )}
           </div>
         </div>
       </main>

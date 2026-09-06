@@ -48,9 +48,13 @@ async function withAuthentikUserAttributeLock<T>(
   }
 }
 
+/** Fail soft instead of hanging the browser when Authentik is slow/unreachable. */
+const AUTHENTIK_FETCH_TIMEOUT_MS = 8_000
+
 async function authentikFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${serverConfig.authentik.apiUrl}${path}`, {
     ...init,
+    signal: init?.signal ?? AbortSignal.timeout(AUTHENTIK_FETCH_TIMEOUT_MS),
     headers: {
       Authorization: `Bearer ${serverConfig.authentik.apiToken}`,
       Accept: 'application/json',

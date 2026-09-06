@@ -1,27 +1,25 @@
-import { createFileRoute, defer, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import { BlogPostsPanel } from '#/components/dashboard/blog-posts-panel'
 import { DashboardProfilePanel } from '#/components/dashboard/dashboard-profile-panel'
 import { DashboardQuickLinks } from '#/components/dashboard/dashboard-quick-links'
 import { EventsPanel } from '#/components/dashboard/events-panel'
 import { KontenSetupBanner } from '#/components/dashboard/konten-setup-banner'
 import { KontenStatusPanel } from '#/components/dashboard/konten-status-panel'
-import { DeferredValue } from '#/components/deferred-value'
 import { AppHeader } from '#/components/layout/app-header'
+import { ConnectBootScreen } from '#/components/layout/connect-boot-screen'
 import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageMain, PageShell } from '#/components/layout/page-shell'
 import { Skeleton } from '#/components/ui/skeleton'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
+import { useSignedInUser } from '#/hooks/use-signed-in-user'
 import type { BlogPostsResult } from '#/lib/blog/types'
 import type { CampusLifeEventsResult } from '#/lib/campus-life/types'
 import { APP_NAME, ROUTES } from '#/lib/constants'
-import { LOADER_STALE_MS, resolvedDeferred } from '#/lib/deferred-loader'
-import type { SessionUser } from '#/lib/session-types'
+import { LOADER_STALE_MS } from '#/lib/deferred-loader'
 import { getLatestBlogPostsFn } from '#/server/get-blog-posts'
-import {
-  type CurrentUser,
-  loadSignedInUser,
-  requireActiveSession,
-} from '#/server/get-current-user'
+import type { CurrentUser } from '#/server/get-current-user'
+import { requireActiveSession } from '#/server/get-current-user'
 import { getNeulandEventsFn } from '#/server/get-events'
 
 function EventsPanelSkeleton() {
@@ -47,42 +45,6 @@ function BlogPostsPanelSkeleton() {
         <Skeleton className="h-14 w-full" />
       </div>
     </TerminalPanel>
-  )
-}
-
-function ProfilePanelsSkeleton() {
-  return (
-    <>
-      <TerminalPanel title="Profil">
-        <div className="space-y-3 p-4 sm:p-5">
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-5 w-full" />
-          <Skeleton className="h-4 w-28" />
-          <Skeleton className="h-5 w-2/3" />
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-8 w-full" />
-        </div>
-      </TerminalPanel>
-      <TerminalPanel title="Schnellzugriff">
-        <div className="space-y-0 border-t border-terminal-window-border/50 p-0">
-          <div className="flex items-center gap-3 px-4 py-3 sm:px-5">
-            <Skeleton className="size-8 shrink-0" />
-            <Skeleton className="h-4 w-20" />
-          </div>
-          <div className="flex items-center gap-3 px-4 py-3 sm:px-5">
-            <Skeleton className="size-8 shrink-0" />
-            <Skeleton className="h-4 w-16" />
-          </div>
-        </div>
-      </TerminalPanel>
-      <TerminalPanel title="Konten">
-        <div className="space-y-3 p-4 sm:p-5">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-4/5" />
-          <Skeleton className="h-4 w-3/5" />
-        </div>
-      </TerminalPanel>
-    </>
   )
 }
 
@@ -118,36 +80,48 @@ export const Route = createFileRoute('/dashboard')({
       })
     }
 
-    // Cookie gate only — Authentik profile streams via defer so the shell paints
-    // immediately (greeting from session name; panels skeleton until ready).
-    const sessionUser = await requireActiveSession()
-
-    return {
-      sessionUser,
-      user: defer(loadSignedInUser()),
-      events: defer(getNeulandEventsFn()),
-      blogPosts: defer(getLatestBlogPostsFn()),
-    }
+    // Cookie only — profile/events/blog load client-side so SSR paints immediately.
+    await requireActiveSession()
   },
+  pendingMs: 0,
+  pendingMinMs: 400,
+  pendingComponent: ConnectBootScreen,
   component: DashboardRoute,
 })
 
 function DashboardRoute() {
-  const { sessionUser, user, events, blogPosts } = Route.useLoaderData()
-  const firstName = sessionUser.name.split(' ')[0]
-  const cachedUser = resolvedDeferred(user)
-  const cachedEvents = resolvedDeferred(events)
-  const cachedBlogPosts = resolvedDeferred(blogPosts)
+  const { user, error, retry } = useSignedInUser()
+  const [events, setEvents] = useState<CampusLifeEventsResult | null>(null)
+  const [blogPosts, setBlogPosts] = useState<BlogPostsResult | null>(null)
 
-  if (cachedUser && cachedEvents && cachedBlogPosts) {
-    return (
-      <DashboardPage
-        sessionUser={sessionUser}
-        user={cachedUser}
-        events={cachedEvents}
-        blogPosts={cachedBlogPosts}
-      />
-    )
+  useEffect(() => {
+    let cancelled = false
+
+    void (async () => {
+      const [nextEvents, nextBlogPosts] = await Promise.all([
+        getNeulandEventsFn(),
+        getLatestBlogPostsFn(),
+      ])
+
+      if (cancelled) {
+        return
+      }
+
+      setEvents(nextEvents)
+      setBlogPosts(nextBlogPosts)
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  if (!user) {
+    return <ConnectBootScreen error={error} onRetry={retry} />
+  }
+
+  if (events && blogPosts) {
+    return <DashboardPage user={user} events={events} blogPosts={blogPosts} />
   }
 
   return (
@@ -160,54 +134,29 @@ function DashboardRoute() {
             Dashboard
           </p>
           <h1 className="mt-1 font-sans text-2xl font-bold tracking-tight sm:text-3xl">
-            Hallo {firstName}
+            Hallo {user.name.split(' ')[0]}
           </h1>
         </header>
 
-        <DeferredValue value={user} fallback={null}>
-          {resolvedUser => <KontenSetupBanner user={resolvedUser} />}
-        </DeferredValue>
+        <KontenSetupBanner user={user} />
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
           <div className="min-w-0 lg:col-span-2">
-            <DeferredValue value={events} fallback={<EventsPanelSkeleton />}>
-              {resolvedEvents => (
-                <EventsPanel
-                  events={resolvedEvents.events}
-                  error={resolvedEvents.error}
-                />
-              )}
-            </DeferredValue>
+            <EventsPanelSkeleton />
           </div>
           <div className="min-w-0 space-y-5">
-            <DeferredValue value={user} fallback={<ProfilePanelsSkeleton />}>
-              {resolvedUser => (
-                <>
-                  <DashboardProfilePanel
-                    name={resolvedUser.name}
-                    username={resolvedUser.username}
-                    groups={resolvedUser.groups}
-                  />
-                  <DashboardQuickLinks groups={resolvedUser.allGroups} />
-                  <KontenStatusPanel user={resolvedUser} />
-                </>
-              )}
-            </DeferredValue>
+            <DashboardProfilePanel
+              name={user.name}
+              username={user.username}
+              groups={user.groups}
+            />
+            <DashboardQuickLinks groups={user.allGroups} />
+            <KontenStatusPanel user={user} />
           </div>
         </div>
 
         <div className="mt-5 min-w-0">
-          <DeferredValue
-            value={blogPosts}
-            fallback={<BlogPostsPanelSkeleton />}
-          >
-            {resolvedBlogPosts => (
-              <BlogPostsPanel
-                posts={resolvedBlogPosts.posts}
-                error={resolvedBlogPosts.error}
-              />
-            )}
-          </DeferredValue>
+          <BlogPostsPanelSkeleton />
         </div>
       </PageMain>
 
@@ -217,17 +166,15 @@ function DashboardRoute() {
 }
 
 function DashboardPage({
-  sessionUser,
   user,
   events,
   blogPosts,
 }: {
-  sessionUser: SessionUser
   user: CurrentUser
   events: CampusLifeEventsResult
   blogPosts: BlogPostsResult
 }) {
-  const firstName = (user.name || sessionUser.name).split(' ')[0]
+  const firstName = user.name.split(' ')[0]
 
   return (
     <PageShell>

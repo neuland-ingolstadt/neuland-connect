@@ -1,15 +1,15 @@
-import { createFileRoute, defer, redirect } from '@tanstack/react-router'
-import { DeferredValue } from '#/components/deferred-value'
+import { createFileRoute } from '@tanstack/react-router'
 import { AppHeader } from '#/components/layout/app-header'
+import { ConnectBootScreen } from '#/components/layout/connect-boot-screen'
 import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageMain, PageShell } from '#/components/layout/page-shell'
 import { ResourceHubContent } from '#/components/resources/resource-hub-content'
-import { Skeleton } from '#/components/ui/skeleton'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
-import { APP_NAME, LOGIN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
+import { useSignedInUser } from '#/hooks/use-signed-in-user'
+import { APP_NAME } from '#/lib/constants'
 import { LOADER_STALE_MS } from '#/lib/deferred-loader'
 import { buildResourceHub } from '#/lib/resources/hub'
-import { getCurrentUserFn } from '#/server/get-current-user'
+import { requireActiveSession } from '#/server/get-current-user'
 
 export const Route = createFileRoute('/ressourcen')({
   head: () => ({
@@ -17,35 +17,23 @@ export const Route = createFileRoute('/ressourcen')({
   }),
   staleTime: LOADER_STALE_MS,
   gcTime: 5 * 60_000,
-  loader: () => {
-    const groupsPromise = getCurrentUserFn().then(user => {
-      if (!user) {
-        throw redirect({ to: ROUTES.LOGIN, search: LOGIN_SEARCH_DEFAULTS })
-      }
-
-      return buildResourceHub(user.allGroups)
-    })
-
-    return { groups: defer(groupsPromise) }
+  loader: async () => {
+    await requireActiveSession()
   },
+  pendingMs: 0,
+  pendingMinMs: 400,
+  pendingComponent: ConnectBootScreen,
   component: RessourcenPage,
 })
 
-function ResourceHubSkeleton() {
-  return (
-    <TerminalPanel title="Dienste">
-      <div className="space-y-3 p-4 sm:p-5">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-2/3" />
-      </div>
-    </TerminalPanel>
-  )
-}
-
 function RessourcenPage() {
-  const { groups } = Route.useLoaderData()
+  const { user, error, retry } = useSignedInUser()
+
+  if (!user) {
+    return <ConnectBootScreen error={error} onRetry={retry} />
+  }
+
+  const groups = buildResourceHub(user.allGroups)
 
   return (
     <PageShell>
@@ -65,13 +53,9 @@ function RessourcenPage() {
           </p>
         </header>
 
-        <DeferredValue value={groups} fallback={<ResourceHubSkeleton />}>
-          {resolvedGroups => (
-            <TerminalPanel title="Dienste">
-              <ResourceHubContent groups={resolvedGroups} />
-            </TerminalPanel>
-          )}
-        </DeferredValue>
+        <TerminalPanel title="Dienste">
+          <ResourceHubContent groups={groups} />
+        </TerminalPanel>
       </PageMain>
 
       <LegalFooter />

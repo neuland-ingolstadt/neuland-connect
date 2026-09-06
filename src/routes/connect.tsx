@@ -1,4 +1,4 @@
-import { createFileRoute, defer, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { DashboardActionBanner } from '#/components/dashboard/dashboard-action-banner'
@@ -6,12 +6,16 @@ import { DiscordConnectionCard } from '#/components/dashboard/discord-connection
 import { GitHubConnectionCard } from '#/components/dashboard/github-connection-card'
 import { MembershipCard } from '#/components/dashboard/membership-card'
 import { UserDataCard } from '#/components/dashboard/user-data-card'
-import { DeferredValue } from '#/components/deferred-value'
 import { AppHeader } from '#/components/layout/app-header'
-import { KontenLoadingShell } from '#/components/layout/konten-loading-shell'
+import { ConnectBootScreen } from '#/components/layout/connect-boot-screen'
 import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageMain, PageShell } from '#/components/layout/page-shell'
 import { useIntegrationCardHighlight } from '#/hooks/use-integration-card-highlight'
+import {
+  clearClientSignedInUserCache,
+  setClientSignedInUserCache,
+  useSignedInUser,
+} from '#/hooks/use-signed-in-user'
 import { APP_NAME, LOGIN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
 import { LOADER_STALE_MS } from '#/lib/deferred-loader'
 import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-display'
@@ -19,7 +23,6 @@ import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
 import {
   type CurrentUser,
   currentUserEquals,
-  loadSignedInUser,
   refreshCurrentUserFn,
   requireActiveSession,
 } from '#/server/get-current-user'
@@ -37,36 +40,38 @@ export const Route = createFileRoute('/connect')({
     message: typeof search.message === 'string' ? search.message : undefined,
   }),
   loader: async () => {
+    // Cookie only — Authentik profile loads client-side (ConnectBootScreen).
     await requireActiveSession()
-    return {
-      user: defer(loadSignedInUser()),
-    }
   },
+  pendingMs: 0,
+  pendingMinMs: 400,
+  pendingComponent: ConnectBootScreen,
   component: ConnectRoute,
 })
 
 function ConnectRoute() {
-  const { user } = Route.useLoaderData()
+  const { user, error, retry } = useSignedInUser()
 
-  return (
-    <DeferredValue value={user} fallback={<KontenLoadingShell />}>
-      {resolvedUser => <ConnectPage user={resolvedUser} />}
-    </DeferredValue>
-  )
+  if (!user) {
+    return <ConnectBootScreen error={error} onRetry={retry} />
+  }
+
+  return <ConnectPage user={user} />
 }
 
-function ConnectPage({ user: loaderUser }: { user: CurrentUser }) {
+function ConnectPage({ user: initialUser }: { user: CurrentUser }) {
   const navigate = useNavigate()
   const search = Route.useSearch()
-  const [user, setUser] = useState<CurrentUser>(loaderUser)
+  const [user, setUser] = useState<CurrentUser>(initialUser)
 
   useIntegrationCardHighlight()
 
   useEffect(() => {
-    setUser(prev => (currentUserEquals(prev, loaderUser) ? prev : loaderUser))
-  }, [loaderUser])
+    setUser(prev => (currentUserEquals(prev, initialUser) ? prev : initialUser))
+  }, [initialUser])
 
   const refreshUser = useCallback(async () => {
+    clearClientSignedInUserCache()
     const next = await refreshCurrentUserFn()
 
     if (!next) {
@@ -74,6 +79,7 @@ function ConnectPage({ user: loaderUser }: { user: CurrentUser }) {
       return null
     }
 
+    setClientSignedInUserCache(next)
     setUser(prev => (currentUserEquals(prev, next) ? prev : next))
     return next
   }, [navigate])
