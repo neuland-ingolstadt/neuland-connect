@@ -84,7 +84,6 @@ export const Route = createFileRoute('/dashboard')({
     await requireActiveSession()
   },
   pendingMs: 0,
-  pendingMinMs: 400,
   pendingComponent: ConnectBootScreen,
   component: DashboardRoute,
 })

@@ -44,7 +44,6 @@ export const Route = createFileRoute('/connect')({
     await requireActiveSession()
   },
   pendingMs: 0,
-  pendingMinMs: 400,
   pendingComponent: ConnectBootScreen,
   component: ConnectRoute,
 })
