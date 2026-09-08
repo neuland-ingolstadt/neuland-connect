@@ -53,12 +53,12 @@
   --muted-foreground: 150 9% 70%;
   --border: 150 7% 20%;
   --input: 150 7% 20%;
-  --ring: 149 42% 46%;
-  --primary: 149 42% 46%;
+  --ring: 147 100% 50%;
+  --primary: 147 100% 50%;
   --primary-foreground: 160 30% 12%;
   --secondary: 150 9% 22%;
   --secondary-foreground: 160 20% 94%;
-  --accent: 149 48% 48%;
+  --accent: 147 100% 50%;
   --accent-foreground: 160 28% 14%;
   --destructive: 0 70% 45%;
   --destructive-foreground: 0 0% 98%;
@@ -66,7 +66,7 @@
 
   --terminal-bg: #020302;
   --terminal-text: #f6fff8;
-  --terminal-cyan: oklch(0.74 0.17 142.83);
+  --terminal-cyan: #02ff75;
   --terminal-highlight: oklch(0.78 0.15 142.83);
   --terminal-lightGreen: oklch(0.7 0.14 142.83);
   --terminal-mutedGreen: #0a4f2b;
@@ -79,7 +79,7 @@
 
   --ambient-background: #020302;
   --ambient-grid-line: rgba(156, 163, 175, 0.06);
-  --ambient-glow: rgba(74, 180, 110, 0.025);
+  --ambient-glow: rgba(2, 255, 117, 0.025);
 
   --honor-badge-text: #fef3c7;
   --honor-badge-border: rgba(251, 191, 36, 0.5);

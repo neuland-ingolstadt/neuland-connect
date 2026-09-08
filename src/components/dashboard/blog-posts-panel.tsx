@@ -78,21 +78,16 @@ function BlogPostRow({ post, index }: { post: BlogPost; index: number }) {
         target="_blank"
         rel="noopener noreferrer"
         className={cn(
-          'group/post flex items-start gap-3 py-3 no-underline sm:gap-3.5',
+          'flex items-start gap-3 py-3 no-underline sm:gap-3.5',
           'transition-colors hover:bg-terminal-text/3 focus-visible:bg-terminal-text/3 focus-visible:outline-none',
         )}
       >
-        <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center border border-terminal-window-border bg-terminal-bg transition-colors group-hover/post:border-terminal-cyan/40">
-          <Newspaper
-            className="size-3.5 text-terminal-text/70 transition-colors group-hover/post:text-terminal-cyan/80"
-            aria-hidden
-          />
+        <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center border border-terminal-window-border bg-terminal-bg">
+          <Newspaper className="size-3.5 text-terminal-text/70" aria-hidden />
         </span>
 
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-terminal-text transition-colors group-hover/post:text-terminal-cyan">
-            {post.title}
-          </p>
+          <p className="text-sm font-medium text-terminal-text">{post.title}</p>
 
           {(published || post.authors) && (
             <p className="mt-1 text-xs text-terminal-text/55">
@@ -108,7 +103,7 @@ function BlogPostRow({ post, index }: { post: BlogPost; index: number }) {
         </div>
 
         <ArrowUpRight
-          className="mt-1 size-3.5 shrink-0 text-terminal-text/30 transition-colors group-hover/post:text-terminal-cyan/80"
+          className="mt-1 size-3.5 shrink-0 text-terminal-text/30"
           aria-hidden
         />
       </a>
