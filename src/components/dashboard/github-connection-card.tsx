@@ -135,7 +135,7 @@ export function GitHubConnectionCard({
                     href={githubProfileUrl(attributes.githubUsername)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="transition-colors hover:text-terminal-cyan"
+                    className="transition-colors hover:text-terminal-green"
                   >
                     @{attributes.githubUsername}
                   </a>
@@ -222,7 +222,7 @@ export function GitHubConnectionCard({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="mt-2 h-auto px-0 py-0 font-mono text-[11px] text-terminal-text/50 hover:bg-transparent hover:text-terminal-cyan"
+                    className="mt-2 h-auto px-0 py-0 font-mono text-[11px] text-terminal-text/50 hover:bg-transparent hover:text-terminal-green"
                     onClick={() => setTeamsExpanded(expanded => !expanded)}
                   >
                     {teamsExpanded
@@ -308,7 +308,7 @@ function DetailItem({
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-colors hover:text-terminal-cyan"
+            className="transition-colors hover:text-terminal-green"
           >
             {value}
           </a>

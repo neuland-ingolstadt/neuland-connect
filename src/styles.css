@@ -3,7 +3,7 @@
 @theme {
   --color-terminal-bg: var(--terminal-bg);
   --color-terminal-text: var(--terminal-text);
-  --color-terminal-cyan: var(--terminal-cyan);
+  --color-terminal-green: var(--terminal-green);
   --color-terminal-highlight: var(--terminal-highlight);
   --color-terminal-lightGreen: var(--terminal-lightGreen);
   --color-terminal-window: var(--terminal-window);
@@ -53,12 +53,12 @@
   --muted-foreground: 150 9% 70%;
   --border: 150 7% 20%;
   --input: 150 7% 20%;
-  --ring: 147 100% 50%;
-  --primary: 147 100% 50%;
+  --ring: 149 42% 46%;
+  --primary: 149 42% 46%;
   --primary-foreground: 160 30% 12%;
   --secondary: 150 9% 22%;
   --secondary-foreground: 160 20% 94%;
-  --accent: 147 100% 50%;
+  --accent: 149 48% 48%;
   --accent-foreground: 160 28% 14%;
   --destructive: 0 70% 45%;
   --destructive-foreground: 0 0% 98%;
@@ -66,7 +66,7 @@
 
   --terminal-bg: #020302;
   --terminal-text: #f6fff8;
-  --terminal-cyan: #02ff75;
+  --terminal-green: oklch(0.74 0.17 142.83);
   --terminal-highlight: oklch(0.78 0.15 142.83);
   --terminal-lightGreen: oklch(0.7 0.14 142.83);
   --terminal-mutedGreen: #0a4f2b;
@@ -79,7 +79,7 @@
 
   --ambient-background: #020302;
   --ambient-grid-line: rgba(156, 163, 175, 0.06);
-  --ambient-glow: rgba(2, 255, 117, 0.025);
+  --ambient-glow: rgba(74, 180, 110, 0.025);
 
   --honor-badge-text: #fef3c7;
   --honor-badge-border: rgba(251, 191, 36, 0.5);
@@ -126,7 +126,7 @@
 
     --terminal-bg: #f5f8f5;
     --terminal-text: #0b1d14;
-    --terminal-cyan: oklch(0.72 0.24 142.83);
+    --terminal-green: oklch(0.72 0.24 142.83);
     --terminal-highlight: oklch(0.64 0.2 142.83);
     --terminal-lightGreen: #0d8f5c;
     --terminal-mutedGreen: #1a6b40;
@@ -182,7 +182,7 @@
 
   --terminal-bg: #f5f8f5;
   --terminal-text: #0b1d14;
-  --terminal-cyan: oklch(0.72 0.24 142.83);
+  --terminal-green: oklch(0.72 0.24 142.83);
   --terminal-highlight: oklch(0.64 0.2 142.83);
   --terminal-lightGreen: #0d8f5c;
   --terminal-mutedGreen: #1a6b40;
@@ -340,7 +340,7 @@ h4 {
 }
 
 .neuland-badge-hint:focus-visible > div:first-child {
-  outline: 2px solid var(--terminal-cyan);
+  outline: 2px solid var(--terminal-green);
   outline-offset: 2px;
 }
 
@@ -349,7 +349,7 @@ h4 {
   z-index: 2;
   width: 8px;
   height: 8px;
-  border-color: var(--terminal-cyan);
+  border-color: var(--terminal-green);
   border-style: solid;
   opacity: 0.55;
   pointer-events: none;
@@ -388,7 +388,7 @@ h4 {
   z-index: 2;
   width: 12px;
   height: 12px;
-  border-color: var(--terminal-cyan);
+  border-color: var(--terminal-green);
   border-style: solid;
   opacity: 0.75;
   pointer-events: none;
@@ -408,7 +408,7 @@ h4 {
   display: inline-block;
   width: 7px;
   height: 12px;
-  background: var(--terminal-cyan);
+  background: var(--terminal-green);
   animation: connect-boot-cursor 1s steps(1, end) infinite;
 }
 
@@ -425,7 +425,7 @@ h4 {
 .connect-boot-bar {
   width: 40%;
   height: 100%;
-  background: var(--terminal-cyan);
+  background: var(--terminal-green);
   animation: connect-boot-bar 1.35s ease-in-out infinite;
 }
 
@@ -495,9 +495,9 @@ h4 {
 
 @keyframes integration-card-flash {
   0% {
-    border-color: color-mix(in oklab, var(--terminal-cyan) 75%, transparent);
+    border-color: color-mix(in oklab, var(--terminal-green) 75%, transparent);
     box-shadow: 0 0 0 1px
-      color-mix(in oklab, var(--terminal-cyan) 35%, transparent);
+      color-mix(in oklab, var(--terminal-green) 35%, transparent);
   }
   100% {
     border-color: var(--terminal-window-border);
@@ -523,7 +523,7 @@ h4 {
 @media (prefers-reduced-motion: reduce) {
   .integration-card-flash {
     animation: none;
-    border-color: color-mix(in oklab, var(--terminal-cyan) 55%, transparent);
+    border-color: color-mix(in oklab, var(--terminal-green) 55%, transparent);
   }
 
   .list-reveal {

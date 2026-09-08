@@ -22,13 +22,13 @@ export function AppNotFoundPage() {
           <div className="space-y-6 p-6 text-center">
             <div className="mx-auto flex justify-center">
               <div className="relative">
-                <NeulandPalm className="h-14 w-auto text-terminal-cyan/70" />
+                <NeulandPalm className="h-14 w-auto text-terminal-green/70" />
                 <FileQuestion className="absolute -right-1 -bottom-1 h-5 w-5 text-terminal-highlight" />
               </div>
             </div>
 
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-terminal-cyan/70">
+              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-terminal-green/70">
                 Fehler 404
               </p>
               <h1 className="mt-2 font-mono text-xl font-semibold text-terminal-lightGreen">

@@ -65,7 +65,7 @@ const SheetContent = React.forwardRef<
         />
       ) : null}
       {children}
-      <SheetPrimitive.Close className="absolute top-4 right-4 inline-flex size-8 cursor-pointer items-center justify-center text-terminal-text/70 transition-colors hover:text-terminal-text focus-visible:ring-2 focus-visible:ring-terminal-cyan/50 focus-visible:outline-none">
+      <SheetPrimitive.Close className="absolute top-4 right-4 inline-flex size-8 cursor-pointer items-center justify-center text-terminal-text/70 transition-colors hover:text-terminal-text focus-visible:ring-2 focus-visible:ring-terminal-green/50 focus-visible:outline-none">
         <X className="size-4" />
         <span className="sr-only">Schließen</span>
       </SheetPrimitive.Close>

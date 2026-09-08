@@ -21,10 +21,10 @@ export function IntegrationProgressInline({
           key={step.id}
           className={cn(
             'size-1.5 shrink-0 rounded-full transition-colors',
-            step.complete && 'bg-terminal-cyan/75',
+            step.complete && 'bg-terminal-green/75',
             !step.complete &&
               index === currentIndex &&
-              'bg-terminal-cyan/30 ring-1 ring-terminal-cyan/40',
+              'bg-terminal-green/30 ring-1 ring-terminal-green/40',
             !step.complete &&
               index !== currentIndex &&
               'bg-terminal-window-border',

@@ -180,7 +180,7 @@ GET  /orgs/{org}/invitations            # optional: reconcile pending invites
 - **Layout width:** `max-w-6xl` for main content and header
 - **Navbar:** `bg-terminal-nav` (distinct from page `terminal-bg`)
 - **Panels:** `TerminalPanel` with `// title` header style
-- **GitHub icon:** monochrome (`text-terminal-text`), never green/cyan
+- **GitHub icon:** monochrome (`text-terminal-text`), never the accent green
 - **Theme:** `neuland-theme` localStorage key (shared with neuland website)
 - **Legal links:** Impressum and Datenschutz on Connect (`/impressum`, `/datenschutz`); Vereinswebsite for general info
 

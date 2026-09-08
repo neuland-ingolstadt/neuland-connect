@@ -99,7 +99,7 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
             key={task.id}
             className={cn(
               'h-full flex-1 transition-colors',
-              task.complete ? 'bg-terminal-cyan' : 'bg-terminal-cyan/15',
+              task.complete ? 'bg-terminal-green' : 'bg-terminal-green/15',
             )}
           />
         ))}
@@ -124,7 +124,7 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
                 <p className="font-mono text-xs font-semibold tracking-wide">
                   {task.label}
                 </p>
-                <p className="mt-0.5 flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.16em] text-terminal-cyan/70">
+                <p className="mt-0.5 flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.16em] text-terminal-green/70">
                   <Check className="size-3" strokeWidth={2.5} aria-hidden />
                   Fertig
                 </p>
@@ -145,7 +145,7 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
                 <p className="font-mono text-xs font-semibold tracking-wide text-terminal-text">
                   {task.label}
                 </p>
-                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.16em] text-terminal-text/50 transition-colors group-hover:text-terminal-cyan">
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.16em] text-terminal-text/50 transition-colors group-hover:text-terminal-green">
                   {task.actionLabel} →
                 </p>
               </div>

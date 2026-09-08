@@ -55,17 +55,17 @@ function ResourceHubCard({
       rel="noopener noreferrer"
       className={cn(
         'group/card flex h-full items-center gap-3 border border-terminal-window-border bg-terminal-card p-4 no-underline transition-[border-color,background-color,color]',
-        'hover:border-terminal-cyan/50 hover:bg-terminal-window',
+        'hover:border-terminal-green/50 hover:bg-terminal-window',
       )}
     >
       <div
         className={cn(
           'flex size-10 shrink-0 items-center justify-center border border-terminal-window-border bg-terminal-bg transition-colors',
-          'group-hover/card:border-terminal-cyan/40 group-hover/card:bg-terminal-card',
+          'group-hover/card:border-terminal-green/40 group-hover/card:bg-terminal-card',
         )}
       >
         <Icon
-          className="size-4 text-terminal-text/70 transition-colors group-hover/card:text-terminal-cyan/80"
+          className="size-4 text-terminal-text/70 transition-colors group-hover/card:text-terminal-green/80"
           aria-hidden
         />
       </div>
@@ -73,14 +73,14 @@ function ResourceHubCard({
       <p
         className={cn(
           'min-w-0 flex-1 font-mono text-sm font-semibold text-terminal-text transition-colors',
-          'group-hover/card:text-terminal-cyan',
+          'group-hover/card:text-terminal-green',
         )}
       >
         {item.name}
       </p>
 
       <ExternalLink
-        className="size-3.5 shrink-0 text-terminal-text/35 transition-colors group-hover/card:text-terminal-cyan/80"
+        className="size-3.5 shrink-0 text-terminal-text/35 transition-colors group-hover/card:text-terminal-green/80"
         aria-hidden
       />
     </a>

@@ -147,7 +147,7 @@ function StatusRow({
         className={cn(
           'mt-0.5 flex size-7 shrink-0 items-center justify-center',
           complete
-            ? 'border border-terminal-cyan/25 bg-terminal-cyan/8 text-terminal-cyan'
+            ? 'border border-terminal-green/25 bg-terminal-green/8 text-terminal-green'
             : 'border border-terminal-window-border/70 text-terminal-text/70',
         )}
       >

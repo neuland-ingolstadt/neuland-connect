@@ -240,7 +240,7 @@ export function FaqPageContent() {
             <span className="flex items-start gap-3">
               <span
                 aria-hidden
-                className="mt-0.5 text-terminal-cyan/70 transition-transform group-open:rotate-90"
+                className="mt-0.5 text-terminal-green/70 transition-transform group-open:rotate-90"
               >
                 ›
               </span>

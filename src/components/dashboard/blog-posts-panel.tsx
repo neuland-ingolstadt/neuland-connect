@@ -35,7 +35,7 @@ export function BlogPostsPanel({ posts, error }: BlogPostsPanelProps) {
           href={EXTERNAL_LINKS.BLOG}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.14em] text-terminal-text/45 no-underline transition-colors hover:text-terminal-cyan"
+          className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.14em] text-terminal-text/45 no-underline transition-colors hover:text-terminal-green"
         >
           Alle Beiträge
           <ArrowUpRight className="size-3" aria-hidden />

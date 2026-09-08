@@ -45,7 +45,7 @@ export function TerminalPanel({
         <div className="relative z-10 border-b border-terminal-window-border/50 px-4 py-1.5">
           <div className="flex items-center justify-between gap-3">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-terminal-text/65">
-              <span className="text-terminal-cyan/75">//</span> {title}
+              <span className="text-terminal-green/75">//</span> {title}
             </p>
             {titleAside}
           </div>

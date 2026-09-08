@@ -18,7 +18,7 @@ export function LegalFooter({ className }: LegalFooterProps) {
       <nav className="flex flex-wrap items-center justify-center gap-4">
         <Link
           to={ROUTES.IMPRESSUM}
-          className="transition-colors hover:text-terminal-cyan"
+          className="transition-colors hover:text-terminal-green"
         >
           Impressum
         </Link>
@@ -27,7 +27,7 @@ export function LegalFooter({ className }: LegalFooterProps) {
         </span>
         <Link
           to={ROUTES.DATENSCHUTZ}
-          className="transition-colors hover:text-terminal-cyan"
+          className="transition-colors hover:text-terminal-green"
         >
           Datenschutz
         </Link>
@@ -38,7 +38,7 @@ export function LegalFooter({ className }: LegalFooterProps) {
           href={EXTERNAL_LINKS.REPOSITORY}
           target="_blank"
           rel="noopener noreferrer"
-          className="transition-colors hover:text-terminal-cyan"
+          className="transition-colors hover:text-terminal-green"
         >
           GitHub
         </a>
@@ -57,7 +57,7 @@ export function LegalFooter({ className }: LegalFooterProps) {
           href={EXTERNAL_LINKS.EGGL_DEV}
           target="_blank"
           rel="noopener noreferrer"
-          className="transition-colors hover:text-terminal-cyan"
+          className="transition-colors hover:text-terminal-green"
         >
           Robert Eggl
         </a>{' '}
@@ -66,7 +66,7 @@ export function LegalFooter({ className }: LegalFooterProps) {
           href={EXTERNAL_LINKS.WEBSITE}
           target="_blank"
           rel="noopener noreferrer"
-          className="transition-colors hover:text-terminal-cyan"
+          className="transition-colors hover:text-terminal-green"
         >
           Neuland Ingolstadt e.V.
         </a>

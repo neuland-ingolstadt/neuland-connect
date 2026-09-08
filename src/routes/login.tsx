@@ -163,7 +163,7 @@ function LoginAuthBody({
           role="status"
           aria-live="polite"
         >
-          <Loader2 className="h-6 w-6 animate-spin text-terminal-cyan" />
+          <Loader2 className="h-6 w-6 animate-spin text-terminal-green" />
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-terminal-text/55">
             Warte auf Authentik
           </p>

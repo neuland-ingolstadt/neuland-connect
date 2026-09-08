@@ -48,17 +48,17 @@ export function DashboardQuickLinks({ groups }: DashboardQuickLinksProps) {
                   'hover:bg-terminal-window',
                 )}
               >
-                <span className="flex size-8 shrink-0 items-center justify-center border border-terminal-window-border bg-terminal-bg transition-colors group-hover/link:border-terminal-cyan/40">
+                <span className="flex size-8 shrink-0 items-center justify-center border border-terminal-window-border bg-terminal-bg transition-colors group-hover/link:border-terminal-green/40">
                   <Icon
-                    className="size-3.5 text-terminal-text/70 transition-colors group-hover/link:text-terminal-cyan/80"
+                    className="size-3.5 text-terminal-text/70 transition-colors group-hover/link:text-terminal-green/80"
                     aria-hidden
                   />
                 </span>
-                <span className="min-w-0 flex-1 font-mono text-sm text-terminal-text transition-colors group-hover/link:text-terminal-cyan">
+                <span className="min-w-0 flex-1 font-mono text-sm text-terminal-text transition-colors group-hover/link:text-terminal-green">
                   {item.name}
                 </span>
                 <ExternalLink
-                  className="size-3.5 shrink-0 text-terminal-text/35 transition-colors group-hover/link:text-terminal-cyan/80"
+                  className="size-3.5 shrink-0 text-terminal-text/35 transition-colors group-hover/link:text-terminal-green/80"
                   aria-hidden
                 />
               </a>

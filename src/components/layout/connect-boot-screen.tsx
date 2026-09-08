@@ -33,7 +33,7 @@ export function ConnectBootScreen({
 
           <div className="relative border-b border-terminal-window-border/50 px-4 py-1.5">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-terminal-text/65">
-              <span className="text-terminal-cyan/75">//</span> systemstart
+              <span className="text-terminal-green/75">//</span> systemstart
             </p>
           </div>
 
@@ -72,7 +72,7 @@ export function ConnectBootScreen({
                       className="connect-boot-line flex items-baseline gap-2 text-terminal-text/55"
                       style={{ animationDelay: `${180 + index * 280}ms` }}
                     >
-                      <span className="text-terminal-cyan/80">$</span>
+                      <span className="text-terminal-green/80">$</span>
                       <span className="text-terminal-text/40">
                         {line.prompt}
                       </span>
@@ -84,7 +84,7 @@ export function ConnectBootScreen({
                     className="connect-boot-line flex items-center gap-2 pt-1 text-terminal-lightGreen"
                     style={{ animationDelay: '1020ms' }}
                   >
-                    <span className="text-terminal-cyan/80">$</span>
+                    <span className="text-terminal-green/80">$</span>
                     <span>warte auf authentik</span>
                     <span className="connect-boot-cursor" aria-hidden="true" />
                   </li>

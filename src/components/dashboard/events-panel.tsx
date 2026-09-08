@@ -54,7 +54,7 @@ function FilterSegment({
       className={cn(
         'flex-1 cursor-pointer px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] transition-colors',
         active
-          ? 'bg-terminal-cyan/10 text-terminal-lightGreen'
+          ? 'bg-terminal-green/10 text-terminal-lightGreen'
           : 'text-terminal-text/50 hover:text-terminal-text/75',
       )}
     >
@@ -99,7 +99,7 @@ function EventsStatusPanel({
     <div className="flex flex-col items-center gap-3 border border-terminal-window-border/70 bg-terminal-bg/40 px-4 py-8 text-center">
       <span className="text-terminal-text/30">{icon}</span>
       <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-terminal-text/45">
-        <span className="text-terminal-cyan/75">//</span> {code}
+        <span className="text-terminal-green/75">//</span> {code}
       </p>
       <p className="max-w-xs text-sm text-terminal-text/65">{message}</p>
       {action}
@@ -256,7 +256,7 @@ function EventRow({
         <div
           className={cn(
             'flex w-11 shrink-0 flex-col items-center justify-center border-l-2 pl-2.5',
-            isToday ? 'border-terminal-cyan' : 'border-terminal-cyan/30',
+            isToday ? 'border-terminal-green' : 'border-terminal-green/30',
           )}
         >
           {dayParts ? (
@@ -264,7 +264,7 @@ function EventRow({
               <span
                 className={cn(
                   'font-mono text-sm font-semibold leading-none',
-                  isToday ? 'text-terminal-cyan' : 'text-terminal-text',
+                  isToday ? 'text-terminal-green' : 'text-terminal-text',
                 )}
               >
                 {dayParts.day}
@@ -272,7 +272,7 @@ function EventRow({
               <span
                 className={cn(
                   'mt-1 font-mono text-[9px] font-semibold uppercase tracking-[0.14em]',
-                  isToday ? 'text-terminal-cyan' : 'text-terminal-text/40',
+                  isToday ? 'text-terminal-green' : 'text-terminal-text/40',
                 )}
               >
                 {isToday ? 'Heute' : dayParts.month}

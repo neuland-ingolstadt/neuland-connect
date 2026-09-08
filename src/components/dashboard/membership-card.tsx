@@ -66,7 +66,7 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
               {UNLOCKED_FEATURES.map(title => (
                 <li key={title} className="flex min-w-0 items-center gap-3">
                   <Check
-                    className="size-3.5 shrink-0 text-terminal-cyan/80"
+                    className="size-3.5 shrink-0 text-terminal-green/80"
                     strokeWidth={2.5}
                     aria-hidden
                   />
@@ -85,7 +85,7 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
             <ol className="space-y-2">
               {SETUP_STEPS.map(item => (
                 <li key={item.step} className="flex min-w-0 items-center gap-3">
-                  <span className="shrink-0 font-mono text-[10px] uppercase tracking-wider text-terminal-cyan/80">
+                  <span className="shrink-0 font-mono text-[10px] uppercase tracking-wider text-terminal-green/80">
                     {item.step}
                   </span>
                   <p className="min-w-0 break-words font-mono text-sm text-terminal-text">

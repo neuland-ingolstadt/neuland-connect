@@ -45,7 +45,7 @@ export function ImpressumContent() {
           <li>
             <a
               href="mailto:info@neuland-ingolstadt.de"
-              className="text-terminal-cyan transition-colors hover:text-terminal-highlight"
+              className="text-terminal-green transition-colors hover:text-terminal-highlight"
             >
               info@neuland-ingolstadt.de
             </a>
@@ -53,7 +53,7 @@ export function ImpressumContent() {
           <li>
             <a
               href="tel:+4915678384646"
-              className="text-terminal-cyan transition-colors hover:text-terminal-highlight"
+              className="text-terminal-green transition-colors hover:text-terminal-highlight"
             >
               +49 156 78384646
             </a>
@@ -63,7 +63,7 @@ export function ImpressumContent() {
               href={EXTERNAL_LINKS.WEBSITE}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-terminal-cyan transition-colors hover:text-terminal-highlight"
+              className="text-terminal-green transition-colors hover:text-terminal-highlight"
             >
               neuland-ingolstadt.de
             </a>

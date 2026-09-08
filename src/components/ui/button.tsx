@@ -4,21 +4,21 @@ import * as React from 'react'
 import { cn } from '#/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex max-w-full min-w-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap font-mono text-sm font-medium uppercase tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terminal-cyan/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+  'inline-flex max-w-full min-w-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap font-mono text-sm font-medium uppercase tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terminal-green/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
         default:
-          'border border-terminal-cyan/40 bg-terminal-cyan text-terminal-onAccent hover:bg-terminal-highlight hover:text-terminal-onAccent',
+          'border border-terminal-green/40 bg-terminal-green text-terminal-onAccent hover:bg-terminal-highlight hover:text-terminal-onAccent',
         destructive:
           'border border-destructive/50 bg-destructive/90 text-destructive-foreground hover:bg-destructive',
         outline:
-          'border border-terminal-window-border bg-terminal-window text-terminal-text hover:border-terminal-cyan/40 hover:text-terminal-cyan',
+          'border border-terminal-window-border bg-terminal-window text-terminal-text hover:border-terminal-green/40 hover:text-terminal-green',
         secondary:
-          'border border-terminal-window-border bg-terminal-card text-terminal-text hover:border-terminal-cyan/30',
+          'border border-terminal-window-border bg-terminal-card text-terminal-text hover:border-terminal-green/30',
         ghost:
-          'text-terminal-text hover:bg-terminal-card hover:text-terminal-cyan',
-        link: 'text-terminal-cyan underline-offset-4 hover:text-terminal-highlight hover:underline',
+          'text-terminal-text hover:bg-terminal-card hover:text-terminal-green',
+        link: 'text-terminal-green underline-offset-4 hover:text-terminal-highlight hover:underline',
       },
       size: {
         default: 'h-10 px-4 py-2',

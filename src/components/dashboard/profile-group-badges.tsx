@@ -40,7 +40,7 @@ export function ProfileGroupSection({
           type="button"
           variant="ghost"
           size="sm"
-          className="mt-2 h-auto px-0 py-0 font-mono text-[11px] text-terminal-text/50 hover:bg-transparent hover:text-terminal-cyan"
+          className="mt-2 h-auto px-0 py-0 font-mono text-[11px] text-terminal-text/50 hover:bg-transparent hover:text-terminal-green"
           onClick={onToggleExpand}
         >
           {expandLabel}

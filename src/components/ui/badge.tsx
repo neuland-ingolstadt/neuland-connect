@@ -8,14 +8,14 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          'border-terminal-cyan/30 bg-terminal-cyan/15 text-terminal-cyan',
+          'border-terminal-green/30 bg-terminal-green/15 text-terminal-green',
         secondary:
           'border-terminal-window-border bg-terminal-card text-terminal-text/80',
         destructive:
           'border-destructive/40 bg-destructive/15 text-destructive-foreground',
         outline: 'border-terminal-window-border text-terminal-text',
         success:
-          'border-terminal-cyan/40 bg-terminal-cyan/10 text-terminal-lightGreen',
+          'border-terminal-green/40 bg-terminal-green/10 text-terminal-lightGreen',
         muted:
           'border-terminal-window-border bg-terminal-window text-terminal-text/50',
         honor: 'neuland-honor-badge',

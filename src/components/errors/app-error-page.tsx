@@ -34,7 +34,7 @@ export function AppErrorPage({ error, reset }: ErrorComponentProps) {
           <div className="space-y-6 p-6 text-center">
             <div className="mx-auto flex justify-center">
               <div className="relative">
-                <NeulandPalm className="h-14 w-auto text-terminal-cyan/70" />
+                <NeulandPalm className="h-14 w-auto text-terminal-green/70" />
                 <AlertTriangle className="absolute -right-1 -bottom-1 h-5 w-5 text-terminal-highlight" />
               </div>
             </div>

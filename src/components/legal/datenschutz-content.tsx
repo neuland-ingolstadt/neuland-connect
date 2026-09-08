@@ -198,7 +198,7 @@ export function DatenschutzContent() {
               href="https://docs.github.com/de/site-policy/privacy-policies/github-privacy-statement"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-terminal-cyan transition-colors hover:text-terminal-highlight"
+              className="text-terminal-green transition-colors hover:text-terminal-highlight"
             >
               GitHub
             </a>{' '}
@@ -209,7 +209,7 @@ export function DatenschutzContent() {
               href="https://discord.com/privacy"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-terminal-cyan transition-colors hover:text-terminal-highlight"
+              className="text-terminal-green transition-colors hover:text-terminal-highlight"
             >
               Discord
             </a>{' '}
@@ -247,7 +247,7 @@ export function DatenschutzContent() {
             href="https://lda.bayern.de"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-terminal-cyan transition-colors hover:text-terminal-highlight"
+            className="text-terminal-green transition-colors hover:text-terminal-highlight"
           >
             Bayerisches Landesamt für Datenschutzaufsicht
           </a>{' '}

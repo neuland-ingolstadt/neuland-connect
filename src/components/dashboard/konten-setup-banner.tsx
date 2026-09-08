@@ -30,7 +30,7 @@ export function KontenSetupBanner({ user }: KontenSetupBannerProps) {
       search={KONTEN_SEARCH_DEFAULTS}
       hash={setupHash}
       hashScrollIntoView={{ behavior: 'smooth', block: 'start' }}
-      className="group mb-5 block overflow-hidden border border-terminal-window-border bg-terminal-window no-underline transition-colors hover:border-terminal-cyan/40 lg:hidden"
+      className="group mb-5 block overflow-hidden border border-terminal-window-border bg-terminal-window no-underline transition-colors hover:border-terminal-green/40 lg:hidden"
     >
       <div className="flex h-0.5">
         {steps.map(step => (
@@ -38,7 +38,7 @@ export function KontenSetupBanner({ user }: KontenSetupBannerProps) {
             key={step.id}
             className={cn(
               'h-full flex-1 transition-colors',
-              step.complete ? 'bg-terminal-cyan' : 'bg-terminal-cyan/15',
+              step.complete ? 'bg-terminal-green' : 'bg-terminal-green/15',
             )}
           />
         ))}
@@ -49,12 +49,12 @@ export function KontenSetupBanner({ user }: KontenSetupBannerProps) {
           <span className="block font-mono text-xs font-semibold tracking-wide text-terminal-text">
             Konten einrichten
           </span>
-          <span className="mt-0.5 block font-mono text-[10px] uppercase tracking-[0.16em] text-terminal-text/50 transition-colors group-hover:text-terminal-cyan">
+          <span className="mt-0.5 block font-mono text-[10px] uppercase tracking-[0.16em] text-terminal-text/50 transition-colors group-hover:text-terminal-green">
             {progress.doneCount}/{progress.totalCount} eingerichtet →
           </span>
         </span>
         <ArrowRight
-          className="size-4 shrink-0 text-terminal-text/45 transition-colors group-hover:text-terminal-cyan"
+          className="size-4 shrink-0 text-terminal-text/45 transition-colors group-hover:text-terminal-green"
           aria-hidden
         />
       </span>
