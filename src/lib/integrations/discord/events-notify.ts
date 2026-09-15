@@ -20,6 +20,10 @@ const CONNECT_URL = 'https://connect.neuland.ing'
 /** Neuland accent for embeds */
 const EMBED_COLOR = 0x2d8a5e
 
+/** Discord allows 5 buttons per row; keep Connect + up to 3 event links. */
+const MAX_EVENT_LINK_BUTTONS = 3
+const DISCORD_BUTTON_LABEL_MAX = 80
+
 const DISCORD_COMPONENT_TYPES = {
   ACTION_ROW: 1,
   BUTTON: 2,
@@ -131,6 +135,30 @@ function truncateText(value: string, maxLength: number): string {
   return `${trimmed}…`
 }
 
+function isHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+function buildEventLinkButtons(events: CampusLifeEvent[]) {
+  return events
+    .filter(
+      (event): event is CampusLifeEvent & { eventUrl: string } =>
+        typeof event.eventUrl === 'string' && isHttpUrl(event.eventUrl),
+    )
+    .slice(0, MAX_EVENT_LINK_BUTTONS)
+    .map(event => ({
+      type: DISCORD_COMPONENT_TYPES.BUTTON,
+      style: DISCORD_BUTTON_STYLES.LINK,
+      label: truncateText(event.title, DISCORD_BUTTON_LABEL_MAX),
+      url: event.eventUrl,
+    }))
+}
+
 function formatEventBlock(event: CampusLifeEvent, dayKey: string): string {
   const schedule = formatEventSchedule(event, dayKey)
   const lines = [`**${event.title}**`, schedule]
@@ -191,6 +219,7 @@ function buildDigestPayload(
             label: 'Neuland Connect',
             url: CONNECT_URL,
           },
+          ...buildEventLinkButtons(events),
         ],
       },
     ],
