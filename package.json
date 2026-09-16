@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@babel/core": "8.0.1",
-    "@biomejs/biome": "2.5.12",
+    "@biomejs/biome": "2.5.13",
     "@rolldown/plugin-babel": "0.2.4",
     "@tanstack/devtools-vite": "0.8.5",
     "@tanstack/router-cli": "1.167.36",
