@@ -6,7 +6,7 @@ Internal member portal for **Neuland Ingolstadt**. Read this before making archi
 
 - **Users:** Vereinsmitglieder (members only - non-members cannot log in via Authentik)
 - **Language:** UI copy is **German** (informal „du“, professional tone - avoid slang like „Drin“)
-- **Branding:** Terminal-inspired Neuland CI (dark/light theme, `TerminalPanel`, corner accents, Noto Sans/Mono)
+- **Branding:** Terminal-inspired Neuland CI (dark/light theme, `TerminalPanel`, corner accents, IBM Plex Sans / IBM Plex Mono SemiBold)
 - **Live URLs:** `connect.neuland.ing` (prod), `http://localhost:3000` (dev)
 
 ## Non-negotiable architecture

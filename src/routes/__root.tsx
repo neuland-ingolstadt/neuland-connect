@@ -13,9 +13,6 @@ import { APP_NAME } from '#/lib/constants'
 import type { CurrentUser } from '#/server/get-current-user'
 import appCss from '../styles.css?url'
 
-const FONTS_CSS =
-  'https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap'
-
 export type RouterContext = {
   user: CurrentUser | null
 }
@@ -67,21 +64,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html lang="de" suppressHydrationWarning>
       <head>
         <HeadContent />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link rel="preload" href={FONTS_CSS} as="style" />
-        <link
-          rel="stylesheet"
-          href={FONTS_CSS}
-          media="print"
-          onLoad={event => {
-            event.currentTarget.media = 'all'
-          }}
-        />
         <script dangerouslySetInnerHTML={{ __html: clientShellScript }} />
       </head>
       <body className="min-h-screen min-w-0 max-w-full bg-terminal-bg font-sans text-terminal-text antialiased">

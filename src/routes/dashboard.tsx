@@ -132,7 +132,7 @@ function DashboardRoute() {
           <p className="font-mono text-xs uppercase tracking-[0.16em] text-terminal-text/50">
             Dashboard
           </p>
-          <h1 className="mt-1 font-sans text-2xl font-bold tracking-tight sm:text-3xl">
+          <h1 className="mt-1 font-mono text-2xl font-semibold tracking-tight sm:text-3xl">
             Hallo {user.name.split(' ')[0]}
           </h1>
         </header>
@@ -184,7 +184,7 @@ function DashboardPage({
           <p className="font-mono text-xs uppercase tracking-[0.16em] text-terminal-text/50">
             Dashboard
           </p>
-          <h1 className="mt-1 font-sans text-2xl font-bold tracking-tight sm:text-3xl">
+          <h1 className="mt-1 font-mono text-2xl font-semibold tracking-tight sm:text-3xl">
             Hallo {firstName}
           </h1>
         </header>

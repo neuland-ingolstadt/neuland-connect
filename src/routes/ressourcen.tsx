@@ -43,7 +43,7 @@ function RessourcenPage() {
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
             Portal
           </p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
             Ressourcen-Hub
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-terminal-text/60">

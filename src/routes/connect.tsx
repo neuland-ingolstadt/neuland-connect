@@ -199,7 +199,7 @@ function ConnectPage({ user: initialUser }: { user: CurrentUser }) {
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
               Konten
             </p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
               Konten verknüpfen
             </h1>
           </div>

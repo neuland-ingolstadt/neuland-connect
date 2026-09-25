@@ -33,7 +33,7 @@ function DatenschutzPage() {
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
             Rechtliches
           </p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
             Datenschutzerklärung
           </h1>
         </header>

@@ -22,6 +22,8 @@
     "docker:build": "docker build --build-arg BUN_VERSION=$(tr -d '[:space:]' < .bun-version) -t neuland-connect ."
   },
   "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
     "@radix-ui/react-alert-dialog": "1.1.23",
     "@radix-ui/react-dialog": "1.1.23",
     "@radix-ui/react-dropdown-menu": "2.1.24",

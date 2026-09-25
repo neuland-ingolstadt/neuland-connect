@@ -1,4 +1,20 @@
 @import "tailwindcss";
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
+@import "@fontsource/ibm-plex-sans/latin-700.css";
+@import "@fontsource/ibm-plex-sans/latin-ext-400.css";
+@import "@fontsource/ibm-plex-sans/latin-ext-500.css";
+@import "@fontsource/ibm-plex-sans/latin-ext-600.css";
+@import "@fontsource/ibm-plex-sans/latin-ext-700.css";
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
+@import "@fontsource/ibm-plex-mono/latin-600.css";
+@import "@fontsource/ibm-plex-mono/latin-700.css";
+@import "@fontsource/ibm-plex-mono/latin-ext-400.css";
+@import "@fontsource/ibm-plex-mono/latin-ext-500.css";
+@import "@fontsource/ibm-plex-mono/latin-ext-600.css";
+@import "@fontsource/ibm-plex-mono/latin-ext-700.css";
 
 @theme {
   --color-terminal-bg: var(--terminal-bg);
@@ -14,8 +30,8 @@
   --color-terminal-onAccent: var(--terminal-onAccent);
   --color-terminal-muted: var(--terminal-mutedGreen);
 
-  --font-mono: "Noto Sans Mono", ui-monospace, monospace;
-  --font-sans: "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 @theme inline {
@@ -253,6 +269,7 @@ h3,
 h4 {
   color: var(--terminal-lightGreen);
   font-family: var(--font-mono);
+  font-weight: 600;
   letter-spacing: 0.02em;
 }
 
@@ -311,7 +328,7 @@ h4 {
   background: var(--terminal-window);
   color: var(--terminal-text);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 400;
   line-height: 1.45;
