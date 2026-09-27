@@ -16,7 +16,7 @@ Member portal for **[Neuland Ingolstadt](https://neuland-ingolstadt.de)**. Membe
 
 **Production:** [connect.neuland.ing](https://connect.neuland.ing) · **Local dev:** [localhost:3000](http://localhost:3000)
 
-> The member-facing UI is **German** (informal *du*). This README is in English for contributors and operators.
+> The member-facing UI is **German** (informal _du_). This README is in English for contributors and operators.
 
 ## Contents
 
@@ -62,27 +62,27 @@ Optional: GitHub App ──► org invites + membership reconciliation
 
 **Design rules**
 
-| Principle | Implementation |
-|-----------|----------------|
-| Single source of truth for users | Authentik only - no user tables in Connect |
-| Integration state | Authentik user attributes (`github_username`, `github_org_status`, …) |
-| GitHub member OAuth | `read:user` only; access tokens are never persisted |
-| Org management | Separate GitHub App with `members: write` on the organization |
-| Secrets | Server-only via `src/lib/config.ts` - never imported in client code |
+| Principle                        | Implementation                                                        |
+| -------------------------------- | --------------------------------------------------------------------- |
+| Single source of truth for users | Authentik only - no user tables in Connect                            |
+| Integration state                | Authentik user attributes (`github_username`, `github_org_status`, …) |
+| GitHub member OAuth              | `read:user` only; access tokens are never persisted                   |
+| Org management                   | Separate GitHub App with `members: write` on the organization         |
+| Secrets                          | Server-only via `src/lib/config.ts` - never imported in client code   |
 
 See [AGENTS.md](./AGENTS.md) for agent/contributor conventions.
 
 ## Tech stack
 
-| Layer | Choice |
-|-------|--------|
-| Framework | [TanStack Start](https://tanstack.com/start) + Router + Query |
-| UI | React 19, TypeScript, Tailwind CSS v4, shadcn-style components |
-| Runtime | [Bun](https://bun.sh) (dev/CI); Nitro build output on Node-compatible runtime |
-| Auth | Authentik OIDC (PKCE) |
-| Lint / format | [Biome](https://biomejs.dev) |
-| Container | Docker (`oven/bun` multi-stage) |
-| Dependencies | [Mend Renovate](https://www.mend.io/renovate/) with grouped updates |
+| Layer         | Choice                                                                        |
+| ------------- | ----------------------------------------------------------------------------- |
+| Framework     | [TanStack Start](https://tanstack.com/start) + Router + Query                 |
+| UI            | React 19, TypeScript, Tailwind CSS v4, shadcn-style components                |
+| Runtime       | [Bun](https://bun.sh) (dev/CI); Nitro build output on Node-compatible runtime |
+| Auth          | Authentik OIDC (PKCE)                                                         |
+| Lint / format | [Biome](https://biomejs.dev)                                                  |
+| Container     | Docker (`oven/bun` multi-stage)                                               |
+| Dependencies  | [Mend Renovate](https://www.mend.io/renovate/) with grouped updates           |
 
 The Bun version is defined in [`.bun-version`](./.bun-version). CI, Docker builds, and `packageManager` in `package.json` follow that file (updated by Renovate).
 
@@ -121,31 +121,30 @@ bun run build       # Production build
 
 Copy [`.env.example`](./.env.example) to `.env` (or `.env.local` for Vite).
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `APP_URL` | Yes | Public app URL (e.g. `http://localhost:3000`) |
-| `SESSION_SECRET` | Yes | Min. 32 characters for encrypted session cookies |
-| `AUTHENTIK_ISSUER` | Yes | OIDC issuer URL of the Authentik application |
-| `AUTHENTIK_CLIENT_ID` | Yes | OIDC client ID |
-| `AUTHENTIK_CLIENT_SECRET` | Yes | OIDC client secret |
-| `AUTHENTIK_API_URL` | Yes | Authentik base URL |
-| `AUTHENTIK_API_TOKEN` | Yes | API token with user read/write permissions (also needs OAuth2 token + provider read for Next session) |
-| `AUTHENTIK_NEXT_APP_SLUG` | No | Authentik application slug for Next Member ID (default `next`) |
-| `AUTHENTIK_NEXT_OAUTH_PROVIDER_ID` | No | OAuth2 provider PK; looked up from the slug when omitted |
-| `GITHUB_CLIENT_ID` | Yes | GitHub OAuth App client ID |
-| `GITHUB_CLIENT_SECRET` | Yes | GitHub OAuth App client secret |
-| `GITHUB_APP_ID` | Org sync | GitHub App ID for org invitations |
-| `GITHUB_APP_PRIVATE_KEY` | Org sync | PEM private key (single line with `\n` is fine) |
-| `GITHUB_APP_INSTALLATION_ID` | Org sync | App installation ID on the organization |
-| `GITHUB_ORG` | Org sync | Organization slug (e.g. `neuland-ingolstadt`) |
-| `CRON_SECRET` | Org/team/Discord sync | Bearer token for internal cron endpoints |
-| `DISCORD_CLIENT_ID` | Discord | Discord OAuth App client ID |
-| `DISCORD_CLIENT_SECRET` | Discord | Discord OAuth App client secret |
-| `DISCORD_BOT_TOKEN` | Discord | Bot token (guild join, role sync, events digest) |
-| `DISCORD_GUILD_ID` | Discord | Neuland guild snowflake |
-| `DISCORD_PUBLIC_KEY` | Discord | Application public key for slash-command interactions |
-| `DISCORD_EVENTS_CHANNEL_ID` | Discord | Channel for daily “events today” digests (optional) |
-| `CL_API_KEY` | Events | Campus Life API token (same as the website) for Neuland events including internal ones |
+| Variable                           | Required              | Description                                                                                           |
+| ---------------------------------- | --------------------- | ----------------------------------------------------------------------------------------------------- |
+| `APP_URL`                          | Yes                   | Public app URL (e.g. `http://localhost:3000`)                                                         |
+| `SESSION_SECRET`                   | Yes                   | Min. 32 characters for encrypted session cookies                                                      |
+| `AUTHENTIK_ISSUER`                 | Yes                   | OIDC issuer URL of the Authentik application                                                          |
+| `AUTHENTIK_CLIENT_ID`              | Yes                   | OIDC client ID                                                                                        |
+| `AUTHENTIK_CLIENT_SECRET`          | Yes                   | OIDC client secret                                                                                    |
+| `AUTHENTIK_API_URL`                | Yes                   | Authentik base URL                                                                                    |
+| `AUTHENTIK_API_TOKEN`              | Yes                   | API token with user read/write permissions (also needs OAuth2 token + provider read for Next session) |
+| `AUTHENTIK_NEXT_APP_SLUG`          | No                    | Authentik application slug for Next Member ID (default `next`)                                        |
+| `AUTHENTIK_NEXT_OAUTH_PROVIDER_ID` | No                    | OAuth2 provider PK; looked up from the slug when omitted                                              |
+| `GITHUB_CLIENT_ID`                 | Yes                   | GitHub OAuth App client ID                                                                            |
+| `GITHUB_CLIENT_SECRET`             | Yes                   | GitHub OAuth App client secret                                                                        |
+| `GITHUB_APP_ID`                    | Org sync              | GitHub App ID for org invitations                                                                     |
+| `GITHUB_APP_PRIVATE_KEY`           | Org sync              | PEM private key (single line with `\n` is fine)                                                       |
+| `GITHUB_APP_INSTALLATION_ID`       | Org sync              | App installation ID on the organization                                                               |
+| `GITHUB_ORG`                       | Org sync              | Organization slug (e.g. `neuland-ingolstadt`)                                                         |
+| `CRON_SECRET`                      | Org/team/Discord sync | Bearer token for internal cron endpoints                                                              |
+| `DISCORD_CLIENT_ID`                | Discord               | Discord OAuth App client ID                                                                           |
+| `DISCORD_CLIENT_SECRET`            | Discord               | Discord OAuth App client secret                                                                       |
+| `DISCORD_BOT_TOKEN`                | Discord               | Bot token (guild join, role sync, events digest)                                                      |
+| `DISCORD_GUILD_ID`                 | Discord               | Neuland guild snowflake                                                                               |
+| `DISCORD_EVENTS_CHANNEL_ID`        | Discord               | Channel for daily “events today” digests (optional)                                                   |
+| `CL_API_KEY`                       | Events                | Campus Life API token (same as the website) for Neuland events including internal ones                |
 
 ## Authentik setup
 
@@ -156,14 +155,14 @@ Copy [`.env.example`](./.env.example) to `.env` (or `.env.local` for Vite).
 2. Create an **API token** with permission to read and update users.
 3. Ensure these user attributes exist (or can be written) on member accounts:
 
-   | Attribute | Purpose |
-   |-----------|---------|
-   | `github_username` | Linked GitHub login |
-   | `github_id` | Linked GitHub numeric ID |
-   | `github_connected_at` | ISO timestamp of link |
-   | `github_org_status` | `invited` or `member` |
+   | Attribute               | Purpose                     |
+   | ----------------------- | --------------------------- |
+   | `github_username`       | Linked GitHub login         |
+   | `github_id`             | Linked GitHub numeric ID    |
+   | `github_connected_at`   | ISO timestamp of link       |
+   | `github_org_status`     | `invited` or `member`       |
    | `github_org_invited_at` | Optional - invite timestamp |
-   | `github_org_last_error` | Optional - support/debug |
+   | `github_org_last_error` | Optional - support/debug    |
 
 Profile changes (name, email) are handled by the Vorstand in Authentik, not in Connect.
 
@@ -171,9 +170,9 @@ Profile changes (name, email) are handled by the Vorstand in Authentik, not in C
 
 Connect uses **two separate GitHub credentials**:
 
-| Credential | Used by | Permission |
-|------------|---------|------------|
-| **OAuth App** | Members linking their account | `read:user` |
+| Credential     | Used by                            | Permission                               |
+| -------------- | ---------------------------------- | ---------------------------------------- |
+| **OAuth App**  | Members linking their account      | `read:user`                              |
 | **GitHub App** | Server-side org invites, team sync | Members + Team memberships: read & write |
 
 The OAuth App alone cannot invite users to an organization.
@@ -266,16 +265,16 @@ The image is built with `BUN_VERSION` from `.bun-version`. Production images are
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `bun run dev` | Dev server on port 3000 |
-| `bun run build` | Production build (Nitro output in `.output/`) |
-| `bun run start` | Run production server |
-| `bun run generate-routes` | Regenerate `src/routeTree.gen.ts` |
-| `bun run check` | Biome lint + format check |
-| `bun run check:fix` | Biome auto-fix |
-| `bun run typecheck` | `tsc --noEmit` |
-| `bun run docker:build` | `docker build` with Bun version from file |
+| Command                   | Description                                   |
+| ------------------------- | --------------------------------------------- |
+| `bun run dev`             | Dev server on port 3000                       |
+| `bun run build`           | Production build (Nitro output in `.output/`) |
+| `bun run start`           | Run production server                         |
+| `bun run generate-routes` | Regenerate `src/routeTree.gen.ts`             |
+| `bun run check`           | Biome lint + format check                     |
+| `bun run check:fix`       | Biome auto-fix                                |
+| `bun run typecheck`       | `tsc --noEmit`                                |
+| `bun run docker:build`    | `docker build` with Bun version from file     |
 
 ## Project structure
 

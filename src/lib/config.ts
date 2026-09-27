@@ -2,161 +2,156 @@ import {
   APP_NAME,
   EXTERNAL_LINKS,
   NEULAND_NEXT_APP_SLUG,
-} from '#/lib/constants'
+} from "#/lib/constants";
 
 function requireEnv(name: string): string {
-  const value = process.env[name]
+  const value = process.env[name];
   if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`)
+    throw new Error(`Missing required environment variable: ${name}`);
   }
-  return value
+  return value;
 }
 
 function optionalEnv(name: string): string | undefined {
-  const value = process.env[name]
-  return value && value.length > 0 ? value : undefined
+  const value = process.env[name];
+  return value && value.length > 0 ? value : undefined;
 }
 
 export const serverConfig = {
   get appUrl() {
-    return requireEnv('APP_URL').replace(/\/$/, '')
+    return requireEnv("APP_URL").replace(/\/$/, "");
   },
   get sessionSecret() {
-    return requireEnv('SESSION_SECRET')
+    return requireEnv("SESSION_SECRET");
   },
   authentik: {
     get issuer() {
-      return requireEnv('AUTHENTIK_ISSUER').replace(/\/$/, '')
+      return requireEnv("AUTHENTIK_ISSUER").replace(/\/$/, "");
     },
     get clientId() {
-      return requireEnv('AUTHENTIK_CLIENT_ID')
+      return requireEnv("AUTHENTIK_CLIENT_ID");
     },
     get clientSecret() {
-      return requireEnv('AUTHENTIK_CLIENT_SECRET')
+      return requireEnv("AUTHENTIK_CLIENT_SECRET");
     },
     get apiUrl() {
       // Paths in authentik/client.ts already include /api/v3/...
-      return requireEnv('AUTHENTIK_API_URL')
-        .replace(/\/$/, '')
-        .replace(/\/api\/v3$/, '')
+      return requireEnv("AUTHENTIK_API_URL")
+        .replace(/\/$/, "")
+        .replace(/\/api\/v3$/, "");
     },
     get apiToken() {
-      return requireEnv('AUTHENTIK_API_TOKEN')
+      return requireEnv("AUTHENTIK_API_TOKEN");
     },
     /**
      * OAuth2 provider PK for Neuland Next (Member ID). Optional - Connect
      * resolves it from the Authentik app slug when unset.
      */
     get nextMemberOAuthProviderId() {
-      const raw = optionalEnv('AUTHENTIK_NEXT_OAUTH_PROVIDER_ID')
+      const raw = optionalEnv("AUTHENTIK_NEXT_OAUTH_PROVIDER_ID");
       if (!raw) {
-        return undefined
+        return undefined;
       }
 
-      const parsed = Number(raw)
-      return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+      const parsed = Number(raw);
+      return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
     },
     get nextMemberAppSlug() {
-      return optionalEnv('AUTHENTIK_NEXT_APP_SLUG') ?? NEULAND_NEXT_APP_SLUG
+      return optionalEnv("AUTHENTIK_NEXT_APP_SLUG") ?? NEULAND_NEXT_APP_SLUG;
     },
   },
   github: {
     get clientId() {
-      return requireEnv('GITHUB_CLIENT_ID')
+      return requireEnv("GITHUB_CLIENT_ID");
     },
     get clientSecret() {
-      return requireEnv('GITHUB_CLIENT_SECRET')
+      return requireEnv("GITHUB_CLIENT_SECRET");
     },
     get redirectUri() {
-      return `${serverConfig.appUrl}/api/integrations/github/callback`
+      return `${serverConfig.appUrl}/api/integrations/github/callback`;
     },
     get appId() {
-      return optionalEnv('GITHUB_APP_ID')
+      return optionalEnv("GITHUB_APP_ID");
     },
     get appPrivateKey() {
-      const key = optionalEnv('GITHUB_APP_PRIVATE_KEY')
+      const key = optionalEnv("GITHUB_APP_PRIVATE_KEY");
       if (!key) {
-        return undefined
+        return undefined;
       }
-      return key.includes('\\n') ? key.replace(/\\n/g, '\n') : key
+      return key.includes("\\n") ? key.replace(/\\n/g, "\n") : key;
     },
     get appInstallationId() {
-      return optionalEnv('GITHUB_APP_INSTALLATION_ID')
+      return optionalEnv("GITHUB_APP_INSTALLATION_ID");
     },
     get org() {
-      return optionalEnv('GITHUB_ORG')
+      return optionalEnv("GITHUB_ORG");
     },
     get isOrgSyncConfigured() {
       return Boolean(
         serverConfig.github.appId &&
-          serverConfig.github.appPrivateKey &&
-          serverConfig.github.appInstallationId &&
-          serverConfig.github.org,
-      )
+        serverConfig.github.appPrivateKey &&
+        serverConfig.github.appInstallationId &&
+        serverConfig.github.org,
+      );
     },
     /** Team sync needs the same GitHub App as org sync; managed teams = groups with `github_team`. */
     get isTeamSyncConfigured() {
-      return serverConfig.github.isOrgSyncConfigured
+      return serverConfig.github.isOrgSyncConfigured;
     },
   },
   discord: {
     get clientId() {
-      return requireEnv('DISCORD_CLIENT_ID')
+      return requireEnv("DISCORD_CLIENT_ID");
     },
     get clientSecret() {
-      return requireEnv('DISCORD_CLIENT_SECRET')
+      return requireEnv("DISCORD_CLIENT_SECRET");
     },
     get redirectUri() {
-      return `${serverConfig.appUrl}/api/integrations/discord/callback`
+      return `${serverConfig.appUrl}/api/integrations/discord/callback`;
     },
     get botToken() {
-      return requireEnv('DISCORD_BOT_TOKEN')
+      return requireEnv("DISCORD_BOT_TOKEN");
     },
     get guildId() {
-      return requireEnv('DISCORD_GUILD_ID')
-    },
-    get publicKey() {
-      return requireEnv('DISCORD_PUBLIC_KEY')
-        .trim()
-        .replace(/^['"]|['"]$/g, '')
+      return requireEnv("DISCORD_GUILD_ID");
     },
     /** Channel for daily “events today” digests. Optional until notify cron is used. */
     get eventsChannelId() {
-      return optionalEnv('DISCORD_EVENTS_CHANNEL_ID')
+      return optionalEnv("DISCORD_EVENTS_CHANNEL_ID");
     },
   },
   get cronSecret() {
-    return optionalEnv('CRON_SECRET')
+    return optionalEnv("CRON_SECRET");
   },
   memberId: {
     get apiBase() {
       return (
-        optionalEnv('MEMBER_ID_API_BASE') ?? 'https://id.neuland-ingolstadt.de'
-      )
+        optionalEnv("MEMBER_ID_API_BASE") ?? "https://id.neuland-ingolstadt.de"
+      );
     },
   },
   campusLife: {
     get apiUrl() {
       return (
-        optionalEnv('CL_API_URL') ?? 'https://cl.neuland-ingolstadt.de/api'
-      ).replace(/\/$/, '')
+        optionalEnv("CL_API_URL") ?? "https://cl.neuland-ingolstadt.de/api"
+      ).replace(/\/$/, "");
     },
     get apiKey() {
-      return optionalEnv('CL_API_KEY')
+      return optionalEnv("CL_API_KEY");
     },
     get isConfigured() {
-      return Boolean(serverConfig.campusLife.apiKey)
+      return Boolean(serverConfig.campusLife.apiKey);
     },
   },
   blog: {
     get feedUrl() {
       return (
-        optionalEnv('WEBSITE_FEED_URL') ?? EXTERNAL_LINKS.BLOG_FEED
-      ).replace(/\/$/, '')
+        optionalEnv("WEBSITE_FEED_URL") ?? EXTERNAL_LINKS.BLOG_FEED
+      ).replace(/\/$/, "");
     },
   },
-} as const
+} as const;
 
 export const clientConfig = {
   appName: APP_NAME,
-} as const
+} as const;
