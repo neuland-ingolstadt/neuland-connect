@@ -1,27 +1,45 @@
 import type { CampusLifeEvent } from '#/lib/campus-life/types'
+import type { Locale } from '#/lib/i18n/messages'
+import { localeToDateLocale, translate } from '#/lib/i18n/messages'
 
 const EVENT_TIMEZONE = 'Europe/Berlin'
-const LOCALE = 'de-DE'
 
-const weekdayFormatter = new Intl.DateTimeFormat(LOCALE, {
-  timeZone: EVENT_TIMEZONE,
-  weekday: 'short',
-})
-const dateFormatter = new Intl.DateTimeFormat(LOCALE, {
-  timeZone: EVENT_TIMEZONE,
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-})
-const timeFormatter = new Intl.DateTimeFormat(LOCALE, {
-  timeZone: EVENT_TIMEZONE,
-  hour: '2-digit',
-  minute: '2-digit',
-})
-const monthFormatter = new Intl.DateTimeFormat(LOCALE, {
-  timeZone: EVENT_TIMEZONE,
-  month: 'short',
-})
+function formattersFor(locale: Locale) {
+  const tag = localeToDateLocale(locale)
+  return {
+    weekday: new Intl.DateTimeFormat(tag, {
+      timeZone: EVENT_TIMEZONE,
+      weekday: 'short',
+    }),
+    date: new Intl.DateTimeFormat(tag, {
+      timeZone: EVENT_TIMEZONE,
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }),
+    time: new Intl.DateTimeFormat(tag, {
+      timeZone: EVENT_TIMEZONE,
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+    month: new Intl.DateTimeFormat(tag, {
+      timeZone: EVENT_TIMEZONE,
+      month: 'short',
+    }),
+  }
+}
+
+type EventFormatters = ReturnType<typeof formattersFor>
+
+const formattersCache = new Map<Locale, EventFormatters>()
+
+function getFormatters(locale: Locale): EventFormatters {
+  const cached = formattersCache.get(locale)
+  if (cached) return cached
+  const created = formattersFor(locale)
+  formattersCache.set(locale, created)
+  return created
+}
 const dayKeyFormatter = new Intl.DateTimeFormat('en-CA', {
   timeZone: EVENT_TIMEZONE,
   year: 'numeric',
@@ -29,21 +47,36 @@ const dayKeyFormatter = new Intl.DateTimeFormat('en-CA', {
   day: '2-digit',
 })
 
-/** Stable de-DE date/time labels — avoids SSR/client ICU punctuation differences. */
-function formatGermanWeekday(date: Date): string {
-  return weekdayFormatter.format(date).replace(/\.$/, '')
+/** Locale-aware date/time labels — avoids SSR/client ICU punctuation differences. */
+function formatWeekday(
+  formatters: EventFormatters,
+  date: Date,
+  locale: Locale,
+): string {
+  const raw = formatters.weekday.format(date).replace(/\.$/, '')
+  if (locale === 'en') {
+    return raw.replace(/\.$/, '')
+  }
+  return raw
 }
 
-function formatGermanDate(date: Date): string {
-  return dateFormatter.format(date)
+function formatDate(formatters: EventFormatters, date: Date): string {
+  return formatters.date.format(date)
 }
 
-function formatGermanTime(date: Date): string {
-  return timeFormatter.format(date)
+function formatTime(formatters: EventFormatters, date: Date): string {
+  return formatters.time.format(date)
 }
 
-function formatGermanDateTime(date: Date): string {
-  return `${formatGermanWeekday(date)}., ${formatGermanDate(date)}, ${formatGermanTime(date)}`
+function formatDateTime(
+  formatters: EventFormatters,
+  date: Date,
+  locale: Locale,
+): string {
+  if (locale === 'en') {
+    return `${formatWeekday(formatters, date, locale)}, ${formatDate(formatters, date)}, ${formatTime(formatters, date)}`
+  }
+  return `${formatWeekday(formatters, date, locale)}., ${formatDate(formatters, date)}, ${formatTime(formatters, date)}`
 }
 
 function formatDayKey(date: Date): string {
@@ -100,15 +133,17 @@ export function isEventToday(
 
 export function formatEventDateRange(
   event: CampusLifeEvent,
-  fallback = 'Termin folgt',
+  fallback = translate('de', 'events.fallbackDate'),
+  locale: Locale = 'de',
 ): string {
+  const formatters = getFormatters(locale)
   const startMs = getEventTimestamp(event)
   if (startMs === null) {
     return fallback
   }
 
   const start = new Date(startMs)
-  const label = formatGermanDateTime(start)
+  const label = formatDateTime(formatters, start, locale)
 
   if (!event.endDateTime) {
     return label
@@ -122,16 +157,20 @@ export function formatEventDateRange(
   const end = new Date(endMs)
 
   if (formatDayKey(start) === formatDayKey(end)) {
-    return `${label} – ${formatGermanTime(end)}`
+    return `${label} – ${formatTime(formatters, end)}`
   }
 
-  return `${label} – ${formatGermanDateTime(end)}`
+  return `${label} – ${formatDateTime(formatters, end, locale)}`
 }
 
-export function formatEventDayParts(event: CampusLifeEvent): {
+export function formatEventDayParts(
+  event: CampusLifeEvent,
+  locale: Locale = 'de',
+): {
   day: string
   month: string
 } | null {
+  const formatters = getFormatters(locale)
   const startMs = getEventTimestamp(event)
   if (startMs === null) {
     return null
@@ -140,9 +179,9 @@ export function formatEventDayParts(event: CampusLifeEvent): {
   const start = new Date(startMs)
   return {
     day:
-      dateFormatter.formatToParts(start).find(part => part.type === 'day')
+      formatters.date.formatToParts(start).find(part => part.type === 'day')
         ?.value ?? '',
-    month: monthFormatter.format(start).replace(/\.$/, '').toUpperCase(),
+    month: formatters.month.format(start).replace(/\.$/, '').toUpperCase(),
   }
 }
 

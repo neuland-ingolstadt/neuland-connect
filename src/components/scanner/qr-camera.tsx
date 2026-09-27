@@ -1,6 +1,8 @@
 import jsQR from 'jsqr'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '#/components/ui/button'
+import { useI18n } from '#/lib/i18n/locale-context'
+import type { MessageKey } from '#/lib/i18n/messages'
 import { cn } from '#/lib/utils'
 
 type QrCameraProps = {
@@ -11,23 +13,38 @@ type QrCameraProps = {
   status?: 'valid' | 'invalid' | null
 }
 
-function cameraErrorMessage(err: unknown): string {
+type CameraErrorCode =
+  | 'generic'
+  | 'unsupported'
+  | 'denied'
+  | 'notFound'
+  | 'busy'
+
+const CAMERA_ERROR_KEYS: Record<CameraErrorCode, MessageKey> = {
+  generic: 'scanner.cameraErrorGeneric',
+  unsupported: 'scanner.cameraErrorUnsupported',
+  denied: 'scanner.cameraErrorDenied',
+  notFound: 'scanner.cameraErrorNotFound',
+  busy: 'scanner.cameraErrorBusy',
+}
+
+function cameraErrorCode(err: unknown): CameraErrorCode {
   if (!(err instanceof Error)) {
-    return 'Kamera konnte nicht gestartet werden.'
+    return 'generic'
   }
   if (err.message.includes('Camera API not supported')) {
-    return 'Dieser Browser unterstützt keinen Kamerazugriff.'
+    return 'unsupported'
   }
   if (err.name === 'NotAllowedError') {
-    return 'Kamerazugriff wurde verweigert. Bitte in den Browser-Einstellungen erlauben.'
+    return 'denied'
   }
   if (err.name === 'NotFoundError') {
-    return 'Keine Kamera gefunden.'
+    return 'notFound'
   }
   if (err.name === 'NotReadableError') {
-    return 'Kamera wird bereits von einer anderen App verwendet.'
+    return 'busy'
   }
-  return 'Kamera konnte nicht gestartet werden.'
+  return 'generic'
 }
 
 function stopMediaStream(stream: MediaStream | null | undefined) {
@@ -50,7 +67,8 @@ export function QrCamera({
   const [isScanning, setIsScanning] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [errorCode, setErrorCode] = useState<CameraErrorCode | null>(null)
+  const { t } = useI18n()
 
   const stopCamera = useCallback(() => {
     stopMediaStream(streamRef.current)
@@ -64,7 +82,7 @@ export function QrCamera({
   const startCamera = useCallback(async () => {
     const startId = ++startIdRef.current
     stopCamera()
-    setErrorMessage(null)
+    setErrorCode(null)
 
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
@@ -100,11 +118,11 @@ export function QrCamera({
         videoRef.current.srcObject = stream
       }
       setIsScanning(true)
-      setErrorMessage(null)
+      setErrorCode(null)
     } catch (err) {
       if (startId !== startIdRef.current) return
       stopCamera()
-      setErrorMessage(cameraErrorMessage(err))
+      setErrorCode(cameraErrorCode(err))
       console.error('Camera error:', err)
     }
   }, [stopCamera])
@@ -120,11 +138,11 @@ export function QrCamera({
 
   // Re-attach if the <video> remounts (e.g. after clearing an error state).
   useEffect(() => {
-    if (errorMessage) return
+    if (errorCode) return
     if (videoRef.current && streamRef.current) {
       videoRef.current.srcObject = streamRef.current
     }
-  }, [errorMessage])
+  }, [errorCode])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -189,7 +207,7 @@ export function QrCamera({
     return () => cancelAnimationFrame(raf)
   }, [captureFrame, isProcessing, isScanning, isVisible, paused])
 
-  if (errorMessage) {
+  if (errorCode) {
     return (
       <div
         className={cn(
@@ -198,10 +216,10 @@ export function QrCamera({
         )}
       >
         <p className="text-sm text-destructive" role="alert">
-          {errorMessage}
+          {t(CAMERA_ERROR_KEYS[errorCode])}
         </p>
         <Button type="button" variant="outline" size="sm" onClick={startCamera}>
-          Erneut versuchen
+          {t('scanner.cameraRetry')}
         </Button>
       </div>
     )
@@ -215,7 +233,7 @@ export function QrCamera({
           autoPlay
           playsInline
           muted
-          aria-label="Kamera für Mitgliedsausweis-Scan"
+          aria-label={t('scanner.cameraLabel')}
           className="aspect-[4/3] w-full object-cover"
         />
         <canvas ref={canvasRef} className="hidden" />
@@ -235,7 +253,7 @@ export function QrCamera({
 
         {!isScanning ? (
           <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-            <p className="text-sm text-white">Kamera startet …</p>
+            <p className="text-sm text-white">{t('scanner.cameraStarting')}</p>
           </div>
         ) : null}
 
@@ -287,11 +305,9 @@ export function QrCamera({
       </div>
 
       <div className="mt-3 space-y-1 text-center">
-        <p className="text-sm text-terminal-text">
-          Halte den Mitgliedsausweis vor die Kamera.
-        </p>
+        <p className="text-sm text-terminal-text">{t('scanner.cameraHint')}</p>
         <p className="text-xs text-terminal-text/55">
-          Der Code wird automatisch erkannt.
+          {t('scanner.cameraHintAuto')}
         </p>
       </div>
     </div>

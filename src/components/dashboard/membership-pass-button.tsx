@@ -3,6 +3,7 @@ import { MembershipPassDialog } from '#/components/dashboard/membership-pass-dia
 import { Button } from '#/components/ui/button'
 import { EXTERNAL_LINKS } from '#/lib/constants'
 import { isLikelyMobileDevice } from '#/lib/device'
+import { useI18n } from '#/lib/i18n/locale-context'
 import { cn } from '#/lib/utils'
 
 export function useMembershipPass() {
@@ -33,9 +34,10 @@ type MembershipPassButtonProps = {
 export function MembershipPassButton({
   className,
   variant = 'default',
-  children = 'Mitgliedsausweis öffnen',
+  children,
 }: MembershipPassButtonProps) {
   const { openPass, dialog } = useMembershipPass()
+  const { t } = useI18n()
 
   return (
     <>
@@ -45,7 +47,7 @@ export function MembershipPassButton({
         className={cn(className)}
         onClick={openPass}
       >
-        {children}
+        {children ?? t('next.pass.open')}
       </Button>
       {dialog}
     </>

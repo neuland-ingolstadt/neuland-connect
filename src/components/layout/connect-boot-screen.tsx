@@ -2,11 +2,13 @@ import { NeulandPalm } from '#/components/brand/neuland-palm'
 import { PageShell } from '#/components/layout/page-shell'
 import { Button } from '#/components/ui/button'
 import { APP_NAME } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
+import type { MessageKey } from '#/lib/i18n/messages'
 
-const BOOT_LINES = [
-  { prompt: 'sitzung', detail: 'bestätigt' },
-  { prompt: 'authentik', detail: 'verbinden' },
-  { prompt: 'profil', detail: 'laden' },
+const BOOT_LINES: { prompt: MessageKey; detail: MessageKey }[] = [
+  { prompt: 'boot.line.session', detail: 'boot.line.sessionDetail' },
+  { prompt: 'boot.line.authentik', detail: 'boot.line.authentikDetail' },
+  { prompt: 'boot.line.profile', detail: 'boot.line.profileDetail' },
 ] as const
 
 type ConnectBootScreenProps = {
@@ -18,6 +20,7 @@ export function ConnectBootScreen({
   error = false,
   onRetry,
 }: ConnectBootScreenProps) {
+  const { t } = useI18n()
   return (
     <PageShell>
       <main
@@ -33,7 +36,8 @@ export function ConnectBootScreen({
 
           <div className="relative border-b border-terminal-window-border/50 px-4 py-1.5">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-terminal-text/65">
-              <span className="text-terminal-green/75">//</span> systemstart
+              <span className="text-terminal-green/75">//</span>{' '}
+              {t('boot.title')}
             </p>
           </div>
 
@@ -46,20 +50,18 @@ export function ConnectBootScreen({
                 {APP_NAME}
               </p>
               <p className="mt-2 text-sm text-terminal-text/60">
-                {error
-                  ? 'Authentik antwortet gerade nicht.'
-                  : 'Dein Profil wird vorbereitet.'}
+                {error ? t('boot.errorLead') : t('boot.preparing')}
               </p>
             </div>
 
             {error ? (
               <div className="space-y-4 text-center">
                 <p className="font-mono text-[12px] text-terminal-text/55">
-                  Die Sitzung ist da — das Profil konnte nicht geladen werden.
+                  {t('boot.errorDetail')}
                 </p>
                 {onRetry ? (
                   <Button variant="outline" type="button" onClick={onRetry}>
-                    Erneut versuchen
+                    {t('common.retry')}
                   </Button>
                 ) : null}
               </div>
@@ -74,10 +76,10 @@ export function ConnectBootScreen({
                     >
                       <span className="text-terminal-green/80">$</span>
                       <span className="text-terminal-text/40">
-                        {line.prompt}
+                        {t(line.prompt)}
                       </span>
                       <span className="text-terminal-text/25">·</span>
-                      <span>{line.detail}</span>
+                      <span>{t(line.detail)}</span>
                     </li>
                   ))}
                   <li
@@ -85,7 +87,7 @@ export function ConnectBootScreen({
                     style={{ animationDelay: '1020ms' }}
                   >
                     <span className="text-terminal-green/80">$</span>
-                    <span>warte auf authentik</span>
+                    <span>{t('boot.waiting')}</span>
                     <span className="connect-boot-cursor" aria-hidden="true" />
                   </li>
                 </ol>

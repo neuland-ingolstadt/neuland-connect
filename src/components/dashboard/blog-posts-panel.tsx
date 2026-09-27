@@ -3,6 +3,9 @@ import type { CSSProperties } from 'react'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import type { BlogPost } from '#/lib/blog/types'
 import { EXTERNAL_LINKS } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
+import type { Locale } from '#/lib/i18n/messages'
+import { localeToDateLocale } from '#/lib/i18n/messages'
 import { cn } from '#/lib/utils'
 
 type BlogPostsPanelProps = {
@@ -13,13 +16,13 @@ type BlogPostsPanelProps = {
 const REVEAL_STEP_MS = 45
 const REVEAL_MAX_INDEX = 10
 
-function formatPublishedDate(value: string): string | null {
+function formatPublishedDate(value: string, locale: Locale): string | null {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) {
     return null
   }
 
-  return new Intl.DateTimeFormat('de-DE', {
+  return new Intl.DateTimeFormat(localeToDateLocale(locale), {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -27,9 +30,10 @@ function formatPublishedDate(value: string): string | null {
 }
 
 export function BlogPostsPanel({ posts, error }: BlogPostsPanelProps) {
+  const { t, locale } = useI18n()
   return (
     <TerminalPanel
-      title="Blog"
+      title={t('blog.title')}
       titleAside={
         <a
           href={EXTERNAL_LINKS.BLOG}
@@ -37,7 +41,7 @@ export function BlogPostsPanel({ posts, error }: BlogPostsPanelProps) {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.14em] text-terminal-text/45 no-underline transition-colors hover:text-terminal-green"
         >
-          Alle Beiträge
+          {t('blog.all')}
           <ArrowUpRight className="size-3" aria-hidden />
         </a>
       }
@@ -45,17 +49,21 @@ export function BlogPostsPanel({ posts, error }: BlogPostsPanelProps) {
       <div className="p-4 sm:p-5">
         {error ? (
           <p className="font-mono text-sm text-terminal-text/60">
-            Blog-Beiträge konnten gerade nicht geladen werden. Versuche es
-            später erneut.
+            {t('blog.error')}
           </p>
         ) : posts.length === 0 ? (
           <p className="font-mono text-sm text-terminal-text/60">
-            Noch keine Beiträge verfügbar.
+            {t('blog.empty')}
           </p>
         ) : (
           <ul className="divide-y divide-terminal-window-border/70">
             {posts.map((post, index) => (
-              <BlogPostRow key={post.url} post={post} index={index} />
+              <BlogPostRow
+                key={post.url}
+                post={post}
+                index={index}
+                locale={locale}
+              />
             ))}
           </ul>
         )}
@@ -64,8 +72,16 @@ export function BlogPostsPanel({ posts, error }: BlogPostsPanelProps) {
   )
 }
 
-function BlogPostRow({ post, index }: { post: BlogPost; index: number }) {
-  const published = formatPublishedDate(post.publishedAt)
+function BlogPostRow({
+  post,
+  index,
+  locale,
+}: {
+  post: BlogPost
+  index: number
+  locale: Locale
+}) {
+  const published = formatPublishedDate(post.publishedAt, locale)
   const revealDelay = Math.min(index, REVEAL_MAX_INDEX) * REVEAL_STEP_MS
 
   return (

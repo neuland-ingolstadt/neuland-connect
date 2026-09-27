@@ -1,3 +1,4 @@
+import { useI18n } from '#/lib/i18n/locale-context'
 import type { IntegrationProgressStep } from '#/lib/integrations/github/integration-progress'
 import { cn } from '#/lib/utils'
 
@@ -13,12 +14,13 @@ export function IntegrationProgressInline({
   const completedCount = steps.filter(step => step.complete).length
   const total = steps.length
   const currentIndex = steps.findIndex(step => !step.complete)
+  const { t } = useI18n()
 
   return (
     <div
       className="flex items-center gap-1.5"
       role="img"
-      aria-label={`${completedCount} von ${total} Schritten abgeschlossen`}
+      aria-label={t('progress.steps', { completed: completedCount, total })}
     >
       {steps.map((step, index) => (
         <span

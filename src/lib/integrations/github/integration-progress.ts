@@ -1,4 +1,6 @@
 import { GITHUB_ORG_STATUSES, type GitHubOrgStatus } from '#/lib/constants'
+import type { Locale } from '#/lib/i18n/messages'
+import { translate } from '#/lib/i18n/messages'
 import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
 
 export type IntegrationProgressStep = {
@@ -15,11 +17,13 @@ type BuildGitHubIntegrationProgressInput = {
 
 export function buildGitHubIntegrationProgress(
   input: BuildGitHubIntegrationProgressInput,
+  locale: Locale = 'de',
 ): {
   steps: IntegrationProgressStep[]
   hint: string
   isComplete: boolean
 } {
+  const t = (key: Parameters<typeof translate>[1]) => translate(locale, key)
   const isInOrg = isGitHubInOrg(input.githubOrgStatus)
   const isInvited =
     input.githubOrgStatus === GITHUB_ORG_STATUSES.INVITED || isInOrg
@@ -28,17 +32,17 @@ export function buildGitHubIntegrationProgress(
   const steps: IntegrationProgressStep[] = [
     {
       id: 'connected',
-      label: 'Verbunden',
+      label: t('github.progress.connected'),
       complete: input.connected,
     },
     {
       id: 'invited',
-      label: 'Eingeladen',
+      label: t('github.progress.invited'),
       complete: isInvited,
     },
     {
       id: 'in-org',
-      label: 'Org-Zugang',
+      label: t('github.progress.inOrg'),
       complete: isInOrg,
     },
   ]
@@ -46,7 +50,7 @@ export function buildGitHubIntegrationProgress(
   if (input.teamSyncEnabled) {
     steps.push({
       id: 'teams',
-      label: 'Teams',
+      label: t('github.progress.teams'),
       complete: isInOrg,
     })
   }
@@ -54,21 +58,19 @@ export function buildGitHubIntegrationProgress(
   let hint: string
 
   if (!input.connected) {
-    hint = 'GitHub-Konto verbinden.'
+    hint = t('github.hint.connect')
   } else if (input.githubOrgStatus === GITHUB_ORG_STATUSES.INVITED) {
-    hint = 'Einladung in GitHub annehmen.'
+    hint = t('github.hint.invited')
   } else if (isInOrg) {
     if (input.teamSyncEnabled) {
-      hint = isAdmin
-        ? 'Admin in der Organisation'
-        : 'Mitglied in der Organisation'
+      hint = isAdmin ? t('github.hint.admin') : t('github.hint.member')
     } else {
-      hint = isAdmin ? 'Admin in der Organisation.' : 'In der Organisation.'
+      hint = isAdmin ? t('github.hint.adminFull') : t('github.hint.memberFull')
     }
   } else if (!isInvited) {
-    hint = 'Einladung folgt automatisch.'
+    hint = t('github.hint.pending')
   } else {
-    hint = 'Org-Zugang ausstehend.'
+    hint = t('github.hint.waiting')
   }
 
   return {

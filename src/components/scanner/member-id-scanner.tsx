@@ -3,6 +3,7 @@ import { QrCamera } from '#/components/scanner/qr-camera'
 import { ScannerResult } from '#/components/scanner/scanner-result'
 import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
+import { useI18n } from '#/lib/i18n/locale-context'
 import {
   clearPublicKey,
   isPublicKeyAvailable,
@@ -21,6 +22,7 @@ export function MemberIdScanner() {
   const [result, setResult] = useState<VerificationResult | null>(null)
   const [cooldown, setCooldown] = useState(false)
   const cooldownTimer = useRef<number | null>(null)
+  const { t } = useI18n()
 
   const loadPublicKey = useCallback(async () => {
     setKeyLoading(true)
@@ -74,13 +76,13 @@ export function MemberIdScanner() {
 
   if (keyLoading) {
     return (
-      <TerminalPanel title="Scanner">
+      <TerminalPanel title={t('scanner.panel')}>
         <div
           className="flex min-h-48 items-center justify-center p-6"
           aria-busy="true"
         >
           <p className="text-sm text-terminal-text/55">
-            Prüfschlüssel wird geladen …
+            {t('scanner.publicKeyLoading')}
           </p>
         </div>
       </TerminalPanel>
@@ -89,13 +91,13 @@ export function MemberIdScanner() {
 
   if (keyError || !keyReady) {
     return (
-      <TerminalPanel title="Scanner">
+      <TerminalPanel title={t('scanner.panel')}>
         <div className="flex min-h-48 flex-col items-center justify-center gap-4 p-6 text-center">
           <p className="text-sm text-destructive" role="alert">
-            Der Prüfschlüssel konnte nicht geladen werden.
+            {t('scanner.publicKeyUnavailable')}
           </p>
           <Button type="button" variant="outline" onClick={loadPublicKey}>
-            Erneut versuchen
+            {t('scanner.publicKeyRetry')}
           </Button>
         </div>
       </TerminalPanel>
@@ -104,7 +106,7 @@ export function MemberIdScanner() {
 
   return (
     <div className="space-y-5">
-      <TerminalPanel title="Scanner">
+      <TerminalPanel title={t('scanner.panel')}>
         <div className="p-4 sm:p-5">
           <QrCamera
             onScan={handleScan}

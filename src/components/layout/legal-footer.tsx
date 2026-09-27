@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { BUILD_COMMIT } from '#/lib/build-info'
 import { EXTERNAL_LINKS, ROUTES } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
 import { cn } from '#/lib/utils'
 
 type LegalFooterProps = {
@@ -8,6 +9,7 @@ type LegalFooterProps = {
 }
 
 export function LegalFooter({ className }: LegalFooterProps) {
+  const { t } = useI18n()
   return (
     <footer
       className={cn(
@@ -20,7 +22,7 @@ export function LegalFooter({ className }: LegalFooterProps) {
           to={ROUTES.IMPRESSUM}
           className="transition-colors hover:text-terminal-green"
         >
-          Impressum
+          {t('footer.imprint')}
         </Link>
         <span aria-hidden="true" className="text-terminal-window-border">
           |
@@ -29,7 +31,7 @@ export function LegalFooter({ className }: LegalFooterProps) {
           to={ROUTES.DATENSCHUTZ}
           className="transition-colors hover:text-terminal-green"
         >
-          Datenschutz
+          {t('footer.privacy')}
         </Link>
         <span aria-hidden="true" className="text-terminal-window-border">
           |
@@ -44,15 +46,15 @@ export function LegalFooter({ className }: LegalFooterProps) {
         </a>
       </nav>
       <p className="mt-3">
-        Build:{' '}
+        {t('footer.build')}:{' '}
         <span className="rounded border border-terminal-window-border/80 px-1.5 py-0.5 font-mono text-terminal-text/60">
           {BUILD_COMMIT}
         </span>
       </p>
       <p className="mt-2">
-        Copyright © 2026
+        {t('footer.copyright')}
         <br />
-        by{' '}
+        {t('footer.by')}{' '}
         <a
           href={EXTERNAL_LINKS.EGGL_DEV}
           target="_blank"
@@ -61,7 +63,7 @@ export function LegalFooter({ className }: LegalFooterProps) {
         >
           Robert Eggl
         </a>{' '}
-        and{' '}
+        {t('footer.and')}{' '}
         <a
           href={EXTERNAL_LINKS.WEBSITE}
           target="_blank"

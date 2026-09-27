@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from '#/components/ui/dialog'
 import { EXTERNAL_LINKS } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
 
 type MembershipPassDialogProps = {
   open: boolean
@@ -22,6 +23,7 @@ export function MembershipPassDialog({
   onOpenChange,
 }: MembershipPassDialogProps) {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
+  const { t } = useI18n()
 
   useEffect(() => {
     if (!open) {
@@ -54,20 +56,17 @@ export function MembershipPassDialog({
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-terminal-text/45">
-            Neuland Next
+            {t('next.pass.eyebrow')}
           </p>
-          <DialogTitle>Mitgliedsausweis öffnen</DialogTitle>
-          <DialogDescription>
-            Scanne den QR-Code mit dem Handy, um den Ausweis in der App zu
-            öffnen.
-          </DialogDescription>
+          <DialogTitle>{t('next.pass.title')}</DialogTitle>
+          <DialogDescription>{t('next.pass.description')}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-3 border border-terminal-window-border/70 bg-terminal-bg p-4">
           {qrDataUrl ? (
             <img
               src={qrDataUrl}
-              alt="QR-Code zum Mitgliedsausweis"
+              alt={t('next.pass.qrAlt')}
               width={220}
               height={220}
               className="h-auto w-full max-w-[220px]"
@@ -89,7 +88,7 @@ export function MembershipPassDialog({
               target="_blank"
               rel="noopener noreferrer"
             >
-              Im Browser öffnen
+              {t('next.pass.browser')}
               <ArrowUpRight />
             </a>
           </Button>

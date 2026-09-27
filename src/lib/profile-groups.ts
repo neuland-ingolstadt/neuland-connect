@@ -1,4 +1,7 @@
 /** Authentik Ressort groups (lowercase) with dedicated profile badge styling. */
+import type { Locale } from '#/lib/i18n/messages'
+import { localeToDateLocale, translate } from '#/lib/i18n/messages'
+
 export const PROFILE_RESSORT_GROUPS = {
   organisation: 'organisation',
   engineering: 'engineering',
@@ -77,13 +80,16 @@ export function getProfileGroupBadgeVariant(
 }
 
 /** Short German explanation shown on hover for styled profile badges. */
-export function getProfileGroupBadgeHint(group: string): string | null {
+export function getProfileGroupBadgeHint(
+  group: string,
+  locale: Locale = 'de',
+): string | null {
   if (isHonorProfileGroup(group) || isVorstandProfileGroup(group)) {
-    return 'Besondere Vereinsrolle'
+    return translate(locale, 'profile.badge.honor')
   }
 
   if (getProfileRessortGroup(group)) {
-    return 'Ressort-Zuordnung'
+    return translate(locale, 'profile.badge.ressort')
   }
 
   return null
@@ -150,12 +156,15 @@ function profileGroupSortRank(group: string): number {
 }
 
 /** Puts Ehrenmitglied, Vorstand, and Ressorts first, then sorts the rest alphabetically. */
-export function sortProfileGroups(groups: string[]): string[] {
+export function sortProfileGroups(
+  groups: string[],
+  locale: Locale = 'de',
+): string[] {
   return [...groups].sort((a, b) => {
     const rankDiff = profileGroupSortRank(a) - profileGroupSortRank(b)
     if (rankDiff !== 0) {
       return rankDiff
     }
-    return a.localeCompare(b, 'de')
+    return a.localeCompare(b, localeToDateLocale(locale))
   })
 }

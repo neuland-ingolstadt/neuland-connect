@@ -27,6 +27,8 @@ import {
   sortEvents,
 } from '#/lib/campus-life/format'
 import type { CampusLifeEvent } from '#/lib/campus-life/types'
+import { useI18n } from '#/lib/i18n/locale-context'
+import { translate } from '#/lib/i18n/messages'
 import { cn } from '#/lib/utils'
 
 type TimeFilter = 'upcoming' | 'past'
@@ -63,20 +65,21 @@ function FilterSegment({
   )
 }
 
-function errorMessage(error: string): string {
+function errorMessage(error: string, locale: 'de' | 'en'): string {
   if (error === 'not_configured') {
-    return 'Der Events-Kalender ist noch nicht konfiguriert.'
+    return translate(locale, 'events.error.notConfigured')
   }
 
-  return 'Events konnten gerade nicht geladen werden.'
+  return translate(locale, 'events.error.generic')
 }
 
 function PublicEventIcon({ className }: { className?: string }) {
+  const { t } = useI18n()
   return (
     <span
       role="img"
-      title="Öffentlich"
-      aria-label="Öffentlich"
+      title={t('events.public')}
+      aria-label={t('events.public')}
       className={cn('inline-flex shrink-0 text-terminal-text/45', className)}
     >
       <Globe className="size-3.5" aria-hidden />
@@ -109,6 +112,7 @@ function EventsStatusPanel({
 
 export function EventsPanel({ events, error }: EventsPanelProps) {
   const router = useRouter()
+  const { t, locale } = useI18n()
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('upcoming')
   const [selectedEvent, setSelectedEvent] = useState<CampusLifeEvent | null>(
     null,
@@ -135,25 +139,25 @@ export function EventsPanel({ events, error }: EventsPanelProps) {
   }
 
   return (
-    <TerminalPanel title="Events">
+    <TerminalPanel title={t('events.title')}>
       <div className="space-y-4 p-4 sm:p-5">
         <div className="inline-flex w-full max-w-xs border border-terminal-window-border/70 p-0.5 sm:w-auto">
           <FilterSegment
             active={timeFilter === 'upcoming'}
-            label="Bevorstehend"
+            label={t('events.filter.upcoming')}
             onClick={() => setTimeFilter('upcoming')}
           />
           <FilterSegment
             active={timeFilter === 'past'}
-            label="Vergangen"
+            label={t('events.filter.past')}
             onClick={() => setTimeFilter('past')}
           />
         </div>
 
         {error ? (
           <EventsStatusPanel
-            code="load failed"
-            message={errorMessage(error)}
+            code={t('events.status.loadFailed')}
+            message={errorMessage(error, locale)}
             icon={<CalendarDays className="size-6" aria-hidden />}
             action={
               error === 'not_configured' ? undefined : (
@@ -169,18 +173,18 @@ export function EventsPanel({ events, error }: EventsPanelProps) {
                   <RefreshCw
                     className={isRetrying ? 'animate-spin' : undefined}
                   />
-                  {isRetrying ? 'Lädt…' : 'Erneut laden'}
+                  {isRetrying ? t('events.retrying') : t('events.retry')}
                 </Button>
               )
             }
           />
         ) : filteredEvents.length === 0 ? (
           <EventsStatusPanel
-            code="no events"
+            code={t('events.status.noEvents')}
             message={
               timeFilter === 'upcoming'
-                ? 'Aktuell stehen keine Events an.'
-                : 'Keine vergangenen Events.'
+                ? t('events.empty.upcoming')
+                : t('events.empty.past')
             }
             icon={<CalendarDays className="size-6" aria-hidden />}
           />
@@ -211,6 +215,7 @@ export function EventsPanel({ events, error }: EventsPanelProps) {
 }
 
 function TodayBadge({ className }: { className?: string }) {
+  const { t } = useI18n()
   return (
     <Badge
       variant="default"
@@ -219,7 +224,7 @@ function TodayBadge({ className }: { className?: string }) {
         className,
       )}
     >
-      Heute
+      {t('events.today')}
     </Badge>
   )
 }
@@ -236,7 +241,8 @@ function EventRow({
   index: number
   onSelect: () => void
 }) {
-  const dayParts = formatEventDayParts(event)
+  const { t, locale } = useI18n()
+  const dayParts = formatEventDayParts(event, locale)
   const isToday = isEventToday(event)
   const revealDelay = Math.min(index, REVEAL_MAX_INDEX) * REVEAL_STEP_MS
 
@@ -275,7 +281,7 @@ function EventRow({
                   isToday ? 'text-terminal-green' : 'text-terminal-text/40',
                 )}
               >
-                {isToday ? 'Heute' : dayParts.month}
+                {isToday ? t('events.today') : dayParts.month}
               </span>
             </>
           ) : (
@@ -290,7 +296,7 @@ function EventRow({
           </div>
 
           <p className="mt-1 break-words text-xs text-terminal-text/55">
-            {formatEventDateRange(event)}
+            {formatEventDateRange(event, t('events.fallbackDate'), locale)}
             {event.location ? ` · ${event.location}` : null}
           </p>
 
@@ -312,13 +318,14 @@ function EventDetailsDialog({
   event: CampusLifeEvent | null
   onOpenChange: (open: boolean) => void
 }) {
+  const { t, locale } = useI18n()
   return (
     <Dialog open={event !== null} onOpenChange={onOpenChange}>
       {event ? (
         <DialogContent className="max-h-[min(90vh,40rem)] overflow-y-auto">
           <DialogHeader>
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-terminal-text/45">
-              Event
+              {t('events.dialog.eyebrow')}
             </p>
             <DialogTitle className="flex items-center gap-2 text-lg">
               <span className="min-w-0">{event.title}</span>
@@ -333,7 +340,9 @@ function EventDetailsDialog({
                 className="mt-0.5 size-4 shrink-0 text-terminal-text/45"
                 aria-hidden
               />
-              <span>{formatEventDateRange(event)}</span>
+              <span>
+                {formatEventDateRange(event, t('events.fallbackDate'), locale)}
+              </span>
             </p>
             {event.location ? (
               <p className="flex items-start gap-2 text-sm text-terminal-text/80">
@@ -345,7 +354,7 @@ function EventDetailsDialog({
               </p>
             ) : null}
             <DialogDescription className="whitespace-pre-wrap text-sm leading-relaxed text-terminal-text/70">
-              {event.description || 'Keine Beschreibung vorhanden.'}
+              {event.description || t('events.dialog.noDescription')}
             </DialogDescription>
           </div>
 
@@ -357,13 +366,13 @@ function EventDetailsDialog({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Mehr Infos
+                  {t('events.dialog.more')}
                   <ArrowUpRight />
                 </a>
               </Button>
             ) : null}
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Schließen
+              {t('common.close')}
             </Button>
           </DialogFooter>
         </DialogContent>

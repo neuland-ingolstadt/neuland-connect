@@ -13,6 +13,8 @@ import {
   LOGIN_SEARCH_DEFAULTS,
   ROUTES,
 } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
+import type { MessageKey } from '#/lib/i18n/messages'
 import { hasActiveSessionFn } from '#/server/get-current-user'
 import { getOidcAuthorizeUrlFn } from '#/server/oidc-login'
 
@@ -105,12 +107,13 @@ function LoginPage() {
 }
 
 function LoginShell({ children }: { children: ReactNode }) {
+  const { t } = useI18n()
   return (
     <PageShell>
       <AppHeader showDashboardLink={false} />
 
       <div className="flex w-full min-w-0 flex-1 items-center justify-center p-4">
-        <TerminalPanel title="Authentifizierung" className="w-full max-w-md">
+        <TerminalPanel title={t('login.panel')} className="w-full max-w-md">
           {children}
         </TerminalPanel>
       </div>
@@ -118,6 +121,16 @@ function LoginShell({ children }: { children: ReactNode }) {
       <LegalFooter />
     </PageShell>
   )
+}
+
+/** Server `error` search param is a protocol code — translate at display. */
+function loginErrorKey(error: string): MessageKey {
+  if (error === 'oauth_session_missing')
+    return 'login.error.oauth_session_missing'
+  if (error === 'id_token_missing_sub')
+    return 'login.error.id_token_missing_sub'
+  if (error === 'login_failed') return 'login.error.login_failed'
+  return 'login.error.generic'
 }
 
 function LoginAuthBody({
@@ -129,6 +142,7 @@ function LoginAuthBody({
   isWorking?: boolean
   onStart?: () => void
 }) {
+  const { t } = useI18n()
   return (
     <div className="space-y-6 p-6 text-center">
       <div className="mx-auto flex justify-center">
@@ -141,19 +155,18 @@ function LoginAuthBody({
         </h1>
         {isWorking ? (
           <p className="mt-2 text-sm leading-relaxed text-terminal-text/65">
-            Authentik wird vorbereitet. Du wirst gleich weitergeleitet.
+            {t('login.working')}
           </p>
         ) : (
           <p className="mt-2 text-sm leading-relaxed text-terminal-text/65">
-            Melde dich mit deinem Neuland-Konto an, um zum Mitgliederportal zu
-            gelangen.
+            {t('login.lead')}
           </p>
         )}
       </div>
 
       {error && !isWorking ? (
         <div className="border border-destructive/40 bg-destructive/10 px-3 py-2 text-left text-sm text-destructive-foreground">
-          Anmeldung fehlgeschlagen. Bitte versuche es erneut.
+          {t(loginErrorKey(error))}
         </div>
       ) : null}
 
@@ -165,7 +178,7 @@ function LoginAuthBody({
         >
           <Loader2 className="h-6 w-6 animate-spin text-terminal-green" />
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-terminal-text/55">
-            Warte auf Authentik
+            {t('login.waiting')}
           </p>
         </div>
       ) : (
@@ -177,7 +190,7 @@ function LoginAuthBody({
           onClick={onStart}
         >
           <LogIn />
-          Mit Authentik anmelden
+          {t('login.cta')}
         </Button>
       )}
     </div>

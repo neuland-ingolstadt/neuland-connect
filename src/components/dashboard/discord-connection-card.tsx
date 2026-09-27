@@ -11,6 +11,8 @@ import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import type { UserAttributes } from '#/lib/authentik/types'
 import { ROUTES } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
+import { localeToDateLocale } from '#/lib/i18n/messages'
 import { INTEGRATION_CARD_IDS } from '#/lib/integrations/connect-anchors'
 import {
   discordProfileUrl,
@@ -38,12 +40,14 @@ export function DiscordConnectionCard({
   const router = useRouter()
   const disconnectDiscord = useServerFn(disconnectDiscordFn)
   const syncDiscordRoles = useServerFn(syncDiscordRolesFn)
+  const { t, locale } = useI18n()
   const [disconnectOpen, setDisconnectOpen] = useState(false)
   const [isDisconnecting, setIsDisconnecting] = useState(false)
   const [isSyncingRoles, setIsSyncingRoles] = useState(false)
   const [rolesExpanded, setRolesExpanded] = useState(false)
   const guildStatus = getDiscordGuildStatusDisplay(
     attributes.discordGuildStatus,
+    locale,
   )
   const inGuild = isDiscordInGuild(attributes.discordGuildStatus)
   const hasMoreRoles = discordRoles.length > VISIBLE_ROLE_LIMIT
@@ -53,21 +57,24 @@ export function DiscordConnectionCard({
       : discordRoles.slice(0, VISIBLE_ROLE_LIMIT)
   const hiddenRoleCount = discordRoles.length - visibleRoles.length
   const canSyncRoles = connected && inGuild
-  const integrationProgress = buildDiscordIntegrationProgress({
-    connected,
-    discordGuildStatus: attributes.discordGuildStatus,
-  })
+  const integrationProgress = buildDiscordIntegrationProgress(
+    {
+      connected,
+      discordGuildStatus: attributes.discordGuildStatus,
+    },
+    locale,
+  )
 
   async function handleDisconnect() {
     setIsDisconnecting(true)
 
     try {
       await disconnectDiscord()
-      toast.success('Discord-Verbindung getrennt.')
+      toast.success(t('toast.discord.disconnected'))
       setDisconnectOpen(false)
       await router.invalidate()
     } catch {
-      toast.error('Discord-Verbindung konnte nicht getrennt werden.')
+      toast.error(t('toast.discord.disconnectError'))
     } finally {
       setIsDisconnecting(false)
     }
@@ -87,9 +94,11 @@ export function DiscordConnectionCard({
       }
 
       if (parts.length > 0) {
-        toast.success(`Rollen aktualisiert (${parts.join('; ')}).`)
+        toast.success(
+          t('toast.discord.rolesUpdated', { parts: parts.join('; ') }),
+        )
       } else {
-        toast.success('Rollen sind bereits aktuell.')
+        toast.success(t('toast.discord.rolesCurrent'))
       }
 
       await router.invalidate()
@@ -97,7 +106,7 @@ export function DiscordConnectionCard({
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Rollen konnten nicht synchronisiert werden.',
+          : t('toast.discord.rolesSyncError'),
       )
       // Sync may clear stale guild status in Authentik before failing.
       await router.invalidate()
@@ -106,6 +115,7 @@ export function DiscordConnectionCard({
     }
   }
 
+  const dateLocale = localeToDateLocale(locale)
   return (
     <TerminalPanel
       id={INTEGRATION_CARD_IDS.discord}
@@ -140,13 +150,13 @@ export function DiscordConnectionCard({
                     @{attributes.discordUsername}
                   </a>
                 ) : (
-                  'Discord verbinden'
+                  t('discord.card.join')
                 )}
               </p>
               <p className="mt-0.5 text-xs leading-snug text-terminal-text/55">
                 {connected
                   ? integrationProgress.hint
-                  : 'Verbinde für Serverbeitritt und Rollen-Sync.'}
+                  : t('discord.card.connectHint')}
               </p>
             </div>
           </div>
@@ -162,20 +172,20 @@ export function DiscordConnectionCard({
             {attributes.discordGuildLastError ? (
               <div className="border border-destructive/30 bg-destructive/5 px-3 py-2.5">
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-destructive">
-                  Sync-Fehler
+                  {t('common.syncError')}
                 </p>
                 <p className="mt-1 text-xs leading-relaxed text-terminal-text/80">
                   {attributes.discordGuildLastError}
                 </p>
                 <p className="mt-2 text-xs text-terminal-text/50">
-                  Bei anhaltenden Problemen den Admin kontaktieren.
+                  {t('common.syncErrorHint')}
                 </p>
               </div>
             ) : null}
 
             <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
               <DetailItem
-                label="Username"
+                label={t('common.username')}
                 value={attributes.discordUsername}
                 href={
                   attributes.discordId
@@ -185,14 +195,17 @@ export function DiscordConnectionCard({
               />
               {attributes.discordConnectedAt ? (
                 <DetailItem
-                  label="Seit"
-                  value={formatDate(attributes.discordConnectedAt)}
+                  label={t('common.since')}
+                  value={formatDate(attributes.discordConnectedAt, dateLocale)}
                 />
               ) : null}
               {inGuild && attributes.discordGuildJoinedAt ? (
                 <DetailItem
-                  label="Im Server seit"
-                  value={formatDate(attributes.discordGuildJoinedAt)}
+                  label={t('discord.card.joinedAt')}
+                  value={formatDate(
+                    attributes.discordGuildJoinedAt,
+                    dateLocale,
+                  )}
                 />
               ) : null}
             </dl>
@@ -200,7 +213,7 @@ export function DiscordConnectionCard({
             {inGuild && discordRoles.length > 0 ? (
               <div>
                 <p className="meta-label">
-                  Discord-Rollen
+                  {t('discord.card.roles')}
                   <span className="ml-1 tabular-nums">
                     ({discordRoles.length})
                   </span>
@@ -226,17 +239,16 @@ export function DiscordConnectionCard({
                     onClick={() => setRolesExpanded(expanded => !expanded)}
                   >
                     {rolesExpanded
-                      ? 'Weniger anzeigen'
-                      : `+${hiddenRoleCount} weitere`}
+                      ? t('common.showLess')
+                      : t('common.showMore', { count: hiddenRoleCount })}
                   </Button>
                 ) : null}
               </div>
             ) : inGuild ? (
               <p className="text-xs leading-relaxed text-terminal-text/55">
-                Keine Vereinsgruppen mit Discord-Rollen-Mapping gefunden. In
-                Authentik braucht die Gruppe das Attribut{' '}
-                <span className="font-mono">discord_role</span> und du musst
-                Mitglied dieser Gruppe sein.
+                {t('discord.card.noMappingLead')}{' '}
+                <span className="font-mono">discord_role</span>{' '}
+                {t('discord.card.noMappingTail')}
               </p>
             ) : null}
 
@@ -254,15 +266,19 @@ export function DiscordConnectionCard({
                   <RefreshCw
                     className={isSyncingRoles ? 'animate-spin' : undefined}
                   />
-                  {isSyncingRoles ? 'Synchronisiere…' : 'Synchronisieren'}
+                  {isSyncingRoles ? t('common.syncing') : t('common.sync')}
                 </Button>
               ) : null}
               <IntegrationOverflowMenu
                 reconnectHref={ROUTES.DISCORD_CONNECT}
-                reconnectLabel={inGuild ? 'Neu verbinden' : 'Erneut beitreten'}
+                reconnectLabel={
+                  inGuild
+                    ? t('discord.card.reconnect')
+                    : t('discord.card.rejoin')
+                }
                 reconnectIcon={<DiscordIcon className="text-inherit" />}
-                disconnectTitle="Discord-Verbindung trennen?"
-                disconnectDescription="Du bleibst im Discord-Server, verlierst aber alle Rollen. Neuland Connect entfernt die Verknüpfung."
+                disconnectTitle={t('discord.disconnect.title')}
+                disconnectDescription={t('discord.disconnect.description')}
                 disconnectOpen={disconnectOpen}
                 onDisconnectOpenChange={setDisconnectOpen}
                 isDisconnecting={isDisconnecting}
@@ -275,7 +291,7 @@ export function DiscordConnectionCard({
         ) : (
           <div>
             <Button variant="outline" asChild>
-              <a href={ROUTES.DISCORD_CONNECT}>Mit Discord verbinden</a>
+              <a href={ROUTES.DISCORD_CONNECT}>{t('discord.card.connect')}</a>
             </Button>
           </div>
         )}

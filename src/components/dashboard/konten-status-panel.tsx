@@ -9,6 +9,7 @@ import { GitHubIcon } from '#/components/icons/github-icon'
 import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import { KONTEN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
 import { getAccountSetupProgress } from '#/lib/integrations/account-setup'
 import {
   firstIncompleteConnectHash,
@@ -30,26 +31,33 @@ const rowClassName = cn(
 )
 
 export function KontenStatusPanel({ user }: KontenStatusPanelProps) {
-  const github = buildGitHubIntegrationProgress({
-    connected: user.githubConnected,
-    githubOrgStatus: user.attributes.githubOrgStatus,
-    teamSyncEnabled: user.teamSyncEnabled,
-  })
-  const discord = buildDiscordIntegrationProgress({
-    connected: user.discordConnected,
-    discordGuildStatus: user.attributes.discordGuildStatus,
-  })
+  const { t, locale } = useI18n()
+  const github = buildGitHubIntegrationProgress(
+    {
+      connected: user.githubConnected,
+      githubOrgStatus: user.attributes.githubOrgStatus,
+      teamSyncEnabled: user.teamSyncEnabled,
+    },
+    locale,
+  )
+  const discord = buildDiscordIntegrationProgress(
+    {
+      connected: user.discordConnected,
+      discordGuildStatus: user.attributes.discordGuildStatus,
+    },
+    locale,
+  )
   const next = {
     steps: [
       {
         id: 'next-session',
-        label: 'Angemeldet',
+        label: t('konten.status.nextStep'),
         complete: user.nextSession.signedIn,
       },
     ],
     hint: user.nextSession.signedIn
-      ? 'Mitgliedsausweis ist aktiv.'
-      : 'In der App mit dem Neuland-Konto anmelden.',
+      ? t('konten.status.nextActive')
+      : t('konten.status.nextHint'),
     isComplete: user.nextSession.signedIn,
   }
 
@@ -58,7 +66,7 @@ export function KontenStatusPanel({ user }: KontenStatusPanelProps) {
   const { openPass, dialog: membershipDialog } = useMembershipPass()
 
   return (
-    <TerminalPanel title="Konten">
+    <TerminalPanel title={t('konten.status.title')}>
       <div className="space-y-4 p-4 sm:p-5">
         <ul className="divide-y divide-terminal-window-border/50">
           <StatusRow
@@ -90,7 +98,7 @@ export function KontenStatusPanel({ user }: KontenStatusPanelProps) {
           <StatusRow
             icon={<NeulandPalm className="size-3.5 text-terminal-text" />}
             label="Neuland Next"
-            hint={next.isComplete ? 'Mitgliedsausweis öffnen.' : next.hint}
+            hint={next.isComplete ? t('konten.status.nextOpen') : next.hint}
             complete={next.isComplete}
             hash={INTEGRATION_CARD_IDS.membership}
             onActivate={next.isComplete ? openPass : undefined}
@@ -114,7 +122,9 @@ export function KontenStatusPanel({ user }: KontenStatusPanelProps) {
             hash={setupHash}
             hashScrollIntoView={{ behavior: 'smooth', block: 'start' }}
           >
-            {progress.allComplete ? 'Konten verwalten' : 'Konten einrichten'}
+            {progress.allComplete
+              ? t('konten.status.manage')
+              : t('konten.status.setup')}
             <ArrowRight />
           </Link>
         </Button>

@@ -13,12 +13,14 @@ import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import { LOGIN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
 import { parseAppError } from '#/lib/errors'
+import { useI18n } from '#/lib/i18n/locale-context'
 import { cn } from '#/lib/utils'
 
 export function AppErrorPage({ error, reset }: ErrorComponentProps) {
   const router = useRouter()
   const [showDetails, setShowDetails] = useState(false)
-  const details = parseAppError(error)
+  const { t, locale } = useI18n()
+  const details = parseAppError(error, locale)
 
   function handleRetry() {
     reset()
@@ -30,7 +32,7 @@ export function AppErrorPage({ error, reset }: ErrorComponentProps) {
       <AppHeader showDashboardLink={false} />
 
       <div className="flex w-full min-w-0 flex-1 items-center justify-center p-4">
-        <TerminalPanel title="Systemstatus" className="w-full max-w-md">
+        <TerminalPanel title={t('appError.panel')} className="w-full max-w-md">
           <div className="space-y-6 p-6 text-center">
             <div className="mx-auto flex justify-center">
               <div className="relative">
@@ -57,7 +59,7 @@ export function AppErrorPage({ error, reset }: ErrorComponentProps) {
                   onClick={handleRetry}
                 >
                   <RefreshCw />
-                  Erneut versuchen
+                  {t('appError.retry')}
                 </Button>
               ) : null}
 
@@ -70,7 +72,7 @@ export function AppErrorPage({ error, reset }: ErrorComponentProps) {
                 >
                   <Link to={ROUTES.LOGIN} search={LOGIN_SEARCH_DEFAULTS}>
                     <LogIn />
-                    Zur Anmeldung
+                    {t('appError.login')}
                   </Link>
                 </Button>
               ) : null}
@@ -89,7 +91,7 @@ export function AppErrorPage({ error, reset }: ErrorComponentProps) {
                       showDetails && 'rotate-180',
                     )}
                   />
-                  Technische Details
+                  {t('error.technical')}
                 </button>
 
                 {showDetails ? (

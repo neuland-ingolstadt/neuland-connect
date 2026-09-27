@@ -1,5 +1,7 @@
 import type { GitHubOrgStatus } from '#/lib/constants'
 import { GITHUB_ORG_STATUSES } from '#/lib/constants'
+import type { Locale } from '#/lib/i18n/messages'
+import { translate } from '#/lib/i18n/messages'
 
 type OrgStatusBadgeVariant = 'success' | 'default' | 'muted'
 
@@ -10,19 +12,34 @@ export function isGitHubInOrg(status: GitHubOrgStatus | null): boolean {
   )
 }
 
-export function getGitHubOrgStatusDisplay(status: GitHubOrgStatus | null): {
+export function getGitHubOrgStatusDisplay(
+  status: GitHubOrgStatus | null,
+  locale: Locale = 'de',
+): {
   label: string
   variant: OrgStatusBadgeVariant
 } {
   switch (status) {
     case 'admin':
-      return { label: 'Admin', variant: 'success' }
+      return {
+        label: translate(locale, 'github.status.admin'),
+        variant: 'success',
+      }
     case 'member':
-      return { label: 'Mitglied', variant: 'success' }
+      return {
+        label: translate(locale, 'github.status.member'),
+        variant: 'success',
+      }
     case 'invited':
-      return { label: 'Eingeladen', variant: 'default' }
+      return {
+        label: translate(locale, 'github.status.invited'),
+        variant: 'default',
+      }
     default:
-      return { label: 'Ausstehend', variant: 'muted' }
+      return {
+        label: translate(locale, 'github.status.pending'),
+        variant: 'muted',
+      }
   }
 }
 

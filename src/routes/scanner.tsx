@@ -8,6 +8,7 @@ import { MemberIdScanner } from '#/components/scanner/member-id-scanner'
 import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import { APP_NAME, ROUTES } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
 import { type CurrentUser, getCurrentUserFn } from '#/server/get-current-user'
 
 export const Route = createFileRoute('/scanner')({
@@ -50,6 +51,7 @@ function ScannerRoute() {
   }, [])
 
   const signedIn = user !== null
+  const { t } = useI18n()
 
   return (
     <PageShell>
@@ -57,12 +59,9 @@ function ScannerRoute() {
 
       <PageMain>
         <header className="mb-6 max-w-2xl">
-          <p className="eyebrow">Prüfen</p>
-          <h1 className="page-title mt-2">Mitgliedsausweis scannen</h1>
-          <p className="page-lead mt-2">
-            Halte den QR-Code eines Mitgliedsausweises vor die Kamera, um
-            Signatur und Gültigkeit zu prüfen.
-          </p>
+          <p className="eyebrow">{t('scanner.eyebrow')}</p>
+          <h1 className="page-title mt-2">{t('scanner.title')}</h1>
+          <p className="page-lead mt-2">{t('scanner.lead')}</p>
         </header>
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -72,12 +71,10 @@ function ScannerRoute() {
 
           {sessionChecked && !signedIn ? (
             <div className="min-w-0">
-              <TerminalPanel title="Neuland-Konto">
+              <TerminalPanel title={t('scanner.teaserTitle')}>
                 <div className="space-y-4 p-4 sm:p-5">
                   <p className="text-sm leading-relaxed text-terminal-text/60">
-                    Scannen war erst der Anfang. Mit deinem Neuland-Konto
-                    schaltest du die volle Connect-Erfahrung frei — alles rund
-                    um den Verein an einem Ort.
+                    {t('scanner.teaserText')}
                   </p>
                   <Button
                     variant="outline"
@@ -87,7 +84,7 @@ function ScannerRoute() {
                   >
                     <a href={ROUTES.LOGIN}>
                       <LogIn />
-                      Jetzt anmelden
+                      {t('scanner.teaserCta')}
                     </a>
                   </Button>
                 </div>

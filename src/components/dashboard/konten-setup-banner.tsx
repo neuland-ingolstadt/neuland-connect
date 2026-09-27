@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
 import { KONTEN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
 import { getAccountSetupProgress } from '#/lib/integrations/account-setup'
 import { firstIncompleteConnectHash } from '#/lib/integrations/connect-anchors'
 import { cn } from '#/lib/utils'
@@ -12,6 +13,7 @@ type KontenSetupBannerProps = {
 
 export function KontenSetupBanner({ user }: KontenSetupBannerProps) {
   const progress = getAccountSetupProgress(user)
+  const { t } = useI18n()
 
   if (progress.allComplete) {
     return null
@@ -47,10 +49,13 @@ export function KontenSetupBanner({ user }: KontenSetupBannerProps) {
       <span className="flex items-center gap-3 px-3 py-2.5">
         <span className="min-w-0 flex-1">
           <span className="block text-xs font-semibold tracking-tight text-terminal-text">
-            Konten einrichten
+            {t('konten.banner.title')}
           </span>
           <span className="mt-0.5 block text-[11px] font-medium tabular-nums text-terminal-text/50 transition-colors group-hover:text-terminal-green">
-            {progress.doneCount}/{progress.totalCount} eingerichtet →
+            {t('konten.banner.progress', {
+              done: progress.doneCount,
+              total: progress.totalCount,
+            })}
           </span>
         </span>
         <ArrowRight

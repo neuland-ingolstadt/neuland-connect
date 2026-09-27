@@ -1,4 +1,6 @@
 import type { DiscordGuildStatus } from '#/lib/constants'
+import type { Locale } from '#/lib/i18n/messages'
+import { translate } from '#/lib/i18n/messages'
 import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-display'
 
 export type IntegrationProgressStep = {
@@ -14,27 +16,29 @@ type BuildDiscordIntegrationProgressInput = {
 
 export function buildDiscordIntegrationProgress(
   input: BuildDiscordIntegrationProgressInput,
+  locale: Locale = 'de',
 ): {
   steps: IntegrationProgressStep[]
   hint: string
   isComplete: boolean
 } {
+  const t = (key: Parameters<typeof translate>[1]) => translate(locale, key)
   const inGuild = isDiscordInGuild(input.discordGuildStatus)
 
   const steps: IntegrationProgressStep[] = [
     {
       id: 'connected',
-      label: 'Verbunden',
+      label: t('discord.progress.connected'),
       complete: input.connected,
     },
     {
       id: 'in-guild',
-      label: 'Server',
+      label: t('discord.progress.server'),
       complete: inGuild,
     },
     {
       id: 'roles',
-      label: 'Rollen',
+      label: t('discord.progress.roles'),
       complete: inGuild,
     },
   ]
@@ -42,11 +46,11 @@ export function buildDiscordIntegrationProgress(
   let hint: string
 
   if (!input.connected) {
-    hint = 'Discord-Konto verbinden.'
+    hint = t('discord.hint.connect')
   } else if (!inGuild) {
-    hint = 'Discord erneut verbinden, um dem Server beizutreten.'
+    hint = t('discord.hint.join')
   } else {
-    hint = 'Server erfolgreich verbunden.'
+    hint = t('discord.hint.done')
   }
 
   return {

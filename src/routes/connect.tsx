@@ -18,6 +18,8 @@ import {
 } from '#/hooks/use-signed-in-user'
 import { APP_NAME, LOGIN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
 import { LOADER_STALE_MS } from '#/lib/deferred-loader'
+import { useI18n } from '#/lib/i18n/locale-context'
+import type { MessageKey } from '#/lib/i18n/messages'
 import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-display'
 import { isGitHubInOrg } from '#/lib/integrations/github/org-status-display'
 import {
@@ -58,10 +60,27 @@ function ConnectRoute() {
   return <ConnectPage user={user} />
 }
 
+/** Server-callback `message` codes are protocol values — translate at display. */
+function githubErrorKey(message: string | undefined): MessageKey {
+  if (message === 'invalid_state') return 'toast.github.error.invalid_state'
+  if (message === 'connection_failed')
+    return 'toast.github.error.connection_failed'
+  return 'toast.github.error.generic'
+}
+
+/** Server-callback `message` codes are protocol values — translate at display. */
+function discordErrorKey(message: string | undefined): MessageKey {
+  if (message === 'invalid_state') return 'toast.discord.error.invalid_state'
+  if (message === 'connection_failed')
+    return 'toast.discord.error.connection_failed'
+  return 'toast.discord.error.generic'
+}
+
 function ConnectPage({ user: initialUser }: { user: CurrentUser }) {
   const navigate = useNavigate()
   const search = Route.useSearch()
   const [user, setUser] = useState<CurrentUser>(initialUser)
+  const { t } = useI18n()
 
   useIntegrationCardHighlight()
 
@@ -89,11 +108,11 @@ function ConnectPage({ user: initialUser }: { user: CurrentUser }) {
     }
 
     if (search.status === 'success') {
-      toast.success('GitHub verbunden.')
+      toast.success(t('toast.github.connected'))
     } else if (search.status === 'disconnected') {
-      toast.success('GitHub-Verbindung getrennt.')
+      toast.success(t('toast.github.disconnected'))
     } else if (search.status === 'error') {
-      toast.error('GitHub-Verbindung fehlgeschlagen.')
+      toast.error(t(githubErrorKey(search.message)))
     }
 
     void refreshUser()
@@ -111,7 +130,7 @@ function ConnectPage({ user: initialUser }: { user: CurrentUser }) {
         window.clearTimeout(timeoutId)
       }
     }
-  }, [refreshUser, search.integration, search.status])
+  }, [refreshUser, search.integration, search.status, search.message, t])
 
   useEffect(() => {
     if (search.integration !== 'discord' || !search.status) {
@@ -119,11 +138,11 @@ function ConnectPage({ user: initialUser }: { user: CurrentUser }) {
     }
 
     if (search.status === 'success') {
-      toast.success('Discord verbunden.')
+      toast.success(t('toast.discord.connected'))
     } else if (search.status === 'disconnected') {
-      toast.success('Discord-Verbindung getrennt.')
+      toast.success(t('toast.discord.disconnected'))
     } else if (search.status === 'error') {
-      toast.error('Discord-Verbindung fehlgeschlagen.')
+      toast.error(t(discordErrorKey(search.message)))
     }
 
     void refreshUser()
@@ -141,7 +160,7 @@ function ConnectPage({ user: initialUser }: { user: CurrentUser }) {
         window.clearTimeout(timeoutId)
       }
     }
-  }, [refreshUser, search.integration, search.status])
+  }, [refreshUser, search.integration, search.status, search.message, t])
 
   useEffect(() => {
     if (!user.githubConnected) {
@@ -195,12 +214,9 @@ function ConnectPage({ user: initialUser }: { user: CurrentUser }) {
 
       <PageMain>
         <header className="mb-6 max-w-2xl">
-          <p className="eyebrow">Konten</p>
-          <h1 className="page-title mt-2">Konten verknüpfen</h1>
-          <p className="page-lead mt-2">
-            Verbinde GitHub und Discord mit deinem Neuland-Konto und schalte
-            deinen digitalen Mitgliedsausweis frei.
-          </p>
+          <p className="eyebrow">{t('konten.eyebrow')}</p>
+          <h1 className="page-title mt-2">{t('konten.title')}</h1>
+          <p className="page-lead mt-2">{t('konten.lead')}</p>
         </header>
 
         <div className="min-w-0 space-y-5">

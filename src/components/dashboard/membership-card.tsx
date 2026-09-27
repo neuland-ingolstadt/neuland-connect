@@ -6,19 +6,21 @@ import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import { EXTERNAL_LINKS } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
+import type { MessageKey } from '#/lib/i18n/messages'
 import { INTEGRATION_CARD_IDS } from '#/lib/integrations/connect-anchors'
 import type { NeulandNextMemberSession } from '#/lib/integrations/neuland-next/session'
 
-const SETUP_STEPS = [
-  { step: '1', title: 'Neuland Next installieren' },
-  { step: '2', title: 'Neuland-Konto in den Einstellungen verbinden' },
-  { step: '3', title: 'Mitgliedsausweis & exklusive Benefits nutzen' },
+const SETUP_STEPS: { step: string; titleKey: MessageKey }[] = [
+  { step: '1', titleKey: 'next.step.install' },
+  { step: '2', titleKey: 'next.step.connect' },
+  { step: '3', titleKey: 'next.step.use' },
 ] as const
 
-const UNLOCKED_FEATURES = [
-  'Mitgliedsausweis verfügbar',
-  'Akzentfarben freigeschaltet',
-  'Exklusive App-Icons verfügbar',
+const UNLOCKED_FEATURES: MessageKey[] = [
+  'next.feature.pass',
+  'next.feature.colors',
+  'next.feature.icons',
 ] as const
 
 type MembershipCardProps = {
@@ -27,12 +29,13 @@ type MembershipCardProps = {
 
 export function MembershipCard({ nextSession }: MembershipCardProps) {
   const signedIn = nextSession.signedIn
+  const { t } = useI18n()
 
   return (
     <TerminalPanel
       id={INTEGRATION_CARD_IDS.membership}
       className="scroll-mt-24"
-      title="Mitgliedsausweis"
+      title={t('next.card.title')}
       titleAside={
         <IntegrationProgressInline
           steps={[{ id: 'next-session', label: 'Next', complete: signedIn }]}
@@ -48,30 +51,32 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
             </div>
             <div className="min-w-0">
               <p className="break-words text-sm font-semibold tracking-tight text-terminal-text">
-                Digitaler Mitgliedsausweis
+                {t('next.card.name')}
               </p>
               <p className="mt-0.5 text-xs leading-snug text-terminal-text/55">
                 {signedIn
-                  ? 'Mitgliedsfeatures in Neuland Next sind freigeschaltet.'
-                  : 'In Neuland Next verfügbar.'}
+                  ? t('next.card.unlockedHint')
+                  : t('next.card.setupHint')}
               </p>
             </div>
           </div>
-          {signedIn ? <Badge variant="success">Angemeldet</Badge> : null}
+          {signedIn ? (
+            <Badge variant="success">{t('next.card.signedIn')}</Badge>
+          ) : null}
         </div>
 
         {signedIn ? (
           <>
             <ul className="space-y-2">
-              {UNLOCKED_FEATURES.map(title => (
-                <li key={title} className="flex min-w-0 items-center gap-3">
+              {UNLOCKED_FEATURES.map(titleKey => (
+                <li key={titleKey} className="flex min-w-0 items-center gap-3">
                   <Check
                     className="size-3.5 shrink-0 text-terminal-green"
                     strokeWidth={2.5}
                     aria-hidden
                   />
                   <p className="min-w-0 break-words text-sm text-terminal-text">
-                    {title}
+                    {t(titleKey)}
                   </p>
                 </li>
               ))}
@@ -89,7 +94,7 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
                     {item.step}
                   </span>
                   <p className="min-w-0 break-words text-sm text-terminal-text">
-                    {item.title}
+                    {t(item.titleKey)}
                   </p>
                 </li>
               ))}
@@ -101,7 +106,7 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Neuland Next herunterladen
+                  {t('next.card.download')}
                 </a>
               </Button>
             </div>

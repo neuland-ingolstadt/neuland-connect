@@ -10,6 +10,8 @@ import {
   type GitHubOrgStatus,
   ROUTES,
 } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
+import type { MessageKey } from '#/lib/i18n/messages'
 import { isDiscordInGuild } from '#/lib/integrations/discord/guild-status-display'
 import { githubOrgInvitationUrl } from '#/lib/integrations/github/org-status-display'
 import { cn } from '#/lib/utils'
@@ -28,7 +30,7 @@ type SetupTask = {
   label: string
   icon: ReactNode
   complete: boolean
-  actionLabel: string
+  actionKey: MessageKey
   href: string
   external?: boolean
 }
@@ -52,7 +54,9 @@ function buildSetupTasks({
       label: 'GitHub',
       icon: <GitHubIcon className="size-4" />,
       complete: githubConnected && !githubInvitePending,
-      actionLabel: githubInvitePending ? 'Einladung' : 'Verbinden',
+      actionKey: githubInvitePending
+        ? 'actionBanner.github.invite'
+        : 'actionBanner.github.connect',
       href: githubInvitePending
         ? githubOrgInvitationUrl(githubOrg)
         : ROUTES.GITHUB_CONNECT,
@@ -66,7 +70,9 @@ function buildSetupTasks({
     label: 'Discord',
     icon: <DiscordIcon className="size-4" />,
     complete: inGuild,
-    actionLabel: discordConnected ? 'Beitreten' : 'Verbinden',
+    actionKey: discordConnected
+      ? 'actionBanner.discord.join'
+      : 'actionBanner.discord.connect',
     href: ROUTES.DISCORD_CONNECT,
   })
 
@@ -75,7 +81,7 @@ function buildSetupTasks({
     label: 'Neuland Next',
     icon: <NeulandPalm className="size-4 text-terminal-text" />,
     complete: nextSignedIn,
-    actionLabel: 'Installieren',
+    actionKey: 'actionBanner.next.install',
     href: EXTERNAL_LINKS.NEULAND_NEXT_GET,
     external: true,
   })
@@ -84,6 +90,7 @@ function buildSetupTasks({
 }
 
 export function DashboardActionBanner(props: DashboardActionBannerProps) {
+  const { t } = useI18n()
   const tasks = buildSetupTasks(props)
   const done = tasks.filter(task => task.complete).length
 
@@ -126,7 +133,7 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
                 </p>
                 <p className="mt-0.5 flex items-center gap-1 text-[11px] font-medium text-terminal-green">
                   <Check className="size-3" strokeWidth={2.5} aria-hidden />
-                  Fertig
+                  {t('actionBanner.done')}
                 </p>
               </div>
             </div>
@@ -146,7 +153,7 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
                   {task.label}
                 </p>
                 <p className="mt-0.5 text-[11px] font-medium text-terminal-text/50 transition-colors group-hover:text-terminal-green">
-                  {task.actionLabel} →
+                  {t(task.actionKey)} →
                 </p>
               </div>
             </a>

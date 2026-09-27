@@ -3,6 +3,7 @@ import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageMain, PageShell } from '#/components/layout/page-shell'
 import { Skeleton } from '#/components/ui/skeleton'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
+import { useI18n } from '#/lib/i18n/locale-context'
 
 function CardSkeleton() {
   return (
@@ -17,6 +18,7 @@ function CardSkeleton() {
 }
 
 export function KontenLoadingShell() {
+  const { t } = useI18n()
   return (
     <PageShell>
       <AppHeader isSignedIn />
@@ -24,10 +26,10 @@ export function KontenLoadingShell() {
       <PageMain>
         <header className="mb-6">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
-            Konten
+            {t('konten.eyebrow')}
           </p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
-            Konten verknüpfen
+            {t('konten.title')}
           </h1>
         </header>
 

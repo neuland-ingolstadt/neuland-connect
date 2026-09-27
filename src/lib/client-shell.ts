@@ -1,7 +1,15 @@
+import { LOCALE_STORAGE_KEY } from '#/lib/i18n/messages'
 import { THEME_STORAGE_KEY } from '#/lib/theme'
 
 export const clientShellScript = `
 (function () {
+  try {
+    var locale = localStorage.getItem('${LOCALE_STORAGE_KEY}');
+    if (locale === 'en' || locale === 'de') {
+      document.documentElement.lang = locale;
+    }
+  } catch (e) {}
+
   var storageKey = '${THEME_STORAGE_KEY}';
   var cycle = ['system', 'light', 'dark'];
   var labels = {

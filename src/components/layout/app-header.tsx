@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { LogOut, Menu } from 'lucide-react'
 import { NeulandPalm } from '#/components/brand/neuland-palm'
+import { LanguageToggle } from '#/components/layout/language-toggle'
 import { ThemeToggle } from '#/components/layout/theme-toggle'
 import { Button } from '#/components/ui/button'
 import {
@@ -13,6 +14,7 @@ import {
   SheetTrigger,
 } from '#/components/ui/sheet'
 import { KONTEN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
 
 type AppHeaderProps = {
   isSignedIn?: boolean
@@ -32,6 +34,7 @@ export function AppHeader({
   isSignedIn = false,
   showDashboardLink = true,
 }: AppHeaderProps) {
+  const { t } = useI18n()
   const logo = (
     <>
       <NeulandPalm className="h-9 w-auto text-terminal-text" />
@@ -64,29 +67,32 @@ export function AppHeader({
 
           {isSignedIn ? (
             <nav
-              aria-label="Hauptnavigation"
+              aria-label={t('nav.main')}
               className="hidden items-center gap-2 md:flex"
             >
               {showDashboardLink ? (
                 <>
                   <HeaderNavLink to={ROUTES.DASHBOARD} search={dashboardSearch}>
-                    Dashboard
+                    {t('nav.dashboard')}
                   </HeaderNavLink>
                   <HeaderNavLink
                     to={ROUTES.CONNECT}
                     search={KONTEN_SEARCH_DEFAULTS}
                   >
-                    Konten
+                    {t('nav.konten')}
                   </HeaderNavLink>
                 </>
               ) : null}
-              <HeaderNavLink to={ROUTES.RESSOURCEN}>Ressourcen</HeaderNavLink>
-              <HeaderNavLink to={ROUTES.FAQ}>FAQ</HeaderNavLink>
+              <HeaderNavLink to={ROUTES.RESSOURCEN}>
+                {t('nav.ressourcen')}
+              </HeaderNavLink>
+              <HeaderNavLink to={ROUTES.FAQ}>{t('nav.faq')}</HeaderNavLink>
             </nav>
           ) : null}
         </div>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <LanguageToggle />
           <ThemeToggle />
 
           {isSignedIn ? (
@@ -98,7 +104,7 @@ export function AppHeader({
             >
               <a href={ROUTES.AUTH_LOGOUT}>
                 <LogOut />
-                Abmelden
+                {t('header.logout')}
               </a>
             </Button>
           ) : null}
@@ -110,7 +116,7 @@ export function AppHeader({
                   variant="outline"
                   size="icon-sm"
                   className="md:hidden"
-                  aria-label="Menü öffnen"
+                  aria-label={t('nav.openMenu')}
                 >
                   <Menu />
                 </Button>
@@ -120,44 +126,44 @@ export function AppHeader({
                 className="gap-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
               >
                 <SheetHeader>
-                  <SheetTitle>Menü</SheetTitle>
+                  <SheetTitle>{t('nav.menu')}</SheetTitle>
                   <SheetDescription className="sr-only">
-                    Hauptnavigation
+                    {t('nav.main')}
                   </SheetDescription>
                 </SheetHeader>
 
-                <nav
-                  aria-label="Hauptnavigation"
-                  className="flex flex-col gap-1"
-                >
+                <nav aria-label={t('nav.main')} className="flex flex-col gap-1">
                   {showDashboardLink && isSignedIn ? (
                     <>
                       <MobileNavLink
                         to={ROUTES.DASHBOARD}
                         search={dashboardSearch}
                       >
-                        Dashboard
+                        {t('nav.dashboard')}
                       </MobileNavLink>
                       <MobileNavLink
                         to={ROUTES.CONNECT}
                         search={KONTEN_SEARCH_DEFAULTS}
                       >
-                        Konten
+                        {t('nav.konten')}
                       </MobileNavLink>
                     </>
                   ) : null}
                   <MobileNavLink to={ROUTES.RESSOURCEN}>
-                    Ressourcen
+                    {t('nav.ressourcen')}
                   </MobileNavLink>
-                  <MobileNavLink to={ROUTES.FAQ}>FAQ</MobileNavLink>
+                  <MobileNavLink to={ROUTES.FAQ}>{t('nav.faq')}</MobileNavLink>
                 </nav>
 
-                <Button variant="outline" className="w-full" asChild>
-                  <a href={ROUTES.AUTH_LOGOUT}>
-                    <LogOut />
-                    Abmelden
-                  </a>
-                </Button>
+                <div className="flex items-center gap-2">
+                  <LanguageToggle size="sm" className="flex-1" />
+                  <Button variant="outline" className="flex-1" asChild>
+                    <a href={ROUTES.AUTH_LOGOUT}>
+                      <LogOut />
+                      {t('header.logout')}
+                    </a>
+                  </Button>
+                </div>
               </SheetContent>
             </Sheet>
           ) : null}

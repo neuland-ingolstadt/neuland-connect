@@ -1,3 +1,6 @@
+import type { Locale } from '#/lib/i18n/messages'
+import { translate } from '#/lib/i18n/messages'
+
 const AUTHENTIK_ERROR_PATTERN = /^Authentik API request failed \((\d+)\)/
 
 export type AppErrorDetails = {
@@ -8,24 +11,27 @@ export type AppErrorDetails = {
   showLoginLink: boolean
 }
 
-export function getAuthentikErrorMessage(status: number): string {
+export function getAuthentikErrorMessage(
+  status: number,
+  locale: Locale = 'de',
+): string {
   if (status === 503 || status === 502 || status === 504) {
-    return 'Der Authentifizierungsdienst ist momentan nicht erreichbar. Bitte versuche es in ein paar Minuten erneut.'
+    return translate(locale, 'error.authentik.unavailable')
   }
 
   if (status >= 500) {
-    return 'Der Authentifizierungsdienst hat einen Fehler zurückgegeben. Bitte versuche es später erneut.'
+    return translate(locale, 'error.authentik.serverError')
   }
 
   if (status === 401 || status === 403) {
-    return 'Keine Berechtigung für den Authentifizierungsdienst. Bitte wende dich an den Administrator.'
+    return translate(locale, 'error.authentik.forbidden')
   }
 
   if (status === 404) {
-    return 'Der angeforderte Benutzer konnte in Authentik nicht gefunden werden.'
+    return translate(locale, 'error.authentik.notFound')
   }
 
-  return 'Ein Fehler ist bei der Kommunikation mit dem Authentifizierungsdienst aufgetreten.'
+  return translate(locale, 'error.authentik.generic')
 }
 
 function getErrorMessage(error: unknown): string {
@@ -74,7 +80,10 @@ function isAuthentikOutageStatus(status: number): boolean {
   return status >= 500 || status === 429
 }
 
-export function parseAppError(error: unknown): AppErrorDetails {
+export function parseAppError(
+  error: unknown,
+  locale: Locale = 'de',
+): AppErrorDetails {
   const technicalMessage = sanitizeTechnicalMessage(getErrorMessage(error))
   const status = getErrorStatus(error)
 
@@ -82,7 +91,7 @@ export function parseAppError(error: unknown): AppErrorDetails {
     const resolvedStatus = status ?? 0
 
     return {
-      title: 'Authentifizierung nicht verfügbar',
+      title: translate(locale, 'error.auth.title'),
       description: error.message,
       technicalMessage,
       isRetryable:
@@ -97,8 +106,8 @@ export function parseAppError(error: unknown): AppErrorDetails {
     const matchedStatus = Number(authentikMatch[1])
 
     return {
-      title: 'Authentifizierung nicht verfügbar',
-      description: getAuthentikErrorMessage(matchedStatus),
+      title: translate(locale, 'error.auth.title'),
+      description: getAuthentikErrorMessage(matchedStatus, locale),
       technicalMessage,
       isRetryable: isAuthentikOutageStatus(matchedStatus),
       showLoginLink: false,
@@ -110,9 +119,8 @@ export function parseAppError(error: unknown): AppErrorDetails {
     technicalMessage.includes('Authentik OIDC')
   ) {
     return {
-      title: 'Authentifizierung nicht verfügbar',
-      description:
-        'Der Anmeldedienst ist momentan nicht erreichbar. Bitte versuche es in ein paar Minuten erneut.',
+      title: translate(locale, 'error.auth.title'),
+      description: translate(locale, 'error.authentik.oidc'),
       technicalMessage,
       isRetryable: true,
       showLoginLink: true,
@@ -120,9 +128,8 @@ export function parseAppError(error: unknown): AppErrorDetails {
   }
 
   return {
-    title: 'Etwas ist schiefgelaufen',
-    description:
-      'Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.',
+    title: translate(locale, 'error.app.title'),
+    description: translate(locale, 'error.app.description'),
     technicalMessage,
     isRetryable: true,
     showLoginLink: false,

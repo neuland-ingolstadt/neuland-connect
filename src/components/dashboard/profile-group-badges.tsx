@@ -1,5 +1,6 @@
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
+import { useI18n } from '#/lib/i18n/locale-context'
 import {
   getProfileGroupBadgeHint,
   getProfileGroupBadgeVariant,
@@ -50,7 +51,8 @@ export function ProfileGroupSection({
 
 export function ProfileGroupBadge({ group }: { group: string }) {
   const variant = getProfileGroupBadgeVariant(group)
-  const hint = getProfileGroupBadgeHint(group)
+  const { locale } = useI18n()
+  const hint = getProfileGroupBadgeHint(group, locale)
   const label = getProfileGroupDisplayLabel(group)
 
   if (!hint) {

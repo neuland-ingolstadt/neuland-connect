@@ -1,5 +1,6 @@
 import { ExternalLink } from 'lucide-react'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
+import { useI18n } from '#/lib/i18n/locale-context'
 import { RESOURCE_CATALOG } from '#/lib/resources/catalog'
 import { userCanAccessResource } from '#/lib/resources/hub'
 import { getResourceHubIcon } from '#/lib/resources/icons'
@@ -12,6 +13,7 @@ type DashboardQuickLinksProps = {
 }
 
 export function DashboardQuickLinks({ groups }: DashboardQuickLinksProps) {
+  const { t } = useI18n()
   const items = QUICK_LINK_SLUGS.flatMap(slug => {
     const entry = RESOURCE_CATALOG.find(resource => resource.slug === slug)
     if (!entry || !userCanAccessResource(groups, entry)) {
@@ -32,7 +34,7 @@ export function DashboardQuickLinks({ groups }: DashboardQuickLinksProps) {
   }
 
   return (
-    <TerminalPanel title="Schnellzugriff">
+    <TerminalPanel title={t('dashboard.quickLinks.title')}>
       <ul className="divide-y divide-terminal-window-border/50 border-t border-terminal-window-border/50">
         {items.map(item => {
           const Icon = getResourceHubIcon(item.slug)

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ProfileGroupSection } from '#/components/dashboard/profile-group-badges'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
+import { useI18n } from '#/lib/i18n/locale-context'
 import { partitionProfileGroups } from '#/lib/profile-groups'
 
 const VISIBLE_GROUP_LIMIT = 4
@@ -19,6 +20,7 @@ export function UserDataCard({
   groups,
 }: UserDataCardProps) {
   const [groupsExpanded, setGroupsExpanded] = useState(false)
+  const { t } = useI18n()
   const { honorGroups, ressortGroups, otherGroups } = useMemo(
     () => partitionProfileGroups(groups),
     [groups],
@@ -33,26 +35,35 @@ export function UserDataCard({
   const hiddenCount = otherGroups.length - visibleOtherGroups.length
 
   return (
-    <TerminalPanel title="Profil" subtitle="Deine Daten aus Authentik">
+    <TerminalPanel
+      title={t('profile.card.title')}
+      subtitle={t('profile.card.subtitle')}
+    >
       <div className="space-y-4 p-4 sm:p-5">
         <dl className="space-y-4">
-          <DetailItem label="Name" value={name} />
-          <DetailItem label="E-Mail" value={email} />
-          <DetailItem label="Benutzername" value={username} />
+          <DetailItem label={t('profile.name')} value={name} />
+          <DetailItem label={t('profile.email')} value={email} />
+          <DetailItem label={t('profile.username')} value={username} />
         </dl>
 
         {hasProfileGroups ? (
           <div className="space-y-2.5">
-            <ProfileGroupSection title="Exklusiv" groups={honorGroups} />
-            <ProfileGroupSection title="Ressorts" groups={ressortGroups} />
             <ProfileGroupSection
-              title="Gruppen"
+              title={t('profile.honor')}
+              groups={honorGroups}
+            />
+            <ProfileGroupSection
+              title={t('profile.ressorts')}
+              groups={ressortGroups}
+            />
+            <ProfileGroupSection
+              title={t('profile.groups')}
               groups={visibleOtherGroups}
               expandLabel={
                 hasMoreOtherGroups
                   ? groupsExpanded
-                    ? 'Weniger anzeigen'
-                    : `+${hiddenCount} weitere`
+                    ? t('common.showLess')
+                    : t('common.showMore', { count: hiddenCount })
                   : null
               }
               onToggleExpand={

@@ -11,6 +11,8 @@ import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import type { UserAttributes } from '#/lib/authentik/types'
 import { GITHUB_ORG_STATUSES, ROUTES } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
+import { localeToDateLocale } from '#/lib/i18n/messages'
 import { INTEGRATION_CARD_IDS } from '#/lib/integrations/connect-anchors'
 import { buildGitHubIntegrationProgress } from '#/lib/integrations/github/integration-progress'
 import {
@@ -42,11 +44,15 @@ export function GitHubConnectionCard({
   const router = useRouter()
   const disconnectGitHub = useServerFn(disconnectGitHubFn)
   const syncGitHubTeams = useServerFn(syncGitHubTeamsFn)
+  const { t, locale } = useI18n()
   const [disconnectOpen, setDisconnectOpen] = useState(false)
   const [isDisconnecting, setIsDisconnecting] = useState(false)
   const [isSyncingTeams, setIsSyncingTeams] = useState(false)
   const [teamsExpanded, setTeamsExpanded] = useState(false)
-  const orgStatus = getGitHubOrgStatusDisplay(attributes.githubOrgStatus)
+  const orgStatus = getGitHubOrgStatusDisplay(
+    attributes.githubOrgStatus,
+    locale,
+  )
   const hasMoreTeams = githubTeams.length > VISIBLE_TEAM_LIMIT
   const visibleTeams =
     teamsExpanded || !hasMoreTeams
@@ -60,22 +66,25 @@ export function GitHubConnectionCard({
     teamSyncEnabled &&
     (attributes.githubOrgStatus === GITHUB_ORG_STATUSES.MEMBER ||
       attributes.githubOrgStatus === GITHUB_ORG_STATUSES.ADMIN)
-  const integrationProgress = buildGitHubIntegrationProgress({
-    connected,
-    githubOrgStatus: attributes.githubOrgStatus,
-    teamSyncEnabled,
-  })
+  const integrationProgress = buildGitHubIntegrationProgress(
+    {
+      connected,
+      githubOrgStatus: attributes.githubOrgStatus,
+      teamSyncEnabled,
+    },
+    locale,
+  )
 
   async function handleDisconnect() {
     setIsDisconnecting(true)
 
     try {
       await disconnectGitHub()
-      toast.success('GitHub-Verbindung getrennt.')
+      toast.success(t('toast.github.disconnected'))
       setDisconnectOpen(false)
       await router.invalidate()
     } catch {
-      toast.error('GitHub-Verbindung konnte nicht getrennt werden.')
+      toast.error(t('toast.github.disconnectError'))
     } finally {
       setIsDisconnecting(false)
     }
@@ -95,21 +104,22 @@ export function GitHubConnectionCard({
       }
       toast.success(
         parts.length > 0
-          ? `Teams aktualisiert (${parts.join('; ')}).`
-          : 'Teams sind bereits aktuell.',
+          ? t('toast.github.teamsUpdated', { parts: parts.join('; ') })
+          : t('toast.github.teamsCurrent'),
       )
       await router.invalidate()
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Teams konnten nicht synchronisiert werden.',
+          : t('toast.github.teamsSyncError'),
       )
     } finally {
       setIsSyncingTeams(false)
     }
   }
 
+  const dateLocale = localeToDateLocale(locale)
   return (
     <TerminalPanel
       id={INTEGRATION_CARD_IDS.github}
@@ -140,13 +150,13 @@ export function GitHubConnectionCard({
                     @{attributes.githubUsername}
                   </a>
                 ) : (
-                  'Teil der GitHub-Organisation werden'
+                  t('github.card.join')
                 )}
               </p>
               <p className="mt-0.5 text-xs leading-snug text-terminal-text/55">
                 {connected
                   ? integrationProgress.hint
-                  : 'Verbinde für Org-Einladung und Team-Sync.'}
+                  : t('github.card.connectHint')}
               </p>
             </div>
           </div>
@@ -162,20 +172,20 @@ export function GitHubConnectionCard({
             {attributes.githubOrgLastError ? (
               <div className="border border-destructive/30 bg-destructive/5 px-3 py-2.5">
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-destructive">
-                  Sync-Fehler
+                  {t('common.syncError')}
                 </p>
                 <p className="mt-1 text-xs leading-relaxed text-terminal-text/80">
                   {attributes.githubOrgLastError}
                 </p>
                 <p className="mt-2 text-xs text-terminal-text/50">
-                  Bei anhaltenden Problemen den Admin kontaktieren.
+                  {t('common.syncErrorHint')}
                 </p>
               </div>
             ) : null}
 
             <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
               <DetailItem
-                label="Username"
+                label={t('common.username')}
                 value={attributes.githubUsername}
                 href={
                   attributes.githubUsername
@@ -185,14 +195,14 @@ export function GitHubConnectionCard({
               />
               {attributes.githubConnectedAt ? (
                 <DetailItem
-                  label="Seit"
-                  value={formatDate(attributes.githubConnectedAt)}
+                  label={t('common.since')}
+                  value={formatDate(attributes.githubConnectedAt, dateLocale)}
                 />
               ) : null}
               {attributes.githubOrgInvitedAt ? (
                 <DetailItem
-                  label="Eingeladen"
-                  value={formatDate(attributes.githubOrgInvitedAt)}
+                  label={t('github.card.invitedAt')}
+                  value={formatDate(attributes.githubOrgInvitedAt, dateLocale)}
                 />
               ) : null}
             </dl>
@@ -200,7 +210,7 @@ export function GitHubConnectionCard({
             {githubTeams.length > 0 ? (
               <div>
                 <p className="meta-label">
-                  GitHub-Teams
+                  {t('github.card.teams')}
                   <span className="ml-1 tabular-nums">
                     ({githubTeams.length})
                   </span>
@@ -226,8 +236,8 @@ export function GitHubConnectionCard({
                     onClick={() => setTeamsExpanded(expanded => !expanded)}
                   >
                     {teamsExpanded
-                      ? 'Weniger anzeigen'
-                      : `+${hiddenTeamCount} weitere`}
+                      ? t('common.showLess')
+                      : t('common.showMore', { count: hiddenTeamCount })}
                   </Button>
                 ) : null}
               </div>
@@ -247,7 +257,7 @@ export function GitHubConnectionCard({
                   <RefreshCw
                     className={isSyncingTeams ? 'animate-spin' : undefined}
                   />
-                  {isSyncingTeams ? 'Synchronisiere…' : 'Synchronisieren'}
+                  {isSyncingTeams ? t('common.syncing') : t('common.sync')}
                 </Button>
               ) : null}
               {showInvitationLink ? (
@@ -257,16 +267,16 @@ export function GitHubConnectionCard({
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Einladung öffnen
+                    {t('github.card.openInvite')}
                   </a>
                 </Button>
               ) : null}
               <IntegrationOverflowMenu
                 reconnectHref={ROUTES.GITHUB_CONNECT}
-                reconnectLabel="Neu verbinden"
+                reconnectLabel={t('github.card.reconnect')}
                 reconnectIcon={<GitHubIcon className="text-inherit" />}
-                disconnectTitle="GitHub-Verbindung trennen?"
-                disconnectDescription="Du bleibst in der GitHub-Organisation, verlierst aber alle Teams. Neuland Connect entfernt die Verknüpfung."
+                disconnectTitle={t('github.disconnect.title')}
+                disconnectDescription={t('github.disconnect.description')}
                 disconnectOpen={disconnectOpen}
                 onDisconnectOpenChange={setDisconnectOpen}
                 isDisconnecting={isDisconnecting}
@@ -279,7 +289,7 @@ export function GitHubConnectionCard({
         ) : (
           <div>
             <Button variant="outline" asChild>
-              <a href={ROUTES.GITHUB_CONNECT}>Mit GitHub verbinden</a>
+              <a href={ROUTES.GITHUB_CONNECT}>{t('github.card.connect')}</a>
             </Button>
           </div>
         )}

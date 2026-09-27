@@ -6,6 +6,7 @@ import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageMain, PageShell } from '#/components/layout/page-shell'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import { APP_NAME } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
 import { hasActiveSessionFn } from '#/server/get-current-user'
 
 export const Route = createFileRoute('/faq')({
@@ -18,6 +19,7 @@ export const Route = createFileRoute('/faq')({
 
 function FaqPage() {
   const isSignedIn = Route.useLoaderData()
+  const { t } = useI18n()
 
   return (
     <PageShell>
@@ -31,14 +33,14 @@ function FaqPage() {
       <PageMain>
         <header className="mb-6">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
-            Hilfe
+            {t('faq.pageEyebrow')}
           </p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
-            Häufige Fragen
+            {t('faq.pageTitle')}
           </h1>
         </header>
 
-        <TerminalPanel title="Fragen">
+        <TerminalPanel title={t('faq.panel')}>
           <FaqPageContent />
         </TerminalPanel>
       </PageMain>

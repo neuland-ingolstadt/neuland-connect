@@ -1,5 +1,7 @@
 import type { DiscordGuildStatus } from '#/lib/constants'
 import { DISCORD_GUILD_STATUSES } from '#/lib/constants'
+import type { Locale } from '#/lib/i18n/messages'
+import { translate } from '#/lib/i18n/messages'
 
 type GuildStatusBadgeVariant = 'success' | 'default' | 'muted'
 
@@ -9,15 +11,22 @@ export function isDiscordInGuild(status: DiscordGuildStatus | null): boolean {
 
 export function getDiscordGuildStatusDisplay(
   status: DiscordGuildStatus | null,
+  locale: Locale = 'de',
 ): {
   label: string
   variant: GuildStatusBadgeVariant
 } {
   switch (status) {
     case 'member':
-      return { label: 'Im Server', variant: 'success' }
+      return {
+        label: translate(locale, 'discord.status.member'),
+        variant: 'success',
+      }
     default:
-      return { label: 'Noch nicht im Server', variant: 'muted' }
+      return {
+        label: translate(locale, 'discord.status.pending'),
+        variant: 'muted',
+      }
   }
 }
 

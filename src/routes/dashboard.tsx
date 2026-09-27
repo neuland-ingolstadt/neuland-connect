@@ -17,14 +17,16 @@ import type { BlogPostsResult } from '#/lib/blog/types'
 import type { CampusLifeEventsResult } from '#/lib/campus-life/types'
 import { APP_NAME, ROUTES } from '#/lib/constants'
 import { LOADER_STALE_MS } from '#/lib/deferred-loader'
+import { useI18n } from '#/lib/i18n/locale-context'
 import { getLatestBlogPostsFn } from '#/server/get-blog-posts'
 import type { CurrentUser } from '#/server/get-current-user'
 import { requireActiveSession } from '#/server/get-current-user'
 import { getNeulandEventsFn } from '#/server/get-events'
 
 function EventsPanelSkeleton() {
+  const { t } = useI18n()
   return (
-    <TerminalPanel title="Events">
+    <TerminalPanel title={t('dashboard.eventsSkeleton')}>
       <div className="space-y-3 p-4 sm:p-5">
         <Skeleton className="h-4 w-24" />
         <Skeleton className="h-16 w-full" />
@@ -36,8 +38,9 @@ function EventsPanelSkeleton() {
 }
 
 function BlogPostsPanelSkeleton() {
+  const { t } = useI18n()
   return (
-    <TerminalPanel title="Blog">
+    <TerminalPanel title={t('dashboard.blogSkeleton')}>
       <div className="space-y-3 p-4 sm:p-5">
         <Skeleton className="h-4 w-32" />
         <Skeleton className="h-14 w-full" />
@@ -123,14 +126,21 @@ function DashboardRoute() {
     return <DashboardPage user={user} events={events} blogPosts={blogPosts} />
   }
 
+  return <DashboardLoadingPage user={user} />
+}
+
+function DashboardLoadingPage({ user }: { user: CurrentUser }) {
+  const { t } = useI18n()
   return (
     <PageShell>
       <AppHeader isSignedIn />
 
       <PageMain>
         <header className="mb-6">
-          <p className="eyebrow">Dashboard</p>
-          <h1 className="page-title mt-2">Hallo {user.name.split(' ')[0]}</h1>
+          <p className="eyebrow">{t('dashboard.eyebrow')}</p>
+          <h1 className="page-title mt-2">
+            {t('dashboard.hello', { name: user.name.split(' ')[0] })}
+          </h1>
         </header>
 
         <KontenSetupBanner user={user} />
@@ -170,6 +180,7 @@ function DashboardPage({
   blogPosts: BlogPostsResult
 }) {
   const firstName = user.name.split(' ')[0]
+  const { t } = useI18n()
 
   return (
     <PageShell>
@@ -177,8 +188,10 @@ function DashboardPage({
 
       <PageMain>
         <header className="mb-6">
-          <p className="eyebrow">Dashboard</p>
-          <h1 className="page-title mt-2">Hallo {firstName}</h1>
+          <p className="eyebrow">{t('dashboard.eyebrow')}</p>
+          <h1 className="page-title mt-2">
+            {t('dashboard.hello', { name: firstName })}
+          </h1>
         </header>
 
         <KontenSetupBanner user={user} />

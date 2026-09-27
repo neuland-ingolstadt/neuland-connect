@@ -7,18 +7,20 @@ import { PageShell } from '#/components/layout/page-shell'
 import { Button } from '#/components/ui/button'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import { LOGIN_SEARCH_DEFAULTS, ROUTES } from '#/lib/constants'
+import { useI18n } from '#/lib/i18n/locale-context'
 
 export function AppNotFoundPage() {
   const pathname = useRouterState({
     select: state => state.location.pathname,
   })
+  const { t } = useI18n()
 
   return (
     <PageShell>
       <AppHeader showDashboardLink={false} />
 
       <div className="flex w-full min-w-0 flex-1 items-center justify-center p-4">
-        <TerminalPanel title="Navigation" className="w-full max-w-md">
+        <TerminalPanel title={t('notFound.panel')} className="w-full max-w-md">
           <div className="space-y-6 p-6 text-center">
             <div className="mx-auto flex justify-center">
               <div className="relative">
@@ -29,13 +31,13 @@ export function AppNotFoundPage() {
 
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-terminal-green/70">
-                Fehler 404
+                {t('notFound.code')}
               </p>
               <h1 className="mt-2 font-mono text-xl font-semibold text-terminal-lightGreen">
-                Seite nicht gefunden
+                {t('notFound.title')}
               </h1>
               <p className="mt-3 text-sm leading-relaxed text-terminal-text/65">
-                Die angeforderte Seite existiert nicht oder wurde verschoben.
+                {t('notFound.lead')}
               </p>
             </div>
 
@@ -48,7 +50,7 @@ export function AppNotFoundPage() {
               >
                 <Link to={ROUTES.HOME}>
                   <ArrowLeft />
-                  Zur Startseite
+                  {t('notFound.home')}
                 </Link>
               </Button>
 
@@ -59,7 +61,7 @@ export function AppNotFoundPage() {
                 asChild
               >
                 <Link to={ROUTES.LOGIN} search={LOGIN_SEARCH_DEFAULTS}>
-                  Zur Anmeldung
+                  {t('notFound.login')}
                 </Link>
               </Button>
             </div>

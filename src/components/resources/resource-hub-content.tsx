@@ -1,4 +1,5 @@
 import { ExternalLink } from 'lucide-react'
+import { useI18n } from '#/lib/i18n/locale-context'
 import type { ResourceHubGroup } from '#/lib/resources/hub'
 import { getResourceHubIcon } from '#/lib/resources/icons'
 import { cn } from '#/lib/utils'
@@ -8,11 +9,12 @@ type ResourceHubContentProps = {
 }
 
 export function ResourceHubContent({ groups }: ResourceHubContentProps) {
+  const { t } = useI18n()
   if (groups.length === 0) {
     return (
       <div className="p-6">
         <p className="font-mono text-sm text-terminal-text/60">
-          Für dein Konto sind derzeit keine Dienste freigeschaltet.
+          {t('resources.empty')}
         </p>
       </div>
     )

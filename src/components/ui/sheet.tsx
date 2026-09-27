@@ -2,6 +2,7 @@ import * as SheetPrimitive from '@radix-ui/react-dialog'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { X } from 'lucide-react'
 import * as React from 'react'
+import { useI18n } from '#/lib/i18n/locale-context'
 import { cn } from '#/lib/utils'
 
 const Sheet = SheetPrimitive.Root
@@ -67,12 +68,17 @@ const SheetContent = React.forwardRef<
       {children}
       <SheetPrimitive.Close className="absolute top-4 right-4 inline-flex size-8 cursor-pointer items-center justify-center text-terminal-text/70 transition-colors hover:text-terminal-text focus-visible:ring-2 focus-visible:ring-terminal-green/50 focus-visible:outline-none">
         <X className="size-4" />
-        <span className="sr-only">Schließen</span>
+        <SheetCloseLabel />
       </SheetPrimitive.Close>
     </SheetPrimitive.Content>
   </SheetPortal>
 ))
 SheetContent.displayName = SheetPrimitive.Content.displayName
+
+function SheetCloseLabel() {
+  const { t } = useI18n()
+  return <span className="sr-only">{t('common.close')}</span>
+}
 
 function SheetHeader({
   className,

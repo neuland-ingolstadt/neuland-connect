@@ -1,3 +1,5 @@
+import type { Locale } from '#/lib/i18n/messages'
+import { localeToDateLocale } from '#/lib/i18n/messages'
 import {
   RESOURCE_CATALOG,
   type ResourceCatalogEntry,
@@ -24,7 +26,7 @@ export type ResourceHubGroup = {
   items: ResourceHubItem[]
 }
 
-function sortGroupLabels(a: string, b: string): number {
+function sortGroupLabels(a: string, b: string, locale: Locale): number {
   const indexA = RESOURCE_HUB_GROUP_ORDER.indexOf(
     a as (typeof RESOURCE_HUB_GROUP_ORDER)[number],
   )
@@ -38,7 +40,7 @@ function sortGroupLabels(a: string, b: string): number {
     return rankA - rankB
   }
 
-  return a.localeCompare(b, 'de')
+  return a.localeCompare(b, localeToDateLocale(locale))
 }
 
 function normalizeGroupName(group: string): string {
@@ -62,7 +64,10 @@ export function userCanAccessResource(
   )
 }
 
-export function buildResourceHub(userGroups: string[]): ResourceHubGroup[] {
+export function buildResourceHub(
+  userGroups: string[],
+  locale: Locale = 'de',
+): ResourceHubGroup[] {
   const grouped = new Map<string, ResourceHubItem[]>()
 
   for (const entry of RESOURCE_CATALOG) {
@@ -86,10 +91,12 @@ export function buildResourceHub(userGroups: string[]): ResourceHubGroup[] {
   }
 
   return [...grouped.entries()]
-    .sort(([labelA], [labelB]) => sortGroupLabels(labelA, labelB))
+    .sort(([labelA], [labelB]) => sortGroupLabels(labelA, labelB, locale))
     .map(([label, items]) => ({
       id: label.toLowerCase().replace(/\s+/g, '-'),
       label,
-      items: items.sort((a, b) => a.name.localeCompare(b.name, 'de')),
+      items: items.sort((a, b) =>
+        a.name.localeCompare(b.name, localeToDateLocale(locale)),
+      ),
     }))
 }

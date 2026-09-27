@@ -18,6 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu'
+import { useI18n } from '#/lib/i18n/locale-context'
 
 type IntegrationOverflowMenuProps = {
   reconnectHref: string
@@ -42,6 +43,7 @@ export function IntegrationOverflowMenu({
   isDisconnecting,
   onDisconnect,
 }: IntegrationOverflowMenuProps) {
+  const { t } = useI18n()
   return (
     <>
       <DropdownMenu>
@@ -50,7 +52,7 @@ export function IntegrationOverflowMenu({
             type="button"
             variant="outline"
             size="icon-sm"
-            aria-label="Weitere Aktionen"
+            aria-label={t('menu.more')}
           >
             <Ellipsis />
           </Button>
@@ -69,7 +71,7 @@ export function IntegrationOverflowMenu({
             onSelect={() => onDisconnectOpenChange(true)}
           >
             <Link2Off />
-            Trennen
+            {t('common.disconnect')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -83,7 +85,7 @@ export function IntegrationOverflowMenu({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDisconnecting}>
-              Abbrechen
+              {t('common.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
@@ -93,7 +95,9 @@ export function IntegrationOverflowMenu({
                 onDisconnect()
               }}
             >
-              {isDisconnecting ? 'Trennen…' : 'Trennen'}
+              {isDisconnecting
+                ? t('common.disconnecting')
+                : t('common.disconnect')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
