@@ -74,7 +74,7 @@ export const Route = createFileRoute('/dashboard')({
       }
 
       throw redirect({
-        to: ROUTES.CONNECT,
+        to: ROUTES.KONTEN,
         search: {
           integration: deps.integration,
           status: callbackSearch.status,

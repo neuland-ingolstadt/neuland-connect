@@ -28,7 +28,7 @@ export function KontenSetupBanner({ user }: KontenSetupBannerProps) {
 
   return (
     <Link
-      to={ROUTES.CONNECT}
+      to={ROUTES.KONTEN}
       search={KONTEN_SEARCH_DEFAULTS}
       hash={setupHash}
       hashScrollIntoView={{ behavior: 'smooth', block: 'start' }}

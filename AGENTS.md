@@ -79,7 +79,7 @@ Parse via `parseUserAttributes()` in `src/lib/authentik/types.ts`.
 ## Dashboard and Connect UX
 
 - **Dashboard** (`/dashboard`) – events from Campus Life (public + internal) and Connect status/links
-- **Connect** (`/connect`) – GitHub / Discord / Next linking; OAuth callbacks land here
+- **Connect** (`/konten`, legacy `/connect` redirects) – GitHub / Discord / Next linking; OAuth callbacks land here
 - **Action banner** (`DashboardActionBanner`) – one strip with GitHub / Discord / Next as direct CTAs; hidden when all complete
 - **Per-integration progress** – dot indicator + fraction in panel title row (`IntegrationProgressInline`); hint in card subtitle when incomplete
 - GitHub steps: Verbunden → Eingeladen → Org-Zugang

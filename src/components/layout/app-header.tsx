@@ -23,7 +23,7 @@ type AppHeaderProps = {
 
 type AppNavTo =
   | typeof ROUTES.DASHBOARD
-  | typeof ROUTES.CONNECT
+  | typeof ROUTES.KONTEN
   | typeof ROUTES.SCANNER
   | typeof ROUTES.RESSOURCEN
   | typeof ROUTES.FAQ
@@ -76,7 +76,7 @@ export function AppHeader({
                     {t('nav.dashboard')}
                   </HeaderNavLink>
                   <HeaderNavLink
-                    to={ROUTES.CONNECT}
+                    to={ROUTES.KONTEN}
                     search={KONTEN_SEARCH_DEFAULTS}
                   >
                     {t('nav.konten')}
@@ -145,7 +145,7 @@ export function AppHeader({
                         {t('nav.dashboard')}
                       </MobileNavLink>
                       <MobileNavLink
-                        to={ROUTES.CONNECT}
+                        to={ROUTES.KONTEN}
                         search={KONTEN_SEARCH_DEFAULTS}
                       >
                         {t('nav.konten')}

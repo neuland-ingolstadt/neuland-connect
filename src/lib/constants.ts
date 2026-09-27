@@ -22,7 +22,7 @@ export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
   DASHBOARD: '/dashboard',
-  CONNECT: '/connect',
+  KONTEN: '/konten',
   SCANNER: '/scanner',
   RESSOURCEN: '/ressourcen',
   FAQ: '/faq',
@@ -115,5 +115,5 @@ export function kontenStatusPath(options: {
     params.set('message', options.message)
   }
 
-  return `${ROUTES.CONNECT}?${params.toString()}`
+  return `${ROUTES.KONTEN}?${params.toString()}`
 }

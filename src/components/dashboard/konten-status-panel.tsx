@@ -117,7 +117,7 @@ export function KontenStatusPanel({ user }: KontenStatusPanelProps) {
           asChild
         >
           <Link
-            to={ROUTES.CONNECT}
+            to={ROUTES.KONTEN}
             search={KONTEN_SEARCH_DEFAULTS}
             hash={setupHash}
             hashScrollIntoView={{ behavior: 'smooth', block: 'start' }}
@@ -185,7 +185,7 @@ function StatusRow({
         </button>
       ) : (
         <Link
-          to={ROUTES.CONNECT}
+          to={ROUTES.KONTEN}
           search={KONTEN_SEARCH_DEFAULTS}
           hash={hash}
           hashScrollIntoView={{ behavior: 'smooth', block: 'start' }}

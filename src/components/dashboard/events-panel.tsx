@@ -27,6 +27,7 @@ import {
   sortEvents,
 } from '#/lib/campus-life/format'
 import type { CampusLifeEvent } from '#/lib/campus-life/types'
+import { eventDescription, eventTitle } from '#/lib/campus-life/types'
 import { useI18n } from '#/lib/i18n/locale-context'
 import { translate } from '#/lib/i18n/messages'
 import { cn } from '#/lib/utils'
@@ -244,6 +245,8 @@ function EventRow({
   const { t, locale } = useI18n()
   const dayParts = formatEventDayParts(event, locale)
   const isToday = isEventToday(event)
+  const title = eventTitle(event, locale)
+  const description = eventDescription(event, locale)
   const revealDelay = Math.min(index, REVEAL_MAX_INDEX) * REVEAL_STEP_MS
 
   return (
@@ -291,7 +294,7 @@ function EventRow({
 
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-1.5 text-sm font-medium text-terminal-text">
-            <span className="min-w-0 truncate">{event.title}</span>
+            <span className="min-w-0 truncate">{title}</span>
             {event.visibility === 'public' ? <PublicEventIcon /> : null}
           </div>
 
@@ -300,9 +303,9 @@ function EventRow({
             {event.location ? ` · ${event.location}` : null}
           </p>
 
-          {event.description ? (
+          {description ? (
             <p className="mt-2 line-clamp-1 text-sm leading-relaxed text-terminal-text/70">
-              {event.description}
+              {description}
             </p>
           ) : null}
         </div>
@@ -328,7 +331,7 @@ function EventDetailsDialog({
               {t('events.dialog.eyebrow')}
             </p>
             <DialogTitle className="flex items-center gap-2 text-lg">
-              <span className="min-w-0">{event.title}</span>
+              <span className="min-w-0">{eventTitle(event, locale)}</span>
               {isEventToday(event) ? <TodayBadge /> : null}
               {event.visibility === 'public' ? <PublicEventIcon /> : null}
             </DialogTitle>
@@ -354,7 +357,8 @@ function EventDetailsDialog({
               </p>
             ) : null}
             <DialogDescription className="whitespace-pre-wrap text-sm leading-relaxed text-terminal-text/70">
-              {event.description || t('events.dialog.noDescription')}
+              {eventDescription(event, locale) ||
+                t('events.dialog.noDescription')}
             </DialogDescription>
           </div>
 

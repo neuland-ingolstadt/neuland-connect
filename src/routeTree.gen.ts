@@ -15,6 +15,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DatenschutzRouteImport } from './routes/datenschutz'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ImpressumRouteImport } from './routes/impressum'
+import { Route as KontenRouteImport } from './routes/konten'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RessourcenRouteImport } from './routes/ressourcen'
 import { Route as ScannerRouteImport } from './routes/scanner'
@@ -59,6 +60,11 @@ const FaqRoute = FaqRouteImport.update({
 const ImpressumRoute = ImpressumRouteImport.update({
   id: '/impressum',
   path: '/impressum',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontenRoute = KontenRouteImport.update({
+  id: '/konten',
+  path: '/konten',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/datenschutz': typeof DatenschutzRoute
   '/faq': typeof FaqRoute
   '/impressum': typeof ImpressumRoute
+  '/konten': typeof KontenRoute
   '/login': typeof LoginRoute
   '/ressourcen': typeof RessourcenRoute
   '/scanner': typeof ScannerRoute
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/datenschutz': typeof DatenschutzRoute
   '/faq': typeof FaqRoute
   '/impressum': typeof ImpressumRoute
+  '/konten': typeof KontenRoute
   '/login': typeof LoginRoute
   '/ressourcen': typeof RessourcenRoute
   '/scanner': typeof ScannerRoute
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/datenschutz': typeof DatenschutzRoute
   '/faq': typeof FaqRoute
   '/impressum': typeof ImpressumRoute
+  '/konten': typeof KontenRoute
   '/login': typeof LoginRoute
   '/ressourcen': typeof RessourcenRoute
   '/scanner': typeof ScannerRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/datenschutz'
     | '/faq'
     | '/impressum'
+    | '/konten'
     | '/login'
     | '/ressourcen'
     | '/scanner'
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/datenschutz'
     | '/faq'
     | '/impressum'
+    | '/konten'
     | '/login'
     | '/ressourcen'
     | '/scanner'
@@ -270,6 +281,7 @@ export interface FileRouteTypes {
     | '/datenschutz'
     | '/faq'
     | '/impressum'
+    | '/konten'
     | '/login'
     | '/ressourcen'
     | '/scanner'
@@ -294,6 +306,7 @@ export interface RootRouteChildren {
   DatenschutzRoute: typeof DatenschutzRoute
   FaqRoute: typeof FaqRoute
   ImpressumRoute: typeof ImpressumRoute
+  KontenRoute: typeof KontenRoute
   LoginRoute: typeof LoginRoute
   RessourcenRoute: typeof RessourcenRoute
   ScannerRoute: typeof ScannerRoute
@@ -353,6 +366,13 @@ declare module '@tanstack/react-router' {
       path: '/impressum'
       fullPath: '/impressum'
       preLoaderRoute: typeof ImpressumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konten': {
+      id: '/konten'
+      path: '/konten'
+      fullPath: '/konten'
+      preLoaderRoute: typeof KontenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -470,6 +490,7 @@ const rootRouteChildren: RootRouteChildren = {
   DatenschutzRoute: DatenschutzRoute,
   FaqRoute: FaqRoute,
   ImpressumRoute: ImpressumRoute,
+  KontenRoute: KontenRoute,
   LoginRoute: LoginRoute,
   RessourcenRoute: RessourcenRoute,
   ScannerRoute: ScannerRoute,

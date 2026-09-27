@@ -1,9 +1,17 @@
+import type { Locale } from '#/lib/i18n/messages'
+
 export type CampusLifeEventVisibility = 'public' | 'internal'
 
 export type CampusLifeEvent = {
   id: number
+  /** German title — canonical display + server-side (Discord) fallback. */
   title: string
+  /** German description — canonical display + server-side fallback. */
   description: string
+  /** English title from the API, if the organizers provided one. */
+  titleEn: string | null
+  /** English description from the API, if provided. */
+  descriptionEn: string | null
   location: string
   startDateTime: string
   endDateTime: string | null
@@ -65,18 +73,45 @@ export function mapCampusLifeApiEvent(
     return null
   }
 
-  const title =
-    readString(raw.title_de) ?? readString(raw.title_en) ?? 'Ohne Titel'
+  const titleDe = readString(raw.title_de)
+  const titleEn = readString(raw.title_en)
+  const title = titleDe ?? titleEn ?? 'Ohne Titel'
+
+  const descriptionDe = readString(raw.description_de)
+  const descriptionEn = readString(raw.description_en)
 
   return {
     id,
     title,
-    description:
-      readString(raw.description_de) ?? readString(raw.description_en) ?? '',
+    description: descriptionDe ?? descriptionEn ?? '',
+    titleEn,
+    descriptionEn,
     location: readString(raw.location) ?? '',
     startDateTime,
     endDateTime: readString(raw.end_date_time),
     eventUrl: readString(raw.event_url),
     visibility: resolveVisibility(raw),
   }
+}
+
+/**
+ * Localized event title — English when available, German fallback.
+ * Server-side consumers (Discord digest) keep using `title` (German).
+ */
+export function eventTitle(event: CampusLifeEvent, locale: Locale): string {
+  if (locale === 'en') {
+    return event.titleEn ?? event.title
+  }
+  return event.title
+}
+
+/** Localized event description — English when available, German fallback. */
+export function eventDescription(
+  event: CampusLifeEvent,
+  locale: Locale,
+): string {
+  if (locale === 'en') {
+    return event.descriptionEn ?? event.description
+  }
+  return event.description
 }
