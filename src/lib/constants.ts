@@ -23,6 +23,7 @@ export const ROUTES = {
   LOGIN: '/login',
   DASHBOARD: '/dashboard',
   CONNECT: '/connect',
+  SCANNER: '/scanner',
   RESSOURCEN: '/ressourcen',
   FAQ: '/faq',
   IMPRESSUM: '/impressum',

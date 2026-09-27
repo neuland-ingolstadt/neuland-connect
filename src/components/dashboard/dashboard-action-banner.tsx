@@ -92,7 +92,7 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
   }
 
   return (
-    <div className="hidden overflow-hidden border border-terminal-window-border bg-terminal-window sm:block">
+    <div className="hidden overflow-hidden border border-terminal-window-border bg-terminal-window shadow-[0_1px_0_var(--terminal-window-border)] sm:block">
       <div className="flex h-0.5">
         {tasks.map(task => (
           <div
@@ -117,14 +117,14 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
               key={task.id}
               className="flex items-center gap-3 px-4 py-3.5 text-terminal-text/45"
             >
-              <span className="flex size-8 shrink-0 items-center justify-center border border-terminal-window-border/50 text-terminal-text/45">
+              <span className="flex size-8 shrink-0 items-center justify-center border border-terminal-window-border/60 bg-terminal-card/50 text-terminal-text/45">
                 {task.icon}
               </span>
               <div className="min-w-0">
-                <p className="font-mono text-xs font-semibold tracking-wide">
+                <p className="text-xs font-semibold tracking-tight">
                   {task.label}
                 </p>
-                <p className="mt-0.5 flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.16em] text-terminal-green/70">
+                <p className="mt-0.5 flex items-center gap-1 text-[11px] font-medium text-terminal-green">
                   <Check className="size-3" strokeWidth={2.5} aria-hidden />
                   Fertig
                 </p>
@@ -136,16 +136,16 @@ export function DashboardActionBanner(props: DashboardActionBannerProps) {
               href={task.href}
               target={task.external ? '_blank' : undefined}
               rel={task.external ? 'noopener noreferrer' : undefined}
-              className="group flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-terminal-text/3"
+              className="group flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-terminal-card/60"
             >
-              <span className="flex size-8 shrink-0 items-center justify-center border border-terminal-window-border/70 text-terminal-text">
+              <span className="flex size-8 shrink-0 items-center justify-center border border-terminal-window-border bg-terminal-card/50 text-terminal-text transition-colors group-hover:border-terminal-green/40 group-hover:text-terminal-green">
                 {task.icon}
               </span>
               <div className="min-w-0">
-                <p className="font-mono text-xs font-semibold tracking-wide text-terminal-text">
+                <p className="text-xs font-semibold tracking-tight text-terminal-text">
                   {task.label}
                 </p>
-                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.16em] text-terminal-text/50 transition-colors group-hover:text-terminal-green">
+                <p className="mt-0.5 text-[11px] font-medium text-terminal-text/50 transition-colors group-hover:text-terminal-green">
                   {task.actionLabel} →
                 </p>
               </div>

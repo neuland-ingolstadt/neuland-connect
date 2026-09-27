@@ -80,7 +80,7 @@
   --destructive-foreground: 0 0% 98%;
   --radius: 0;
 
-  --terminal-bg: #020302;
+  --terminal-bg: #050505;
   --terminal-text: #f6fff8;
   --terminal-green: oklch(0.74 0.17 142.83);
   --terminal-highlight: oklch(0.78 0.15 142.83);
@@ -93,9 +93,9 @@
   --terminal-nav: #050605;
   --terminal-onAccent: #001f12;
 
-  --ambient-background: #020302;
-  --ambient-grid-line: rgba(156, 163, 175, 0.06);
-  --ambient-glow: rgba(74, 180, 110, 0.025);
+  --ambient-background: #050505;
+  --ambient-grid-line: rgba(255, 255, 255, 0.035);
+  --ambient-glow: rgba(35, 255, 136, 0.035);
 
   --honor-badge-text: #fef3c7;
   --honor-badge-border: rgba(251, 191, 36, 0.5);
@@ -154,8 +154,8 @@
     --terminal-onAccent: #042011;
 
     --ambient-background: #f5f8f5;
-    --ambient-grid-line: rgba(13, 50, 36, 0.05);
-    --ambient-glow: rgba(25, 141, 94, 0.04);
+    --ambient-grid-line: rgba(13, 50, 36, 0.045);
+    --ambient-glow: rgba(25, 141, 94, 0.035);
 
     --honor-badge-text: #78350f;
     --honor-badge-border: rgba(180, 83, 9, 0.55);
@@ -210,8 +210,8 @@
   --terminal-onAccent: #042011;
 
   --ambient-background: #f5f8f5;
-  --ambient-grid-line: rgba(13, 50, 36, 0.05);
-  --ambient-glow: rgba(25, 141, 94, 0.04);
+  --ambient-grid-line: rgba(13, 50, 36, 0.045);
+  --ambient-glow: rgba(25, 141, 94, 0.035);
 
   --honor-badge-text: #78350f;
   --honor-badge-border: rgba(180, 83, 9, 0.55);
@@ -267,10 +267,60 @@ h1,
 h2,
 h3,
 h4 {
+  color: var(--terminal-text);
+  font-family: var(--font-sans);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+/* Opt-in für echte Terminal-Überschriften (z. B. Boot-Screen, Events-Log). */
+.font-terminal-heading {
   color: var(--terminal-lightGreen);
   font-family: var(--font-mono);
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+
+/* Ruhige Seiten-Header im HR-Stil: Eyebrow dezent in Mono, Titel in Sans. */
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.page-title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.page-lead {
+  margin: 0;
+  max-width: 42rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  opacity: 0.65;
+}
+
+.meta-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.meta-value {
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .neuland-grid-bg {

@@ -122,14 +122,14 @@ export function GitHubConnectionCard({
         />
       }
     >
-      <div className="space-y-4 p-4">
+      <div className="space-y-4 p-4 sm:p-5">
         <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center border border-terminal-window-border/70">
+            <div className="flex size-10 shrink-0 items-center justify-center border border-terminal-window-border bg-terminal-card/60">
               <GitHubIcon className="size-5" />
             </div>
             <div className="min-w-0">
-              <p className="break-words font-mono text-sm font-semibold text-terminal-lightGreen">
+              <p className="break-words text-sm font-semibold tracking-tight text-terminal-text">
                 {connected && attributes.githubUsername ? (
                   <a
                     href={githubProfileUrl(attributes.githubUsername)}
@@ -143,7 +143,7 @@ export function GitHubConnectionCard({
                   'Teil der GitHub-Organisation werden'
                 )}
               </p>
-              <p className="mt-0.5 text-xs leading-snug text-terminal-text/50">
+              <p className="mt-0.5 text-xs leading-snug text-terminal-text/55">
                 {connected
                   ? integrationProgress.hint
                   : 'Verbinde für Org-Einladung und Team-Sync.'}
@@ -161,10 +161,10 @@ export function GitHubConnectionCard({
           <div className="space-y-4">
             {attributes.githubOrgLastError ? (
               <div className="border border-destructive/30 bg-destructive/5 px-3 py-2.5">
-                <p className="font-mono text-[10px] uppercase tracking-wider text-destructive">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-destructive">
                   Sync-Fehler
                 </p>
-                <p className="mt-1 font-mono text-xs leading-relaxed text-terminal-text/80">
+                <p className="mt-1 text-xs leading-relaxed text-terminal-text/80">
                   {attributes.githubOrgLastError}
                 </p>
                 <p className="mt-2 text-xs text-terminal-text/50">
@@ -199,9 +199,9 @@ export function GitHubConnectionCard({
 
             {githubTeams.length > 0 ? (
               <div>
-                <p className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
+                <p className="meta-label">
                   GitHub-Teams
-                  <span className="ml-1 text-terminal-text/25">
+                  <span className="ml-1 tabular-nums">
                     ({githubTeams.length})
                   </span>
                 </p>
@@ -222,7 +222,7 @@ export function GitHubConnectionCard({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="mt-2 h-auto px-0 py-0 font-mono text-[11px] text-terminal-text/50 hover:bg-transparent hover:text-terminal-green"
+                    className="mt-2 h-auto px-0 py-0 text-xs font-medium text-terminal-text/55 hover:bg-transparent hover:text-terminal-green"
                     onClick={() => setTeamsExpanded(expanded => !expanded)}
                   >
                     {teamsExpanded
@@ -299,10 +299,8 @@ function DetailItem({
 }) {
   return (
     <div>
-      <dt className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
-        {label}
-      </dt>
-      <dd className="mt-0.5 break-all font-mono text-sm text-terminal-text">
+      <dt className="meta-label">{label}</dt>
+      <dd className="mt-0.5 break-all text-sm text-terminal-text">
         {href && value ? (
           <a
             href={href}

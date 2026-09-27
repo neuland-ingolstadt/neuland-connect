@@ -15,13 +15,17 @@ export function IntegrationProgressInline({
   const currentIndex = steps.findIndex(step => !step.complete)
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div
+      className="flex items-center gap-1.5"
+      role="img"
+      aria-label={`${completedCount} von ${total} Schritten abgeschlossen`}
+    >
       {steps.map((step, index) => (
         <span
           key={step.id}
           className={cn(
             'size-1.5 shrink-0 rounded-full transition-colors',
-            step.complete && 'bg-terminal-green/75',
+            step.complete && 'bg-terminal-green/80',
             !step.complete &&
               index === currentIndex &&
               'bg-terminal-green/30 ring-1 ring-terminal-green/40',
@@ -33,8 +37,8 @@ export function IntegrationProgressInline({
       ))}
       <span
         className={cn(
-          'font-mono text-[10px] tabular-nums',
-          isComplete ? 'text-terminal-lightGreen/55' : 'text-terminal-text/35',
+          'text-[11px] font-medium tabular-nums',
+          isComplete ? 'text-terminal-text/55' : 'text-terminal-text/40',
         )}
       >
         {completedCount}/{total}

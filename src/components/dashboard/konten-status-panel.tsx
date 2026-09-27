@@ -26,7 +26,7 @@ type KontenStatusPanelProps = {
 
 const rowClassName = cn(
   'flex w-full items-start gap-3 py-3 text-left no-underline transition-colors',
-  'hover:bg-terminal-text/3 focus-visible:bg-terminal-text/3 focus-visible:outline-none',
+  'hover:bg-terminal-card/60 focus-visible:bg-terminal-card/60 focus-visible:outline-none',
 )
 
 export function KontenStatusPanel({ user }: KontenStatusPanelProps) {
@@ -145,20 +145,22 @@ function StatusRow({
     <>
       <span
         className={cn(
-          'mt-0.5 flex size-7 shrink-0 items-center justify-center',
+          'mt-0.5 flex size-7 shrink-0 items-center justify-center border',
           complete
-            ? 'border border-terminal-green/25 bg-terminal-green/8 text-terminal-green'
-            : 'border border-terminal-window-border/70 text-terminal-text/70',
+            ? 'border-terminal-green/30 bg-terminal-green/10 text-terminal-green'
+            : 'border-terminal-window-border bg-terminal-card/50 text-terminal-text/70',
         )}
       >
         {complete ? <Check className="size-3.5" strokeWidth={2.5} /> : icon}
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-xs font-medium text-terminal-text">{label}</p>
+          <p className="text-xs font-semibold tracking-tight text-terminal-text">
+            {label}
+          </p>
           {progress}
         </div>
-        <p className="mt-0.5 text-xs leading-snug text-terminal-text/50">
+        <p className="mt-0.5 text-xs leading-snug text-terminal-text/55">
           {hint}
         </p>
       </div>

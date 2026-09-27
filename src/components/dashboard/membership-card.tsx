@@ -10,9 +10,9 @@ import { INTEGRATION_CARD_IDS } from '#/lib/integrations/connect-anchors'
 import type { NeulandNextMemberSession } from '#/lib/integrations/neuland-next/session'
 
 const SETUP_STEPS = [
-  { step: '01', title: 'Neuland Next installieren' },
-  { step: '02', title: 'Neuland-Konto in den Einstellungen verbinden' },
-  { step: '03', title: 'Mitgliedsausweis & exklusive Benefits nutzen' },
+  { step: '1', title: 'Neuland Next installieren' },
+  { step: '2', title: 'Neuland-Konto in den Einstellungen verbinden' },
+  { step: '3', title: 'Mitgliedsausweis & exklusive Benefits nutzen' },
 ] as const
 
 const UNLOCKED_FEATURES = [
@@ -40,17 +40,17 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
         />
       }
     >
-      <div className="space-y-4 p-4">
+      <div className="space-y-4 p-4 sm:p-5">
         <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center border border-terminal-window-border/70">
+            <div className="flex size-10 shrink-0 items-center justify-center border border-terminal-window-border bg-terminal-card/60">
               <NeulandPalm className="size-5 text-terminal-text" />
             </div>
             <div className="min-w-0">
-              <p className="break-words font-mono text-sm font-semibold text-terminal-lightGreen">
+              <p className="break-words text-sm font-semibold tracking-tight text-terminal-text">
                 Digitaler Mitgliedsausweis
               </p>
-              <p className="mt-0.5 text-xs leading-snug text-terminal-text/50">
+              <p className="mt-0.5 text-xs leading-snug text-terminal-text/55">
                 {signedIn
                   ? 'Mitgliedsfeatures in Neuland Next sind freigeschaltet.'
                   : 'In Neuland Next verfügbar.'}
@@ -66,11 +66,11 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
               {UNLOCKED_FEATURES.map(title => (
                 <li key={title} className="flex min-w-0 items-center gap-3">
                   <Check
-                    className="size-3.5 shrink-0 text-terminal-green/80"
+                    className="size-3.5 shrink-0 text-terminal-green"
                     strokeWidth={2.5}
                     aria-hidden
                   />
-                  <p className="min-w-0 break-words font-mono text-sm text-terminal-text">
+                  <p className="min-w-0 break-words text-sm text-terminal-text">
                     {title}
                   </p>
                 </li>
@@ -85,10 +85,10 @@ export function MembershipCard({ nextSession }: MembershipCardProps) {
             <ol className="space-y-2">
               {SETUP_STEPS.map(item => (
                 <li key={item.step} className="flex min-w-0 items-center gap-3">
-                  <span className="shrink-0 font-mono text-[10px] uppercase tracking-wider text-terminal-green/80">
+                  <span className="flex size-5 shrink-0 items-center justify-center border border-terminal-green/30 bg-terminal-green/10 text-[11px] font-semibold tabular-nums text-terminal-green">
                     {item.step}
                   </span>
-                  <p className="min-w-0 break-words font-mono text-sm text-terminal-text">
+                  <p className="min-w-0 break-words text-sm text-terminal-text">
                     {item.title}
                   </p>
                 </li>

@@ -23,9 +23,7 @@ export function ProfileGroupSection({
 
   return (
     <div>
-      <p className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
-        {title}
-      </p>
+      <p className="meta-label">{title}</p>
       {groups.length > 0 ? (
         <ul className="mt-1 flex flex-wrap gap-1.5 overflow-visible">
           {groups.map(group => (
@@ -40,7 +38,7 @@ export function ProfileGroupSection({
           type="button"
           variant="ghost"
           size="sm"
-          className="mt-2 h-auto px-0 py-0 font-mono text-[11px] text-terminal-text/50 hover:bg-transparent hover:text-terminal-green"
+          className="mt-2 h-auto px-0 py-0 text-xs font-medium text-terminal-text/55 hover:bg-transparent hover:text-terminal-green"
           onClick={onToggleExpand}
         >
           {expandLabel}

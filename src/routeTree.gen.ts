@@ -17,6 +17,7 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ImpressumRouteImport } from './routes/impressum'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RessourcenRouteImport } from './routes/ressourcen'
+import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAuthCallbackRouteImport } from './routes/api/auth/callback'
 import { Route as ApiAuthLoginRouteImport } from './routes/api/auth/login'
@@ -69,6 +70,11 @@ const LoginRoute = LoginRouteImport.update({
 const RessourcenRoute = RessourcenRouteImport.update({
   id: '/ressourcen',
   path: '/ressourcen',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScannerRoute = ScannerRouteImport.update({
+  id: '/scanner',
+  path: '/scanner',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
@@ -155,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/impressum': typeof ImpressumRoute
   '/login': typeof LoginRoute
   '/ressourcen': typeof RessourcenRoute
+  '/scanner': typeof ScannerRoute
   '/api/health': typeof ApiHealthRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
@@ -178,6 +185,7 @@ export interface FileRoutesByTo {
   '/impressum': typeof ImpressumRoute
   '/login': typeof LoginRoute
   '/ressourcen': typeof RessourcenRoute
+  '/scanner': typeof ScannerRoute
   '/api/health': typeof ApiHealthRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
@@ -202,6 +210,7 @@ export interface FileRoutesById {
   '/impressum': typeof ImpressumRoute
   '/login': typeof LoginRoute
   '/ressourcen': typeof RessourcenRoute
+  '/scanner': typeof ScannerRoute
   '/api/health': typeof ApiHealthRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
@@ -227,6 +236,7 @@ export interface FileRouteTypes {
     | '/impressum'
     | '/login'
     | '/ressourcen'
+    | '/scanner'
     | '/api/health'
     | '/api/auth/callback'
     | '/api/auth/login'
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/impressum'
     | '/login'
     | '/ressourcen'
+    | '/scanner'
     | '/api/health'
     | '/api/auth/callback'
     | '/api/auth/login'
@@ -273,6 +284,7 @@ export interface FileRouteTypes {
     | '/impressum'
     | '/login'
     | '/ressourcen'
+    | '/scanner'
     | '/api/health'
     | '/api/auth/callback'
     | '/api/auth/login'
@@ -297,6 +309,7 @@ export interface RootRouteChildren {
   ImpressumRoute: typeof ImpressumRoute
   LoginRoute: typeof LoginRoute
   RessourcenRoute: typeof RessourcenRoute
+  ScannerRoute: typeof ScannerRoute
   ApiHealthRoute: typeof ApiHealthRoute
   ApiAuthCallbackRoute: typeof ApiAuthCallbackRoute
   ApiAuthLoginRoute: typeof ApiAuthLoginRoute
@@ -368,6 +381,13 @@ declare module '@tanstack/react-router' {
       path: '/ressourcen'
       fullPath: '/ressourcen'
       preLoaderRoute: typeof RessourcenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scanner': {
+      id: '/scanner'
+      path: '/scanner'
+      fullPath: '/scanner'
+      preLoaderRoute: typeof ScannerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/health': {
@@ -473,6 +493,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImpressumRoute: ImpressumRoute,
   LoginRoute: LoginRoute,
   RessourcenRoute: RessourcenRoute,
+  ScannerRoute: ScannerRoute,
   ApiHealthRoute: ApiHealthRoute,
   ApiAuthCallbackRoute: ApiAuthCallbackRoute,
   ApiAuthLoginRoute: ApiAuthLoginRoute,

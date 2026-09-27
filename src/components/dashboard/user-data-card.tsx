@@ -33,8 +33,8 @@ export function UserDataCard({
   const hiddenCount = otherGroups.length - visibleOtherGroups.length
 
   return (
-    <TerminalPanel title="Profil">
-      <div className="space-y-4 p-5">
+    <TerminalPanel title="Profil" subtitle="Deine Daten aus Authentik">
+      <div className="space-y-4 p-4 sm:p-5">
         <dl className="space-y-4">
           <DetailItem label="Name" value={name} />
           <DetailItem label="E-Mail" value={email} />
@@ -71,10 +71,8 @@ export function UserDataCard({
 function DetailItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
-        {label}
-      </dt>
-      <dd className="mt-0.5 break-all font-mono text-sm text-terminal-text">
+      <dt className="meta-label">{label}</dt>
+      <dd className="mt-0.5 break-all text-sm text-terminal-text">
         {value || '-'}
       </dd>
     </div>

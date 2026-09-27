@@ -194,15 +194,13 @@ function ConnectPage({ user: initialUser }: { user: CurrentUser }) {
       <AppHeader isSignedIn />
 
       <PageMain>
-        <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
-          <div className="min-w-0">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-terminal-text/50">
-              Konten
-            </p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
-              Konten verknüpfen
-            </h1>
-          </div>
+        <header className="mb-6 max-w-2xl">
+          <p className="eyebrow">Konten</p>
+          <h1 className="page-title mt-2">Konten verknüpfen</h1>
+          <p className="page-lead mt-2">
+            Verbinde GitHub und Discord mit deinem Neuland-Konto und schalte
+            deinen digitalen Mitgliedsausweis frei.
+          </p>
         </header>
 
         <div className="min-w-0 space-y-5">

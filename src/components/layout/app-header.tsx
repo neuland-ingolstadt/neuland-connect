@@ -22,6 +22,7 @@ type AppHeaderProps = {
 type AppNavTo =
   | typeof ROUTES.DASHBOARD
   | typeof ROUTES.CONNECT
+  | typeof ROUTES.SCANNER
   | typeof ROUTES.RESSOURCEN
   | typeof ROUTES.FAQ
 
@@ -34,11 +35,11 @@ export function AppHeader({
   const logo = (
     <>
       <NeulandPalm className="h-9 w-auto text-terminal-text" />
-      <div className="font-mono leading-tight">
-        <span className="block text-sm font-semibold tracking-wide text-terminal-text">
+      <div className="leading-tight">
+        <span className="block font-mono text-sm font-semibold tracking-wide text-terminal-text">
           Neuland
         </span>
-        <span className="block text-[10px] uppercase tracking-[0.25em] text-terminal-text/50">
+        <span className="block font-mono text-[10px] uppercase tracking-[0.25em] text-terminal-text/50">
           Connect
         </span>
       </div>
@@ -61,26 +62,28 @@ export function AppHeader({
             <div className="group flex shrink-0 items-center gap-3">{logo}</div>
           )}
 
-          <nav
-            aria-label="Hauptnavigation"
-            className="hidden items-center gap-2 md:flex"
-          >
-            {showDashboardLink ? (
-              <>
-                <HeaderNavLink to={ROUTES.DASHBOARD} search={dashboardSearch}>
-                  Dashboard
-                </HeaderNavLink>
-                <HeaderNavLink
-                  to={ROUTES.CONNECT}
-                  search={KONTEN_SEARCH_DEFAULTS}
-                >
-                  Konten
-                </HeaderNavLink>
-              </>
-            ) : null}
-            <HeaderNavLink to={ROUTES.RESSOURCEN}>Ressourcen</HeaderNavLink>
-            <HeaderNavLink to={ROUTES.FAQ}>FAQ</HeaderNavLink>
-          </nav>
+          {isSignedIn ? (
+            <nav
+              aria-label="Hauptnavigation"
+              className="hidden items-center gap-2 md:flex"
+            >
+              {showDashboardLink ? (
+                <>
+                  <HeaderNavLink to={ROUTES.DASHBOARD} search={dashboardSearch}>
+                    Dashboard
+                  </HeaderNavLink>
+                  <HeaderNavLink
+                    to={ROUTES.CONNECT}
+                    search={KONTEN_SEARCH_DEFAULTS}
+                  >
+                    Konten
+                  </HeaderNavLink>
+                </>
+              ) : null}
+              <HeaderNavLink to={ROUTES.RESSOURCEN}>Ressourcen</HeaderNavLink>
+              <HeaderNavLink to={ROUTES.FAQ}>FAQ</HeaderNavLink>
+            </nav>
+          ) : null}
         </div>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -100,59 +103,64 @@ export function AppHeader({
             </Button>
           ) : null}
 
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon-sm"
-                className="md:hidden"
-                aria-label="Menü öffnen"
+          {isSignedIn ? (
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  className="md:hidden"
+                  aria-label="Menü öffnen"
+                >
+                  <Menu />
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="bottom"
+                className="gap-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
               >
-                <Menu />
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="bottom"
-              className="gap-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
-            >
-              <SheetHeader>
-                <SheetTitle>Menü</SheetTitle>
-                <SheetDescription className="sr-only">
-                  Hauptnavigation
-                </SheetDescription>
-              </SheetHeader>
+                <SheetHeader>
+                  <SheetTitle>Menü</SheetTitle>
+                  <SheetDescription className="sr-only">
+                    Hauptnavigation
+                  </SheetDescription>
+                </SheetHeader>
 
-              <nav aria-label="Hauptnavigation" className="flex flex-col gap-1">
-                {showDashboardLink ? (
-                  <>
-                    <MobileNavLink
-                      to={ROUTES.DASHBOARD}
-                      search={dashboardSearch}
-                    >
-                      Dashboard
-                    </MobileNavLink>
-                    <MobileNavLink
-                      to={ROUTES.CONNECT}
-                      search={KONTEN_SEARCH_DEFAULTS}
-                    >
-                      Konten
-                    </MobileNavLink>
-                  </>
-                ) : null}
-                <MobileNavLink to={ROUTES.RESSOURCEN}>Ressourcen</MobileNavLink>
-                <MobileNavLink to={ROUTES.FAQ}>FAQ</MobileNavLink>
-              </nav>
+                <nav
+                  aria-label="Hauptnavigation"
+                  className="flex flex-col gap-1"
+                >
+                  {showDashboardLink && isSignedIn ? (
+                    <>
+                      <MobileNavLink
+                        to={ROUTES.DASHBOARD}
+                        search={dashboardSearch}
+                      >
+                        Dashboard
+                      </MobileNavLink>
+                      <MobileNavLink
+                        to={ROUTES.CONNECT}
+                        search={KONTEN_SEARCH_DEFAULTS}
+                      >
+                        Konten
+                      </MobileNavLink>
+                    </>
+                  ) : null}
+                  <MobileNavLink to={ROUTES.RESSOURCEN}>
+                    Ressourcen
+                  </MobileNavLink>
+                  <MobileNavLink to={ROUTES.FAQ}>FAQ</MobileNavLink>
+                </nav>
 
-              {isSignedIn ? (
                 <Button variant="outline" className="w-full" asChild>
                   <a href={ROUTES.AUTH_LOGOUT}>
                     <LogOut />
                     Abmelden
                   </a>
                 </Button>
-              ) : null}
-            </SheetContent>
-          </Sheet>
+              </SheetContent>
+            </Sheet>
+          ) : null}
         </div>
       </div>
     </header>
@@ -175,14 +183,14 @@ function HeaderNavLink({
       to={to}
       search={search}
       activeOptions={navActiveOptions}
-      className="px-2 py-1 font-mono text-[11px] uppercase tracking-[0.18em] transition-colors"
+      className="px-2 py-1 text-sm font-medium tracking-tight transition-colors"
       inactiveProps={{
         className:
-          'text-terminal-text/50 no-underline hover:text-terminal-text',
+          'text-terminal-text/55 no-underline hover:text-terminal-text',
       }}
       activeProps={{
         className:
-          'text-terminal-text underline decoration-terminal-text underline-offset-8',
+          'text-terminal-text underline decoration-terminal-green/60 decoration-2 underline-offset-8',
       }}
     >
       {children}
@@ -205,7 +213,7 @@ function MobileNavLink({
         to={to}
         search={search}
         activeOptions={navActiveOptions}
-        className="flex items-center px-3 py-3 font-mono text-sm uppercase tracking-[0.18em] no-underline transition-colors"
+        className="flex items-center px-3 py-3 text-sm font-medium tracking-tight no-underline transition-colors"
         inactiveProps={{
           className:
             'text-terminal-text/70 hover:bg-terminal-card hover:text-terminal-text',

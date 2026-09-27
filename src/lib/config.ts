@@ -128,6 +128,13 @@ export const serverConfig = {
   get cronSecret() {
     return optionalEnv('CRON_SECRET')
   },
+  memberId: {
+    get apiBase() {
+      return (
+        optionalEnv('MEMBER_ID_API_BASE') ?? 'https://id.neuland-ingolstadt.de'
+      )
+    },
+  },
   campusLife: {
     get apiUrl() {
       return (

@@ -23,18 +23,14 @@ export function DashboardProfilePanel({
     <TerminalPanel title="Profil">
       <div className="space-y-3 p-4 sm:p-5">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
-            Name
-          </p>
-          <p className="mt-0.5 break-words font-mono text-sm text-terminal-text">
+          <p className="meta-label">Name</p>
+          <p className="mt-0.5 break-words text-sm text-terminal-text">
             {name || '—'}
           </p>
         </div>
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-wider text-terminal-text/40">
-            Benutzername
-          </p>
-          <p className="mt-0.5 break-all font-mono text-sm text-terminal-text">
+          <p className="meta-label">Benutzername</p>
+          <p className="mt-0.5 break-all text-sm text-terminal-text">
             {username || '—'}
           </p>
         </div>

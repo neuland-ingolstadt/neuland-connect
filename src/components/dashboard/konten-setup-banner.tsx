@@ -46,10 +46,10 @@ export function KontenSetupBanner({ user }: KontenSetupBannerProps) {
 
       <span className="flex items-center gap-3 px-3 py-2.5">
         <span className="min-w-0 flex-1">
-          <span className="block font-mono text-xs font-semibold tracking-wide text-terminal-text">
+          <span className="block text-xs font-semibold tracking-tight text-terminal-text">
             Konten einrichten
           </span>
-          <span className="mt-0.5 block font-mono text-[10px] uppercase tracking-[0.16em] text-terminal-text/50 transition-colors group-hover:text-terminal-green">
+          <span className="mt-0.5 block text-[11px] font-medium tabular-nums text-terminal-text/50 transition-colors group-hover:text-terminal-green">
             {progress.doneCount}/{progress.totalCount} eingerichtet →
           </span>
         </span>
