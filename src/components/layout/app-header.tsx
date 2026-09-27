@@ -81,6 +81,9 @@ export function AppHeader({
                   >
                     {t('nav.konten')}
                   </HeaderNavLink>
+                  <HeaderNavLink to={ROUTES.SCANNER}>
+                    {t('nav.scanner')}
+                  </HeaderNavLink>
                 </>
               ) : null}
               <HeaderNavLink to={ROUTES.RESSOURCEN}>
@@ -146,6 +149,9 @@ export function AppHeader({
                         search={KONTEN_SEARCH_DEFAULTS}
                       >
                         {t('nav.konten')}
+                      </MobileNavLink>
+                      <MobileNavLink to={ROUTES.SCANNER}>
+                        {t('nav.scanner')}
                       </MobileNavLink>
                     </>
                   ) : null}
