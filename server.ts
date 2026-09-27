@@ -1,25 +1,25 @@
 import {
   startDiscordBot,
   stopDiscordBot,
-} from "#/lib/integrations/discord/bot-lifecycle.server";
+} from '#/lib/integrations/discord/bot-lifecycle.server'
 
-void startDiscordBot();
+void startDiscordBot()
 
-void import("#/lib/authentik/client").then(({ getManagedIntegrationMaps }) => {
-  void getManagedIntegrationMaps().catch(() => {});
-});
+void import('#/lib/authentik/client').then(({ getManagedIntegrationMaps }) => {
+  void getManagedIntegrationMaps().catch(() => {})
+})
 
-if (typeof process !== "undefined") {
+if (typeof process !== 'undefined') {
   const shutdown = () => {
-    stopDiscordBot();
-  };
+    stopDiscordBot()
+  }
 
-  process.once("SIGINT", shutdown);
-  process.once("SIGTERM", shutdown);
+  process.once('SIGINT', shutdown)
+  process.once('SIGTERM', shutdown)
 }
 
 export default {
   async fetch(_request: Request): Promise<Response | undefined> {
-    return undefined;
+    return undefined
   },
-};
+}
