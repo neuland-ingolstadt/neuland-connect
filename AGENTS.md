@@ -101,8 +101,9 @@ Parse via `parseUserAttributes()` in `src/lib/authentik/types.ts`.
 - Routes: `GET /api/integrations/discord/connect`, `GET /api/integrations/discord/callback`
 - Implementation: `src/lib/integrations/discord/`
 - Member flow: link account → auto-join guild on callback → bot syncs roles from Authentik groups with `discord_role`
-- Cron: `POST /api/internal/discord-roles/sync` (Bearer `CRON_SECRET`)
-- Events digest cron: `POST /api/internal/discord-events/notify` — posts today’s Campus Life events to `DISCORD_EVENTS_CHANNEL_ID` once per Berlin day (idempotent via message footer marker)
+- In-process cron (`src/lib/cron/scheduler.server.ts`, started from `server.ts`): Discord roles reconcile + events digest; gate with `INTERNAL_CRON` (default on)
+- Manual: `POST /api/internal/discord-roles/sync` (Bearer `CRON_SECRET`)
+- Events digest: posts today’s Campus Life events to `DISCORD_EVENTS_CHANNEL_ID` once per Berlin day (idempotent via message footer marker); manual `POST /api/internal/discord-events/notify`
 - Disconnect: `disconnectDiscordFn` clears Discord attributes and strips guild roles (no kick)
 
 ## Future plan: GitHub Org invitations (GitHub App)
@@ -128,7 +129,7 @@ enqueueOrgInvite(authentikUserId)     ← fire-and-forget, non-blocking
         └─ on failure                          → status pending retry + log error
         │
         ▼
-Cron / K8s CronJob (every 15–60 min)
+In-process cron (`src/lib/cron/scheduler.server.ts`, every 15 min)
         │
         └─ reconcile all users with github linked but status != member
 ```
@@ -137,9 +138,10 @@ Cron / K8s CronJob (every 15–60 min)
 
 - `src/lib/integrations/github/org.ts` - GitHub App auth (installation token), invite, membership check
 - `src/lib/integrations/github/sync.ts` - reconcile logic (idempotent)
-- `POST /api/internal/github-org/sync` - protected by `CRON_SECRET` header, called by CronJob
+- `src/lib/cron/scheduler.server.ts` - in-process cron (org, teams, Discord roles, events digest)
+- `POST /api/internal/github-org/sync` - protected by `CRON_SECRET` header, for manual/ops triggers
 
-### New env vars (planned)
+### Env vars
 
 | Variable | Purpose |
 |----------|---------|
@@ -147,7 +149,8 @@ Cron / K8s CronJob (every 15–60 min)
 | `GITHUB_APP_PRIVATE_KEY` | PEM private key (or path) |
 | `GITHUB_APP_INSTALLATION_ID` | Org installation ID |
 | `GITHUB_ORG` | Org slug (e.g. `neuland-ingolstadt`) |
-| `CRON_SECRET` | Bearer token for internal sync endpoint |
+| `INTERNAL_CRON` | In-process scheduler (default on; set `false` on extra replicas) |
+| `CRON_SECRET` | Bearer token for manual/ops internal sync endpoints |
 
 Keep existing `GITHUB_CLIENT_ID/SECRET` for member OAuth linking.
 

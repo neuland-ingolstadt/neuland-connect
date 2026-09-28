@@ -138,7 +138,8 @@ Copy [`.env.example`](./.env.example) to `.env` (or `.env.local` for Vite).
 | `GITHUB_APP_PRIVATE_KEY`           | Org sync              | PEM private key (single line with `\n` is fine)                                                       |
 | `GITHUB_APP_INSTALLATION_ID`       | Org sync              | App installation ID on the organization                                                               |
 | `GITHUB_ORG`                       | Org sync              | Organization slug (e.g. `neuland-ingolstadt`)                                                         |
-| `CRON_SECRET`                      | Org/team/Discord sync | Bearer token for internal cron endpoints                                                              |
+| `INTERNAL_CRON`                    | No                    | In-process sync scheduler (default on; set `false` on extra replicas)                                 |
+| `CRON_SECRET`                      | Org/team/Discord sync | Bearer token for manual/ops internal sync endpoints                                                   |
 | `DISCORD_CLIENT_ID`                | Discord               | Discord OAuth App client ID                                                                           |
 | `DISCORD_CLIENT_SECRET`            | Discord               | Discord OAuth App client secret                                                                       |
 | `DISCORD_BOT_TOKEN`                | Discord               | Bot token (guild join, role sync, events digest)                                                      |
@@ -211,7 +212,7 @@ CRON_SECRET=your-long-random-secret
 
 1. Member links GitHub → Connect enqueues an org invite in the background (non-blocking).
 2. Authentik `github_org_status` is set to `invited` or `member`.
-3. A cron job calls the reconcile endpoints periodically:
+3. An in-process scheduler (started from `server.ts`) reconciles org + team membership on a cron. Override with `INTERNAL_CRON=false` if needed. Manual trigger:
 
 ```bash
 curl -X POST https://connect.neuland.ing/api/internal/github-org/sync \
@@ -239,18 +240,18 @@ Connect uses an **OAuth App** (member linking) and a **bot** (guild join, role a
 
 ### Bot role sync (group → role mapping)
 
-For automatic role assignment based on Authentik groups, set the group attribute `discord_role` to the Discord role snowflake ID. The bot syncs roles on connect and via cron (`POST /api/internal/discord-roles/sync`).
+For automatic role assignment based on Authentik groups, set the group attribute `discord_role` to the Discord role snowflake ID. The bot syncs roles on connect and via the in-process cron (manual: `POST /api/internal/discord-roles/sync`).
 
 ### Daily events digest
 
-When `DISCORD_EVENTS_CHANNEL_ID` and `CL_API_KEY` are set, a cron can post today’s Campus Life events to that channel (at most once per Europe/Berlin calendar day; duplicate runs are skipped via a marker in the message footer):
+When `DISCORD_EVENTS_CHANNEL_ID` and `CL_API_KEY` are set, the in-process cron posts today’s Campus Life events to that channel at 08:00 / 11:00 / 14:00 / 17:00 / 20:00 Europe/Berlin (at most once per Berlin calendar day; duplicate runs are skipped via a marker in the message footer). Manual trigger:
 
 ```bash
 curl -X POST https://connect.neuland.ing/api/internal/discord-events/notify \
   -H "Authorization: Bearer $CRON_SECRET"
 ```
 
-Schedule this once in the morning (e.g. every hour from 07:00–10:00 Berlin). The bot needs **View Channel**, **Send Messages**, and **Read Message History** on the target channel.
+The bot needs **View Channel**, **Send Messages**, and **Read Message History** on the target channel.
 
 ## Docker
 

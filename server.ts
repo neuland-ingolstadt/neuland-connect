@@ -1,9 +1,14 @@
 import {
+  startInternalCron,
+  stopInternalCron,
+} from '#/lib/cron/scheduler.server'
+import {
   startDiscordBot,
   stopDiscordBot,
 } from '#/lib/integrations/discord/bot-lifecycle.server'
 
 void startDiscordBot()
+startInternalCron()
 
 void import('#/lib/authentik/client').then(({ getManagedIntegrationMaps }) => {
   void getManagedIntegrationMaps().catch(() => {})
@@ -11,6 +16,7 @@ void import('#/lib/authentik/client').then(({ getManagedIntegrationMaps }) => {
 
 if (typeof process !== 'undefined') {
   const shutdown = () => {
+    stopInternalCron()
     stopDiscordBot()
   }
 
