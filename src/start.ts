@@ -19,6 +19,17 @@ const securityHeadersMiddleware = createMiddleware().server(
   },
 )
 
+const requestLoggingMiddleware = createMiddleware().server(
+  async ({ next, request, pathname, handlerType }) => {
+    const { withRequestLogging } = await import('#/lib/request-logging.server')
+    return withRequestLogging({ request, pathname, handlerType }, () => next())
+  },
+)
+
 export const startInstance = createStart(() => ({
-  requestMiddleware: [securityHeadersMiddleware, csrfMiddleware],
+  requestMiddleware: [
+    requestLoggingMiddleware,
+    securityHeadersMiddleware,
+    csrfMiddleware,
+  ],
 }))

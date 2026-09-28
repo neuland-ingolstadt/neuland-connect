@@ -27,6 +27,8 @@ function extractEventItems(payload: unknown): unknown[] | null {
 
 export async function fetchNeulandEvents(): Promise<CampusLifeEventsResult> {
   const { serverConfig } = await import('#/lib/config')
+  const { createLogger } = await import('#/lib/logger.server')
+  const log = createLogger('campus-life')
 
   if (!serverConfig.campusLife.isConfigured) {
     return {
@@ -49,8 +51,9 @@ export async function fetchNeulandEvents(): Promise<CampusLifeEventsResult> {
     })
 
     if (!response.ok) {
-      console.error(
-        `[campus-life] Events request failed: ${response.status} ${response.statusText}`,
+      log.error(
+        { status: response.status, statusText: response.statusText },
+        'Events request failed',
       )
       return {
         events: [],
@@ -61,7 +64,7 @@ export async function fetchNeulandEvents(): Promise<CampusLifeEventsResult> {
     const payload: unknown = await response.json()
     const items = extractEventItems(payload)
     if (!items) {
-      console.error('[campus-life] Events response was not a list')
+      log.error('Events response was not a list')
       return {
         events: [],
         error: 'invalid_response',
@@ -84,7 +87,7 @@ export async function fetchNeulandEvents(): Promise<CampusLifeEventsResult> {
       error: null,
     }
   } catch (error) {
-    console.error('[campus-life] Events request threw', error)
+    log.error({ err: error }, 'Events request threw')
     return {
       events: [],
       error: 'fetch_failed',

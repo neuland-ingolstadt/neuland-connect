@@ -1,6 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { serverConfig } from '#/lib/config'
 import { notifyTodaysEvents } from '#/lib/integrations/discord/events-notify'
+import { createLogger } from '#/lib/logger.server'
+
+const log = createLogger('discord-events')
 
 function unauthorizedResponse(): Response {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -40,10 +43,10 @@ export const Route = createFileRoute('/api/internal/discord-events/notify')({
 
         void notifyTodaysEvents()
           .then(result => {
-            console.log('[discord-events] Notify completed:', result)
+            log.info({ result }, 'Notify completed')
           })
           .catch(error => {
-            console.error('[discord-events] Notify failed:', error)
+            log.error({ err: error }, 'Notify failed')
           })
 
         return new Response(JSON.stringify({ ok: true, status: 'started' }), {

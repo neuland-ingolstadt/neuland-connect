@@ -1,6 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { serverConfig } from '#/lib/config'
 import { reconcileGitHubOrgMembership } from '#/lib/integrations/github/sync'
+import { createLogger } from '#/lib/logger.server'
+
+const log = createLogger('github-org')
 
 function unauthorizedResponse(): Response {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -43,17 +46,20 @@ export const Route = createFileRoute('/api/internal/github-org/sync')({
         // immediately so cron callers get a timely HTTP response.
         void reconcileGitHubOrgMembership()
           .then(result => {
-            console.log('[github-org] Background reconcile completed:', {
-              configured: result.configured,
-              processed: result.processed,
-              members: result.members,
-              invited: result.invited,
-              skipped: result.skipped,
-              errors: result.errors,
-            })
+            log.info(
+              {
+                configured: result.configured,
+                processed: result.processed,
+                members: result.members,
+                invited: result.invited,
+                skipped: result.skipped,
+                errors: result.errors,
+              },
+              'Background reconcile completed',
+            )
           })
           .catch(error => {
-            console.error('[github-org] Background reconcile failed:', error)
+            log.error({ err: error }, 'Background reconcile failed')
           })
 
         return new Response(JSON.stringify({ ok: true, status: 'started' }), {

@@ -20,6 +20,9 @@ import {
   type OrgInvitationIndex,
   resetInstallationTokenCache,
 } from '#/lib/integrations/github/org'
+import { createLogger } from '#/lib/logger.server'
+
+const log = createLogger('github-org')
 
 /** Keep GitHub/Authentik under rate limits while cutting wall-clock time. */
 const RECONCILE_CONCURRENCY = 8
@@ -197,9 +200,9 @@ export async function syncUserOrgStatus(
     try {
       await writeOrgSyncError(authentikUserId, message)
     } catch (patchError) {
-      console.error(
-        `[github-org] Failed to persist sync error for user ${userId}:`,
-        patchError,
+      log.error(
+        { err: patchError, authentikUserId: userId },
+        'Failed to persist sync error',
       )
     }
 
@@ -218,19 +221,16 @@ export function enqueueOrgInvite(
   githubId: string,
 ): void {
   if (!serverConfig.github.isOrgSyncConfigured) {
-    console.warn(
-      '[github-org] GitHub App not configured - org invite skipped for',
-      githubUsername,
+    log.warn(
+      { githubUsername },
+      'GitHub App not configured — org invite skipped',
     )
     return
   }
 
   void syncUserOrgStatus(authentikUserId, githubUsername, githubId).catch(
     error => {
-      console.error(
-        `[github-org] Background org invite failed for ${githubUsername}:`,
-        error,
-      )
+      log.error({ err: error, githubUsername }, 'Background org invite failed')
     },
   )
 }

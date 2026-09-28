@@ -4,6 +4,9 @@ import {
   stopDiscordGateway,
 } from '#/lib/integrations/discord/gateway'
 import { logGuildRolesForAuthentikSetup } from '#/lib/integrations/discord/guild-role-catalog'
+import { createLogger } from '#/lib/logger.server'
+
+const log = createLogger('discord-bot')
 
 let started = false
 
@@ -25,12 +28,15 @@ export async function startDiscordBot(): Promise<void> {
 
   if (isGatewayEnabled()) {
     startDiscordGateway(serverConfig.discord.botToken)
+    log.info('Gateway presence started')
+  } else {
+    log.info('Gateway presence disabled')
   }
 
   try {
     await logGuildRolesForAuthentikSetup()
   } catch (error) {
-    console.error('[discord-bot] Failed to list guild roles:', error)
+    log.error({ err: error }, 'Failed to list guild roles')
   }
 }
 

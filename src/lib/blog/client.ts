@@ -97,6 +97,8 @@ export async function fetchLatestBlogPosts(
   limit = DEFAULT_LIMIT,
 ): Promise<BlogPostsResult> {
   const { serverConfig } = await import('#/lib/config')
+  const { createLogger } = await import('#/lib/logger.server')
+  const log = createLogger('blog')
   const feedUrl = serverConfig.blog.feedUrl
 
   try {
@@ -109,15 +111,16 @@ export async function fetchLatestBlogPosts(
     })
 
     if (!response.ok) {
-      console.error(
-        `[blog] Feed request failed: ${response.status} ${response.statusText}`,
+      log.error(
+        { status: response.status, statusText: response.statusText, feedUrl },
+        'Feed request failed',
       )
       return { posts: [], error: 'fetch_failed' }
     }
 
     const xml = await response.text()
     if (!xml.includes('<item>')) {
-      console.error('[blog] Feed response had no items')
+      log.error({ feedUrl }, 'Feed response had no items')
       return { posts: [], error: 'invalid_response' }
     }
 
@@ -126,7 +129,7 @@ export async function fetchLatestBlogPosts(
       error: null,
     }
   } catch (error) {
-    console.error('[blog] Feed request threw', error)
+    log.error({ err: error, feedUrl }, 'Feed request threw')
     return { posts: [], error: 'fetch_failed' }
   }
 }

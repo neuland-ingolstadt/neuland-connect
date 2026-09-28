@@ -1,6 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { serverConfig } from '#/lib/config'
 import { reconcileDiscordRoles } from '#/lib/integrations/discord/roles-sync'
+import { createLogger } from '#/lib/logger.server'
+
+const log = createLogger('discord-roles')
 
 function unauthorizedResponse(): Response {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -40,17 +43,20 @@ export const Route = createFileRoute('/api/internal/discord-roles/sync')({
 
         void reconcileDiscordRoles()
           .then(result => {
-            console.log('[discord-roles] Background reconcile completed:', {
-              configured: result.configured,
-              candidates: result.candidates,
-              members: result.members,
-              synced: result.synced,
-              skipped: result.skipped,
-              errors: result.errors,
-            })
+            log.info(
+              {
+                configured: result.configured,
+                candidates: result.candidates,
+                members: result.members,
+                synced: result.synced,
+                skipped: result.skipped,
+                errors: result.errors,
+              },
+              'Background reconcile completed',
+            )
           })
           .catch(error => {
-            console.error('[discord-roles] Background reconcile failed:', error)
+            log.error({ err: error }, 'Background reconcile failed')
           })
 
         return new Response(JSON.stringify({ ok: true, status: 'started' }), {

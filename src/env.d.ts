@@ -19,6 +19,8 @@ declare global {
       readonly DISCORD_BOT_GATEWAY?: string
       readonly DISCORD_EVENTS_CHANNEL_ID?: string
       readonly INTERNAL_CRON?: string
+      readonly LOG_LEVEL?: string
+      readonly LOG_FORMAT?: string
       readonly CL_API_KEY?: string
       readonly CL_API_URL?: string
       readonly NODE_ENV: 'development' | 'production' | 'test'

@@ -16,6 +16,9 @@ import {
   getGuildMember,
   removeGuildMemberRole,
 } from '#/lib/integrations/discord/guild'
+import { createLogger } from '#/lib/logger.server'
+
+const log = createLogger('discord-roles')
 
 const RECONCILE_CONCURRENCY = 8
 
@@ -127,16 +130,19 @@ function formatRoleMutationError(
     context.userGroupNames,
   )
 
-  console.error('[discord-roles] Role mutation failed:', {
-    action,
-    roleId,
-    groupNames,
-    authentikUserId: context.authentikUserId,
-    discordUserId: context.discordUserId,
-    status: error instanceof DiscordApiError ? error.status : undefined,
-    discordCode: error instanceof DiscordApiError ? error.code : undefined,
-    error: error instanceof Error ? error.message : error,
-  })
+  log.error(
+    {
+      err: error,
+      action,
+      roleId,
+      groupNames,
+      authentikUserId: context.authentikUserId,
+      discordUserId: context.discordUserId,
+      status: error instanceof DiscordApiError ? error.status : undefined,
+      discordCode: error instanceof DiscordApiError ? error.code : undefined,
+    },
+    'Role mutation failed',
+  )
 
   if (
     error instanceof DiscordApiError &&
@@ -340,11 +346,14 @@ export async function syncUserDiscordRoles(
       error instanceof Error ? error.message : 'Unbekannter Discord-Sync-Fehler'
 
     if (!(error instanceof DiscordRoleSyncError)) {
-      console.error('[discord-roles] Sync failed:', {
-        authentikUserId: userId,
-        discordUserId,
-        error: message,
-      })
+      log.error(
+        {
+          err: error,
+          authentikUserId: userId,
+          discordUserId,
+        },
+        'Sync failed',
+      )
     }
 
     await writeGuildSyncError(authentikUserId, message).catch(() => undefined)

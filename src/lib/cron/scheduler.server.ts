@@ -1,69 +1,82 @@
 import { Cron } from 'croner'
+import type { Logger } from 'pino'
 import { notifyTodaysEvents } from '#/lib/integrations/discord/events-notify'
 import { reconcileDiscordRoles } from '#/lib/integrations/discord/roles-sync'
 import { reconcileGitHubOrgMembership } from '#/lib/integrations/github/sync'
 import { reconcileGitHubTeamMembership } from '#/lib/integrations/github/teams-sync'
+import { createLogger } from '#/lib/logger.server'
+
+const log = createLogger('cron')
 
 type CronJob = {
   name: string
   pattern: string
   timezone?: string
-  run: () => Promise<void>
+  run: (jobLog: Logger) => Promise<void>
 }
 
 const JOBS: CronJob[] = [
   {
     name: 'github-org',
     pattern: '*/15 * * * *',
-    run: async () => {
+    run: async jobLog => {
       const result = await reconcileGitHubOrgMembership()
-      console.log('[cron:github-org] Reconcile completed:', {
-        configured: result.configured,
-        processed: result.processed,
-        members: result.members,
-        invited: result.invited,
-        skipped: result.skipped,
-        errors: result.errors,
-      })
+      jobLog.info(
+        {
+          configured: result.configured,
+          processed: result.processed,
+          members: result.members,
+          invited: result.invited,
+          skipped: result.skipped,
+          errors: result.errors,
+        },
+        'Reconcile completed',
+      )
     },
   },
   {
     name: 'github-teams',
     pattern: '5,20,35,50 * * * *',
-    run: async () => {
+    run: async jobLog => {
       const result = await reconcileGitHubTeamMembership()
-      console.log('[cron:github-teams] Reconcile completed:', {
-        configured: result.configured,
-        teams: result.teams,
-        candidates: result.candidates,
-        added: result.added,
-        removed: result.removed,
-        errors: result.errors,
-      })
+      jobLog.info(
+        {
+          configured: result.configured,
+          teams: result.teams,
+          candidates: result.candidates,
+          added: result.added,
+          removed: result.removed,
+          errors: result.errors,
+        },
+        'Reconcile completed',
+      )
     },
   },
   {
     name: 'discord-roles',
     pattern: '10,25,40,55 * * * *',
-    run: async () => {
+    run: async jobLog => {
       const result = await reconcileDiscordRoles()
-      console.log('[cron:discord-roles] Reconcile completed:', {
-        configured: result.configured,
-        candidates: result.candidates,
-        members: result.members,
-        synced: result.synced,
-        skipped: result.skipped,
-        errors: result.errors,
-      })
+      jobLog.info(
+        {
+          configured: result.configured,
+          candidates: result.candidates,
+          members: result.members,
+          synced: result.synced,
+          skipped: result.skipped,
+          errors: result.errors,
+        },
+        'Reconcile completed',
+      )
     },
   },
   {
     name: 'discord-events',
     pattern: '0 8,11,14,17,20 * * *',
     timezone: 'Europe/Berlin',
-    run: async () => {
+    run: async jobLog => {
       const result = await notifyTodaysEvents()
-      console.log('[cron:discord-events] Notify completed:', result)
+      jobLog.info({ result }, 'Notify completed')
     },
   },
 ]
@@ -82,16 +95,18 @@ function isInternalCronEnabled(): boolean {
 }
 
 async function runJob(job: CronJob): Promise<void> {
+  const jobLog = log.child({ job: job.name })
+
   if (inFlight.has(job.name)) {
-    console.log(`[cron:${job.name}] Skipped — previous run still in flight`)
+    jobLog.info('Skipped — previous run still in flight')
     return
   }
 
   inFlight.add(job.name)
   try {
-    await job.run()
+    await job.run(jobLog)
   } catch (error) {
-    console.error(`[cron:${job.name}] Failed:`, error)
+    jobLog.error({ err: error }, 'Failed')
   } finally {
     inFlight.delete(job.name)
   }
@@ -105,7 +120,7 @@ export function startInternalCron(): void {
   started = true
 
   if (!isInternalCronEnabled()) {
-    console.log('[cron] INTERNAL_CRON disabled — scheduler not started')
+    log.info('INTERNAL_CRON disabled — scheduler not started')
     return
   }
 
@@ -124,8 +139,9 @@ export function startInternalCron(): void {
     crons.push(cron)
   }
 
-  console.log(
-    `[cron] Started ${crons.length} jobs: ${JOBS.map(j => j.name).join(', ')}`,
+  log.info(
+    { jobs: JOBS.map(j => j.name), count: crons.length },
+    'Scheduler started',
   )
 }
 

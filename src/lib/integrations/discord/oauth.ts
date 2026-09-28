@@ -1,7 +1,10 @@
 import { generateRandomString } from '#/lib/auth/crypto'
 import { serverConfig } from '#/lib/config'
 import { DISCORD_OAUTH_SCOPE, kontenStatusPath } from '#/lib/constants'
+import { createLogger } from '#/lib/logger.server'
 import { useAppSession } from '#/lib/session.server'
+
+const log = createLogger('discord')
 
 const DISCORD_AUTHORIZE_URL = 'https://discord.com/api/oauth2/authorize'
 const DISCORD_TOKEN_URL = 'https://discord.com/api/oauth2/token'
@@ -195,7 +198,7 @@ export async function handleDiscordCallback(
       discordUser.id,
       accessToken,
     ).catch(syncError => {
-      console.error('[discord] Post-connect guild join/sync failed:', syncError)
+      log.error({ err: syncError }, 'Post-connect guild join/sync failed')
     })
 
     await session.update({

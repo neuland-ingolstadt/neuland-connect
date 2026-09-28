@@ -139,6 +139,8 @@ Copy [`.env.example`](./.env.example) to `.env` (or `.env.local` for Vite).
 | `GITHUB_APP_INSTALLATION_ID`       | Org sync              | App installation ID on the organization                                                               |
 | `GITHUB_ORG`                       | Org sync              | Organization slug (e.g. `neuland-ingolstadt`)                                                         |
 | `INTERNAL_CRON`                    | No                    | In-process sync scheduler (default on; set `false` on extra replicas)                                 |
+| `LOG_LEVEL`                        | No                    | Pino level (`fatal`/`error`/`warn`/`info`/`debug`/`trace`). Default `info` in prod, `debug` in dev    |
+| `LOG_FORMAT`                       | No                    | Set `json` to force JSON logs in development (prod is always JSON)                                    |
 | `CRON_SECRET`                      | Org/team/Discord sync | Bearer token for manual/ops internal sync endpoints                                                   |
 | `DISCORD_CLIENT_ID`                | Discord               | Discord OAuth App client ID                                                                           |
 | `DISCORD_CLIENT_SECRET`            | Discord               | Discord OAuth App client secret                                                                       |

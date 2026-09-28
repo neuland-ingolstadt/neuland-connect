@@ -27,6 +27,7 @@ Internal member portal for **Neuland Ingolstadt**. Read this before making archi
 | UI | React 19, TypeScript, Tailwind v4, shadcn-style components |
 | Runtime | Nitro (Docker in prod) |
 | Auth | Authentik OIDC (PKCE) |
+| Logging | Pino (`src/lib/logger.server.ts`) — JSON in prod, pretty in dev |
 | Lint/format | Biome |
 
 ## Key directories
@@ -48,6 +49,8 @@ src/
     integrations/discord/    # OAuth + guild role sync
     campus-life/             # Campus Life Events API client (calendar)
     session.server.ts        # Encrypted session (server-only)
+    logger.server.ts         # Pino logger (createLogger('module'))
+    request-logging.server.ts # HTTP access logs (API + errors/slow)
   components/
     dashboard/               # Events, Connect status, GitHub/Discord cards
     layout/                  # AppHeader, PageShell, theme toggle

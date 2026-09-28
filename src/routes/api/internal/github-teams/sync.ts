@@ -1,6 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { serverConfig } from '#/lib/config'
 import { reconcileGitHubTeamMembership } from '#/lib/integrations/github/teams-sync'
+import { createLogger } from '#/lib/logger.server'
+
+const log = createLogger('github-teams')
 
 function unauthorizedResponse(): Response {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -53,17 +56,20 @@ export const Route = createFileRoute('/api/internal/github-teams/sync')({
 
         void reconcileGitHubTeamMembership()
           .then(result => {
-            console.log('[github-teams] Background reconcile completed:', {
-              configured: result.configured,
-              teams: result.teams,
-              candidates: result.candidates,
-              added: result.added,
-              removed: result.removed,
-              errors: result.errors,
-            })
+            log.info(
+              {
+                configured: result.configured,
+                teams: result.teams,
+                candidates: result.candidates,
+                added: result.added,
+                removed: result.removed,
+                errors: result.errors,
+              },
+              'Background reconcile completed',
+            )
           })
           .catch(error => {
-            console.error('[github-teams] Background reconcile failed:', error)
+            log.error({ err: error }, 'Background reconcile failed')
           })
 
         return new Response(JSON.stringify({ ok: true, status: 'started' }), {
