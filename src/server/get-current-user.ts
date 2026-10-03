@@ -255,7 +255,8 @@ export async function requireSignedInUser(): Promise<CurrentUser> {
 
 /**
  * Authentik profile for server-side callers that need a hard redirect on miss.
- * Signed-in pages prefer client `getCurrentUserFn` + ConnectBootScreen instead.
+ * Signed-in pages prefer client `getCurrentUserFn`. Dashboard keeps events
+ * visible while Authentik panels wait; Konten/Ressourcen still use ConnectBootScreen.
  */
 export function loadSignedInUser(): Promise<CurrentUser> {
   return getCurrentUserFn().then(user => {

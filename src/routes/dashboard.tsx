@@ -7,9 +7,9 @@ import { EventsPanel } from '#/components/dashboard/events-panel'
 import { KontenSetupBanner } from '#/components/dashboard/konten-setup-banner'
 import { KontenStatusPanel } from '#/components/dashboard/konten-status-panel'
 import { AppHeader } from '#/components/layout/app-header'
-import { ConnectBootScreen } from '#/components/layout/connect-boot-screen'
 import { LegalFooter } from '#/components/layout/legal-footer'
 import { PageMain, PageShell } from '#/components/layout/page-shell'
+import { Button } from '#/components/ui/button'
 import { Skeleton } from '#/components/ui/skeleton'
 import { TerminalPanel } from '#/components/ui/terminal-panel'
 import { useSignedInUser } from '#/hooks/use-signed-in-user'
@@ -18,9 +18,12 @@ import type { CampusLifeEventsResult } from '#/lib/campus-life/types'
 import { APP_NAME, ROUTES } from '#/lib/constants'
 import { LOADER_STALE_MS } from '#/lib/deferred-loader'
 import { useI18n } from '#/lib/i18n/locale-context'
+import type { SessionUser } from '#/lib/session-types'
 import { getLatestBlogPostsFn } from '#/server/get-blog-posts'
-import type { CurrentUser } from '#/server/get-current-user'
-import { requireActiveSession } from '#/server/get-current-user'
+import {
+  type CurrentUser,
+  requireActiveSession,
+} from '#/server/get-current-user'
 import { getNeulandEventsFn } from '#/server/get-events'
 
 function EventsPanelSkeleton() {
@@ -46,6 +49,55 @@ function BlogPostsPanelSkeleton() {
         <Skeleton className="h-14 w-full" />
         <Skeleton className="h-14 w-full" />
         <Skeleton className="h-14 w-full" />
+      </div>
+    </TerminalPanel>
+  )
+}
+
+function ProfilePanelSkeleton() {
+  const { t } = useI18n()
+  return (
+    <TerminalPanel title={t('dashboard.profile.title')}>
+      <div className="space-y-3 p-4 sm:p-5" aria-busy>
+        <Skeleton className="h-3 w-16" />
+        <Skeleton className="h-4 w-40" />
+        <Skeleton className="h-3 w-24" />
+        <Skeleton className="h-4 w-28" />
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-7 w-32" />
+      </div>
+    </TerminalPanel>
+  )
+}
+
+function KontenStatusPanelSkeleton() {
+  const { t } = useI18n()
+  return (
+    <TerminalPanel title={t('konten.status.title')}>
+      <div className="space-y-3 p-4 sm:p-5" aria-busy>
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </div>
+    </TerminalPanel>
+  )
+}
+
+function AuthentikPanelsError({ onRetry }: { onRetry?: () => void }) {
+  const { t } = useI18n()
+  return (
+    <TerminalPanel title={t('dashboard.profile.title')}>
+      <div className="space-y-4 p-4 sm:p-5">
+        <p className="text-sm text-terminal-text/70">{t('boot.errorLead')}</p>
+        <p className="font-mono text-[12px] text-terminal-text/55">
+          {t('boot.errorDetail')}
+        </p>
+        {onRetry ? (
+          <Button variant="outline" type="button" onClick={onRetry}>
+            {t('common.retry')}
+          </Button>
+        ) : null}
       </div>
     </TerminalPanel>
   )
@@ -83,15 +135,17 @@ export const Route = createFileRoute('/dashboard')({
       })
     }
 
-    // Cookie only — profile/events/blog load client-side so SSR paints immediately.
-    await requireActiveSession()
+    // Cookie only — Authentik profile stays in the sidebar, not the route.
+    const sessionUser = await requireActiveSession()
+    return { sessionUser }
   },
   pendingMs: 0,
-  pendingComponent: ConnectBootScreen,
+  pendingComponent: DashboardPendingPage,
   component: DashboardRoute,
 })
 
 function DashboardRoute() {
+  const { sessionUser } = Route.useLoaderData()
   const { user, error, retry } = useSignedInUser()
   const [events, setEvents] = useState<CampusLifeEventsResult | null>(null)
   const [blogPosts, setBlogPosts] = useState<BlogPostsResult | null>(null)
@@ -118,69 +172,46 @@ function DashboardRoute() {
     }
   }, [])
 
-  if (!user) {
-    return <ConnectBootScreen error={error} onRetry={retry} />
-  }
-
-  if (events && blogPosts) {
-    return <DashboardPage user={user} events={events} blogPosts={blogPosts} />
-  }
-
-  return <DashboardLoadingPage user={user} />
+  return (
+    <DashboardPage
+      sessionUser={sessionUser}
+      user={user}
+      userError={error}
+      onRetryUser={retry}
+      events={events}
+      blogPosts={blogPosts}
+    />
+  )
 }
 
-function DashboardLoadingPage({ user }: { user: CurrentUser }) {
-  const { t } = useI18n()
+function DashboardPendingPage() {
   return (
-    <PageShell>
-      <AppHeader isSignedIn />
-
-      <PageMain>
-        <header className="mb-6">
-          <p className="eyebrow">{t('dashboard.eyebrow')}</p>
-          <h1 className="page-title mt-2">
-            {t('dashboard.hello', { name: user.name.split(' ')[0] })}
-          </h1>
-        </header>
-
-        <KontenSetupBanner user={user} />
-
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-          <div className="min-w-0 lg:col-span-2">
-            <EventsPanelSkeleton />
-          </div>
-          <div className="min-w-0 space-y-5">
-            <DashboardProfilePanel
-              name={user.name}
-              username={user.username}
-              groups={user.groups}
-            />
-            <DashboardQuickLinks groups={user.allGroups} />
-            <KontenStatusPanel user={user} />
-          </div>
-        </div>
-
-        <div className="mt-5 min-w-0">
-          <BlogPostsPanelSkeleton />
-        </div>
-      </PageMain>
-
-      <LegalFooter />
-    </PageShell>
+    <DashboardPage
+      sessionUser={null}
+      user={null}
+      events={null}
+      blogPosts={null}
+    />
   )
 }
 
 function DashboardPage({
+  sessionUser,
   user,
+  userError = false,
+  onRetryUser,
   events,
   blogPosts,
 }: {
-  user: CurrentUser
-  events: CampusLifeEventsResult
-  blogPosts: BlogPostsResult
+  sessionUser: SessionUser | null
+  user: CurrentUser | null
+  userError?: boolean
+  onRetryUser?: () => void
+  events: CampusLifeEventsResult | null
+  blogPosts: BlogPostsResult | null
 }) {
-  const firstName = user.name.split(' ')[0]
   const { t } = useI18n()
+  const firstName = (user?.name ?? sessionUser?.name ?? '').split(' ')[0]
 
   return (
     <PageShell>
@@ -189,30 +220,53 @@ function DashboardPage({
       <PageMain>
         <header className="mb-6">
           <p className="eyebrow">{t('dashboard.eyebrow')}</p>
-          <h1 className="page-title mt-2">
-            {t('dashboard.hello', { name: firstName })}
-          </h1>
+          {firstName ? (
+            <h1 className="page-title mt-2">
+              {t('dashboard.hello', { name: firstName })}
+            </h1>
+          ) : (
+            <Skeleton className="mt-2 h-9 w-48" />
+          )}
         </header>
 
-        <KontenSetupBanner user={user} />
+        {user ? <KontenSetupBanner user={user} /> : null}
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
           <div className="min-w-0 lg:col-span-2">
-            <EventsPanel events={events.events} error={events.error} />
+            {events ? (
+              <EventsPanel events={events.events} error={events.error} />
+            ) : (
+              <EventsPanelSkeleton />
+            )}
           </div>
           <div className="min-w-0 space-y-5">
-            <DashboardProfilePanel
-              name={user.name}
-              username={user.username}
-              groups={user.groups}
-            />
-            <DashboardQuickLinks groups={user.allGroups} />
-            <KontenStatusPanel user={user} />
+            {user ? (
+              <>
+                <DashboardProfilePanel
+                  name={user.name}
+                  username={user.username}
+                  groups={user.groups}
+                />
+                <DashboardQuickLinks groups={user.allGroups} />
+                <KontenStatusPanel user={user} />
+              </>
+            ) : userError ? (
+              <AuthentikPanelsError onRetry={onRetryUser} />
+            ) : (
+              <>
+                <ProfilePanelSkeleton />
+                <KontenStatusPanelSkeleton />
+              </>
+            )}
           </div>
         </div>
 
         <div className="mt-5 min-w-0">
-          <BlogPostsPanel posts={blogPosts.posts} error={blogPosts.error} />
+          {blogPosts ? (
+            <BlogPostsPanel posts={blogPosts.posts} error={blogPosts.error} />
+          ) : (
+            <BlogPostsPanelSkeleton />
+          )}
         </div>
       </PageMain>
 
