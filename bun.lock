@@ -17,12 +17,12 @@
         "@tanstack/react-router": "1.170.42",
         "@tanstack/react-router-devtools": "1.167.2",
         "@tanstack/react-start": "1.168.61",
-        "cborg": "6.1.5",
+        "cborg": "6.2.1",
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
         "croner": "11.0.0",
         "jsqr": "1.4.0",
-        "lucide-react": "1.62.0",
+        "lucide-react": "1.66.0",
         "nitro": "3.0.260610-beta",
         "pako": "3.0.3",
         "pino": "10.4.0",
@@ -463,7 +463,7 @@
 
     "caniuse-lite": ["caniuse-lite@1.0.30001810", "", {}, "sha512-TITQPUkaz+aVk5GL6NhOdwk1aEaNTSDPsGFWrTuhKGtjTF70jL/Oht2W4c6rXUe5fu7Ie19VIahAXHIIiWWNeg=="],
 
-    "cborg": ["cborg@6.1.5", "", { "bin": { "cborg": "lib/bin.js" } }, "sha512-1aoxfkckZmul5tFUL0p1+VRiZrXUGMxk6JQVpVv42yD21K7fh86L5WlyYgzsNv4w6Nm9ysQI9c6yDemom24HUQ=="],
+    "cborg": ["cborg@6.2.1", "", { "bin": { "cborg": "lib/bin.js" } }, "sha512-DwiF3Jd5RW6kJuTQMzQb/sdZD03utp15EcQNOMTvE/ZYCdDPzETsGOY5lj8imKxbsEuYvOzcMSiKLiT4C2/2Lw=="],
 
     "chalk": ["chalk@5.6.2", "", {}, "sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA=="],
 
@@ -611,7 +611,7 @@
 
     "lru-cache": ["lru-cache@5.1.1", "", { "dependencies": { "yallist": "^3.0.2" } }, "sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w=="],
 
-    "lucide-react": ["lucide-react@1.62.0", "", { "peerDependencies": { "@types/react": "*", "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" }, "optionalPeers": ["@types/react"] }, "sha512-2i8QZZhkgYMA3oJvKYpCltHh54VnT/3rIPkDLHbzr3IJQBaCz8+7j7V2k2rczYd2aCqcBaMmNlWQ2KKeDfcxmw=="],
+    "lucide-react": ["lucide-react@1.66.0", "", { "peerDependencies": { "@types/react": "*", "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" }, "optionalPeers": ["@types/react"] }, "sha512-8zjbi/Us+ETXqfBwmXF/FHrWGIqOdE6zT1yUdRJLQVoptomSkB0zdFWVIM667t9K8djWDaXdkBkqi2qVTuDNiw=="],
 
     "magic-string": ["magic-string@0.30.21", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.5" } }, "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ=="],
 
