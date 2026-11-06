@@ -76,7 +76,11 @@ export type DiscordGuildStatus =
 
 export const DISCORD_OAUTH_SCOPE = 'identify guilds.join' as const
 
-export const SESSION_COOKIE_NAME = 'neuland-connect-session' as const
+/**
+ * Encrypted session cookie (iron-session). The previous name was the Start
+ * `useSession` seal, which this library cannot read.
+ */
+export const SESSION_COOKIE_NAME = 'neuland-connect-session-v2' as const
 
 export const LOGIN_SEARCH_DEFAULTS = {
   error: undefined,
