@@ -17,7 +17,7 @@ Internal member portal for **Neuland Ingolstadt**. Read this before making archi
 4. **Integration state** lives in **Authentik user attributes**, not in Connect's DB
 5. **Modular integrations** under `src/lib/integrations/<name>/` - keep OAuth flows, API clients, and domain logic together
 6. **Server-only secrets** in `src/lib/config.ts` (`serverConfig`) - never import into client components
-7. **Sessions** via encrypted cookie (`src/lib/session.server.ts`), OIDC tokens stored for logout only
+7. **Sessions** via an encrypted iron-session cookie (`src/lib/session.server.ts`), OIDC tokens stored for logout only
 
 ## Tech stack
 
