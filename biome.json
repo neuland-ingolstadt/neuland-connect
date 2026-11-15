@@ -65,6 +65,14 @@
           }
         }
       }
+    },
+    {
+      "includes": ["AGENTS.md"],
+      "markdown": {
+        "formatter": {
+          "enabled": false
+        }
+      }
     }
   ]
 }
