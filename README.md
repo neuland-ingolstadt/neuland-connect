@@ -152,6 +152,7 @@ Copy [`.env.example`](./.env.example) to `.env` (or `.env.local` for Vite).
 ## Authentik setup
 
 1. Create an **OIDC provider / application** with redirect URI:
+
    ```
    {APP_URL}/api/auth/callback
    ```
