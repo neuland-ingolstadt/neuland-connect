@@ -44,6 +44,21 @@ export function DatenschutzContent() {
 
       <section>
         <h2 className="font-mono text-base font-semibold text-terminal-lightGreen">
+          Cloudflare
+        </h2>
+        <p className="mt-2">
+          Wir nutzen Cloudflare (Cloudflare, Inc., USA) zentral für DNS sowie
+          als CDN und Reverse Proxy. Dabei können Verbindungsdaten (u. a.
+          IP-Adresse, Zeitstempel, aufgerufene URL) an Cloudflare übermittelt
+          werden. Die Übermittlung in die USA erfolgt auf Grundlage von
+          Standardvertragsklauseln (Art. 46 DSGVO). Rechtsgrundlage: Art. 6 Abs.
+          1 lit. f DSGVO (berechtigtes Interesse an sicherem und stabilem
+          Betrieb).
+        </p>
+      </section>
+
+      <section>
+        <h2 className="font-mono text-base font-semibold text-terminal-lightGreen">
           Anmeldung und Sitzung
         </h2>
         <p className="mt-2">
@@ -161,8 +176,8 @@ export function DatenschutzContent() {
         </p>
         <p className="mt-2">
           Zweck ist der sichere Betrieb, Fehleranalyse und Missbrauchserkennung.
-          Eine Weitergabe an Dritte oder Übermittlung in Drittstaaten findet
-          nicht statt.
+          Verbindungsdaten werden zudem über Cloudflare verarbeitet (siehe
+          Abschnitt Cloudflare).
         </p>
         <p className="mt-2">
           Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse am
@@ -181,6 +196,17 @@ export function DatenschutzContent() {
           genutzt. Es gelten zusätzlich deren Datenschutzbestimmungen:
         </p>
         <ul className="mt-2 list-inside list-disc space-y-1 pl-1">
+          <li>
+            <a
+              href="https://www.cloudflare.com/privacypolicy/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-terminal-green transition-colors hover:text-terminal-highlight"
+            >
+              Cloudflare
+            </a>{' '}
+            - DNS, CDN und Reverse Proxy
+          </li>
           <li>
             <strong className="font-medium text-terminal-text">
               Authentik
@@ -262,7 +288,7 @@ export function DatenschutzContent() {
         <p className="mt-2">
           Erste Version: 22.08.2026
           <br />
-          Letzte Aktualisierung: 22.08.2026
+          Letzte Aktualisierung: 16.11.2026
         </p>
       </section>
     </div>
