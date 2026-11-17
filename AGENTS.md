@@ -68,11 +68,16 @@ Defined in `src/lib/constants.ts` → `AUTHENTIK_ATTRIBUTES`:
 | `github_username` | Linked GitHub login | ✅ implemented |
 | `github_id` | Linked GitHub numeric ID | ✅ implemented |
 | `github_connected_at` | ISO timestamp of link | ✅ implemented |
-| `github_org_status` | `invited` \| `member` | 🔜 prepared, not written yet |
+| `github_org_status` | `invited` \| `member` \| `admin` | ✅ implemented |
+| `github_org_invited_at` | ISO timestamp of org invite | ✅ implemented |
+| `github_org_last_error` | Last org sync error (support/debug) | ✅ implemented |
+| `github_team` (group attr) | GitHub team slug for team sync | ✅ implemented |
 | `discord_username` | Linked Discord login | ✅ implemented |
 | `discord_id` | Linked Discord snowflake ID | ✅ implemented |
 | `discord_connected_at` | ISO timestamp of link | ✅ implemented |
 | `discord_guild_status` | `member` when in guild | ✅ implemented |
+| `discord_guild_joined_at` | ISO timestamp of guild join | ✅ implemented |
+| `discord_guild_last_error` | Last Discord sync error | ✅ implemented |
 | `discord_role` (group attr) | Discord role snowflake for role sync | ✅ implemented |
 
 Parse via `parseUserAttributes()` in `src/lib/authentik/types.ts`.
@@ -85,17 +90,53 @@ Parse via `parseUserAttributes()` in `src/lib/authentik/types.ts`.
 - **Connect** (`/konten`, legacy `/connect` redirects) – GitHub / Discord / Next linking; OAuth callbacks land here
 - **Action banner** (`DashboardActionBanner`) – one strip with GitHub / Discord / Next as direct CTAs; hidden when all complete
 - **Per-integration progress** – dot indicator + fraction in panel title row (`IntegrationProgressInline`); hint in card subtitle when incomplete
-- GitHub steps: Verbunden → Eingeladen → Org-Zugang
+- GitHub steps: Verbunden → Eingeladen → Org-Zugang → Teams (when team sync is configured)
 - Discord steps: Verbunden → Server → Rollen
 - Mitgliedsausweis: signed-in badge when Authentik has a Next refresh token (`provider` for app slug `next`); setup steps otherwise
 
-## GitHub integration (current)
+## GitHub integration
 
-- **OAuth App** (not GitHub App) for member-facing connect flow
+- **OAuth App** (`read:user`) for member-facing connect — tokens discarded after linking
 - Routes: `GET /api/integrations/github/connect`, `GET /api/integrations/github/callback`
 - Implementation: `src/lib/integrations/github/oauth.ts`
-- On success: PATCH Authentik user attributes via `updateAuthentikUserAttributes()`
-- Disconnect: `disconnectGitHubFn` clears GitHub attributes
+- On success: PATCH Authentik user attributes via `updateAuthentikUserAttributes()`, then `enqueueOrgInvite()` (fire-and-forget)
+- Disconnect: `disconnectGitHubFn` clears GitHub attributes (does **not** remove org membership; strips managed teams)
+
+### GitHub Org + teams (GitHub App)
+
+Separate GitHub App on the org (`members: write`) — not the member OAuth token.
+
+```
+GitHub OAuth callback success
+        │
+        ▼
+enqueueOrgInvite(authentikUserId)     ← non-blocking
+        │
+        ├─ GET /orgs/{org}/members/{username}  → already member? set status=member|admin
+        ├─ POST /orgs/{org}/invitations        → set status=invited
+        └─ on failure                          → write github_org_last_error + log
+        │
+        ▼
+In-process cron (`src/lib/cron/scheduler.server.ts`)
+        ├─ org reconcile (every 15 min)
+        └─ team reconcile (staggered) from Authentik groups with `github_team`
+```
+
+- `src/lib/integrations/github/org.ts` — installation token (per request), invite, membership
+- `src/lib/integrations/github/sync.ts` — org reconcile (idempotent)
+- `src/lib/integrations/github/teams-sync.ts` — team membership reconcile
+- Manual: `POST /api/internal/github-org/sync`, `POST /api/internal/github-teams/sync` (Bearer `CRON_SECRET`)
+
+| Variable | Purpose |
+|----------|---------|
+| `GITHUB_APP_ID` | GitHub App ID |
+| `GITHUB_APP_PRIVATE_KEY` | PEM private key |
+| `GITHUB_APP_INSTALLATION_ID` | Org installation ID |
+| `GITHUB_ORG` | Org slug (e.g. `neuland-ingolstadt`) |
+| `INTERNAL_CRON` | In-process scheduler (default on; set `false` on extra replicas) |
+| `CRON_SECRET` | Bearer token for manual/ops internal sync endpoints |
+
+Keep `GITHUB_CLIENT_ID/SECRET` for member OAuth linking. Never persist GitHub App installation tokens.
 
 ## Discord integration
 
@@ -109,77 +150,12 @@ Parse via `parseUserAttributes()` in `src/lib/authentik/types.ts`.
 - Events digest: posts today’s Campus Life events to `DISCORD_EVENTS_CHANNEL_ID` once per Berlin day (idempotent via message footer marker); manual `POST /api/internal/discord-events/notify`
 - Disconnect: `disconnectDiscordFn` clears Discord attributes and strips guild roles (no kick)
 
-## Future plan: GitHub Org invitations (GitHub App)
+## Health
 
-**Goal:** Automatically invite linked members to the Neuland GitHub organization and track status in Authentik.
-
-### Why a separate GitHub App (not the user OAuth token)
-
-- Member OAuth only has `read:user` and tokens are discarded after linking
-- Org invites require **`members: write`** (or admin) on the organization
-- A **GitHub App** installed on the org is the correct credential model (least privilege, rotatable, auditable)
-
-### Planned architecture (event + reconciler)
-
-```
-GitHub OAuth callback success
-        │
-        ▼
-enqueueOrgInvite(authentikUserId)     ← fire-and-forget, non-blocking
-        │
-        ├─ GET /orgs/{org}/members/{username}  → already member? set status=member
-        ├─ POST /orgs/{org}/invitations        → set status=invited
-        └─ on failure                          → status pending retry + log error
-        │
-        ▼
-In-process cron (`src/lib/cron/scheduler.server.ts`, every 15 min)
-        │
-        └─ reconcile all users with github linked but status != member
-```
-
-**Implementation location (preferred):** stay inside Connect - no separate microservice initially.
-
-- `src/lib/integrations/github/org.ts` - GitHub App auth (installation token), invite, membership check
-- `src/lib/integrations/github/sync.ts` - reconcile logic (idempotent)
-- `src/lib/cron/scheduler.server.ts` - in-process cron (org, teams, Discord roles, events digest)
-- `POST /api/internal/github-org/sync` - protected by `CRON_SECRET` header, for manual/ops triggers
-
-### Env vars
-
-| Variable | Purpose |
-|----------|---------|
-| `GITHUB_APP_ID` | GitHub App ID |
-| `GITHUB_APP_PRIVATE_KEY` | PEM private key (or path) |
-| `GITHUB_APP_INSTALLATION_ID` | Org installation ID |
-| `GITHUB_ORG` | Org slug (e.g. `neuland-ingolstadt`) |
-| `INTERNAL_CRON` | In-process scheduler (default on; set `false` on extra replicas) |
-| `CRON_SECRET` | Bearer token for manual/ops internal sync endpoints |
-
-Keep existing `GITHUB_CLIENT_ID/SECRET` for member OAuth linking.
-
-### Authentik attributes to write
-
-| Attribute | Values |
-|-----------|--------|
-| `github_org_status` | `invited`, `member` (already in constants) |
-| `github_org_invited_at` | ISO timestamp (add when implementing) |
-| `github_org_last_error` | optional, for support/debug (add when implementing) |
-
-### Implementation rules
-
-- **Idempotent:** always check membership before inviting
-- **Never store** GitHub App installation tokens long-term - generate per request
-- **Do not block** the OAuth callback on invite failure - update status async
-- **Connect page** already reads `github_org_status` - wire up writes when backend lands
-- **Disconnect policy:** decide explicitly whether disconnect removes org membership (default: don't auto-remove unless requested)
-
-### GitHub API endpoints
-
-```http
-GET  /orgs/{org}/members/{username}     # 204 = member, 404 = not
-POST /orgs/{org}/invitations            # body: { "invitee_id": <github_id> }
-GET  /orgs/{org}/invitations            # optional: reconcile pending invites
-```
+- `GET /api/health` — JSON config readiness (no secrets, no outbound calls)
+- Required checks missing → HTTP `503` / `status: "unready"` (k8s readiness)
+- Optional integrations missing → HTTP `200` / `status: "degraded"`
+- Implementation: `src/lib/health.ts`
 
 ## UI conventions
 
@@ -196,6 +172,9 @@ GET  /orgs/{org}/invitations            # optional: reconcile pending invites
 bun run dev      # port 3000
 bun run build
 bun run start    # production
+bun test         # unit tests (bun:test)
+bun run typecheck
+bun run check    # Biome
 ```
 
 ## What to avoid

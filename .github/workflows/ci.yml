@@ -37,5 +37,8 @@ jobs:
       - name: Typecheck
         run: bun run typecheck
 
+      - name: Test
+        run: bun test
+
       - name: Biome
         run: bun run check

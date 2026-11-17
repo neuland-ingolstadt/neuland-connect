@@ -149,6 +149,15 @@ Copy [`.env.example`](./.env.example) to `.env` (or `.env.local` for Vite).
 | `DISCORD_EVENTS_CHANNEL_ID`        | Discord               | Channel for daily “events today” digests (optional)                                                   |
 | `CL_API_KEY`                       | Events                | Campus Life API token (same as the website) for Neuland events including internal ones                |
 
+## Health
+
+`GET /api/health` returns JSON config readiness (no secrets, no outbound calls):
+
+- `status: "ok"` / `"degraded"` → HTTP 200 (optional integrations may be missing)
+- `status: "unready"` → HTTP 503 (required env missing)
+
+Used by Kubernetes liveness/readiness probes.
+
 ## Authentik setup
 
 1. Create an **OIDC provider / application** with redirect URI:
@@ -278,6 +287,7 @@ The image is built with `BUN_VERSION` from `.bun-version`. Production images are
 | `bun run check`           | Biome lint + format check                     |
 | `bun run check:fix`       | Biome auto-fix                                |
 | `bun run typecheck`       | `tsc --noEmit`                                |
+| `bun test`                | Unit tests (`bun:test`)                       |
 | `bun run docker:build`    | `docker build` with Bun version from file     |
 
 ## Project structure
