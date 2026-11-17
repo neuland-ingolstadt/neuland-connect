@@ -21,9 +21,9 @@
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
         "croner": "11.0.0",
-        "iron-session": "9.0.1",
+        "iron-session": "9.1.0",
         "jsqr": "1.4.0",
-        "lucide-react": "1.71.0",
+        "lucide-react": "1.73.0",
         "nitro": "3.0.260610-beta",
         "pako": "3.0.3",
         "pino": "10.4.0",
@@ -572,7 +572,7 @@
 
     "import-meta-resolve": ["import-meta-resolve@4.2.0", "", {}, "sha512-Iqv2fzaTQN28s/FwZAoFq0ZSs/7hMAHJVX+w8PZl3cY19Pxk6jFFalxQoIfW2826i/fDLXv8IiEZRIT0lDuWcg=="],
 
-    "iron-session": ["iron-session@9.0.1", "", { "dependencies": { "cookie": "^2.0.1", "iron-webcrypto": "^2.0.0" } }, "sha512-ELSZdcLvA0AMhxUCY+rwKCh42UV88SqEb1ia/bHLF9G+6kScikO6mShtlIq+OtF2UlkZP0dmI2dMdG9vh4rebA=="],
+    "iron-session": ["iron-session@9.1.0", "", { "dependencies": { "cookie": "^2.0.1", "iron-webcrypto": "^2.0.0" } }, "sha512-ev5xEgYgRcG3tSUMlX5i9fL/AedBYqDOnojk7Ihqs/scFDQ2u4FzwZybhYkJasCSKeIong128SCQlSbvWu9s0g=="],
 
     "iron-webcrypto": ["iron-webcrypto@2.0.0", "", { "dependencies": { "uint8array-extras": "^1.5.0" } }, "sha512-rtffZKDUHciZElM8mjFCufBC7nVhCxHYyWHESqs89OioEDz4parOofd8/uhrejh/INhQFfYQfByS22LlezR9sQ=="],
 
@@ -624,7 +624,7 @@
 
     "lru-cache": ["lru-cache@5.1.1", "", { "dependencies": { "yallist": "^3.0.2" } }, "sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w=="],
 
-    "lucide-react": ["lucide-react@1.71.0", "", { "peerDependencies": { "@types/react": "*", "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" }, "optionalPeers": ["@types/react"] }, "sha512-8YtvF+bqT/EMqAXU7kWvYdRu+TV9j4kS1eIS7IbN1j1Z1DgupbrTL0nDIygdqgBDTD7AJPP607VdVgzDTar4zA=="],
+    "lucide-react": ["lucide-react@1.73.0", "", { "peerDependencies": { "@types/react": "*", "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" }, "optionalPeers": ["@types/react"] }, "sha512-fVOzGviL9mTfHenG1PbCfIceavyGlnpYNSYr+aGZHLRymAJ7DTP6KHuqt0uBkCKAoenr1UVkwSbDIYt2xIesEQ=="],
 
     "magic-string": ["magic-string@0.30.21", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.5" } }, "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ=="],
 
