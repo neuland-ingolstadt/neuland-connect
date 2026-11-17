@@ -19,6 +19,7 @@
     "check": "biome check .",
     "check:fix": "biome check --write .",
     "typecheck": "tsc --noEmit",
+    "test": "bun test",
     "docker:build": "docker build --build-arg BUN_VERSION=$(tr -d '[:space:]' < .bun-version) -t neuland-connect ."
   },
   "dependencies": {
